@@ -1,0 +1,94 @@
+# D-PeRFlow Configuration
+# This config extends the base SEDD config for D-PeRFlow training
+
+defaults:
+  - _self_
+  - model: small
+  - override hydra/launcher: submitit_slurm
+
+ngpus: 8
+tokens: 50257
+
+# D-PeRFlow specific settings
+d_perflow:
+  # Path to pre-trained teacher model checkpoint
+  teacher_checkpoint: null  # Set this to your teacher checkpoint path
+
+  # Whether to initialize student from teacher weights
+  init_from_teacher: True
+
+  # Number of time windows K (controls generation steps)
+  # K=4 means 4-step generation, K=8 means 8-step, etc.
+  num_time_windows: 4
+
+  # Infinitesimal step for computing start distribution P_{t_k}
+  delta_t: 1e-4
+
+  # Small epsilon to avoid t=0 numerical issues
+  sampling_eps: 1e-3
+
+  # Number of Euler steps per window for ODE solver
+  # More steps = more accurate teacher distribution but slower
+  euler_steps: 1
+
+training:
+  batch_size: 256  # Smaller batch for distillation
+  accum: 1
+  n_iters: 100001  # Fewer iterations for distillation
+  snapshot_freq: 10000
+  log_freq: 50
+  eval_freq: 100
+  snapshot_freq_for_preemption: 5000
+  weight: standard
+  snapshot_sampling: True
+  ema: 0.9999
+
+data:
+  train: openwebtext
+  valid: wikitext103
+  cache_dir: data
+
+graph:
+  type: absorb
+  file: data
+  report_all: False
+
+noise:
+  type: loglinear
+  sigma_min: 1e-4
+  sigma_max: 20
+
+sampling:
+  predictor: euler
+  steps: 4  # Match num_time_windows for evaluation
+  noise_removal: True
+
+eval:
+  batch_size: 512
+  perplexity: True
+  perplexity_batch_size: 32
+
+optim:
+  weight_decay: 0
+  optimizer: AdamW
+  lr: 1e-4  # Lower learning rate for distillation
+  beta1: 0.9
+  beta2: 0.999
+  eps: 1e-8
+  warmup: 1000
+  grad_clip: 1.
+
+hydra:
+  run:
+    dir: exp_local/d_perflow/${data.train}/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: exp/d_perflow/${data.train}/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    partition: g40x
+    account: stanford
+    mem_gb: 96
+    cpus_per_task: 40
+    gpus_per_node: ${ngpus}
+    constraint: null
