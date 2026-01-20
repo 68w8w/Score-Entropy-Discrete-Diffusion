@@ -110,6 +110,9 @@ def _run(rank, world_size, cfg):
     torch.cuda.set_device(rank)
     work_dir = cfg.work_dir
 
+    # Check if using distributed training
+    distributed = world_size > 1
+
     # Create directories
     sample_dir = os.path.join(work_dir, "samples")
     checkpoint_dir = os.path.join(work_dir, "checkpoints")
@@ -144,7 +147,8 @@ def _run(rank, world_size, cfg):
     # Build graph and noise
     graph = graph_lib.get_graph(cfg, device)
     noise = noise_lib.get_noise(cfg).to(device)
-    noise_ddp = DDP(noise, device_ids=[rank], static_graph=True)
+    if distributed:
+        noise = DDP(noise, device_ids=[rank], static_graph=True)
     sampling_eps = 1e-5
 
     # Load teacher model
@@ -161,7 +165,8 @@ def _run(rank, world_size, cfg):
         student_model.load_state_dict(teacher_model.state_dict())
         mprint("Student initialized from teacher weights.")
 
-    student_model = DDP(student_model, device_ids=[rank], static_graph=True, find_unused_parameters=True)
+    if distributed:
+        student_model = DDP(student_model, device_ids=[rank], static_graph=True, find_unused_parameters=True)
 
     num_parameters = sum(p.numel() for p in student_model.parameters())
     mprint(f"Number of parameters in student model: {num_parameters}")
@@ -181,7 +186,7 @@ def _run(rank, world_size, cfg):
         optimizer=optimizer,
         scaler=scaler,
         model=student_model,
-        noise=noise_ddp,
+        noise=noise,
         ema=ema,
         step=0
     )
@@ -201,7 +206,7 @@ def _run(rank, world_size, cfg):
     # D-PeRFlow training step function
     optimize_fn = losses.optimization_manager(cfg)
     train_step_fn = d_perflow.get_d_perflow_step_fn(
-        noise=noise_ddp,
+        noise=noise,
         graph=graph,
         teacher_model=teacher_model,
         num_time_windows=cfg.d_perflow.num_time_windows,
@@ -214,7 +219,7 @@ def _run(rank, world_size, cfg):
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
-        noise=noise_ddp,
+        noise=noise,
         graph=graph,
         teacher_model=teacher_model,
         num_time_windows=cfg.d_perflow.num_time_windows,
@@ -234,7 +239,7 @@ def _run(rank, world_size, cfg):
         )
         d_perflow_sampler = d_perflow.get_d_perflow_sampler(
             graph=graph,
-            noise=noise_ddp,
+            noise=noise,
             num_time_windows=cfg.d_perflow.num_time_windows,
             sampling_eps=cfg.d_perflow.sampling_eps
         )
@@ -258,8 +263,9 @@ def _run(rank, world_size, cfg):
         # Check if step was incremented (full accumulation)
         if step != state['step']:
             if step % cfg.training.log_freq == 0:
-                dist.all_reduce(loss)
-                loss /= world_size
+                if distributed:
+                    dist.all_reduce(loss)
+                    loss /= world_size
                 mprint("step: %d, training_loss: %.5e" % (step, loss.item()))
 
             if step % cfg.training.snapshot_freq_for_preemption == 0 and rank == 0:
@@ -272,8 +278,9 @@ def _run(rank, world_size, cfg):
                     eval_batch = next(train_iter).to(device)
                 eval_loss = eval_step_fn(state, eval_batch)
 
-                dist.all_reduce(eval_loss)
-                eval_loss /= world_size
+                if distributed:
+                    dist.all_reduce(eval_loss)
+                    eval_loss /= world_size
                 mprint("step: %d, evaluation_loss: %.5e" % (step, eval_loss.item()))
 
             if step > 0 and step % cfg.training.snapshot_freq == 0 or step == num_train_steps:
@@ -329,15 +336,17 @@ def _run(rank, world_size, cfg):
                                 total_perplexity += perplexity
 
                             total_perplexity /= batches
-                            dist.all_reduce(total_perplexity)
-                            total_perplexity /= world_size
+                            if distributed:
+                                dist.all_reduce(total_perplexity)
+                                total_perplexity /= world_size
                             mprint(f"Generative Perplexity at step: {step}. "
                                    f"Perplexity: {total_perplexity:.3f}. "
                                    f"(Using {cfg.d_perflow.num_time_windows}-step sampling)")
 
                             del eval_model, logits, loss_val
 
-                    dist.barrier()
+                    if distributed:
+                        dist.barrier()
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="d_perflow")
