@@ -199,7 +199,7 @@ def _run(rank, world_size, cfg):
     tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
 
     # Data loaders
-    train_ds, eval_ds = data.get_dataloaders(cfg)
+    train_ds, eval_ds = data.get_dataloaders(cfg, distributed=distributed)
     train_iter = iter(train_ds)
     eval_iter = iter(eval_ds)
 
