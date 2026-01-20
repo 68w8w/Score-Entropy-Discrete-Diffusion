@@ -556,7 +556,8 @@ class DPerflowSampler:
         Returns:
             x: Generated samples [B, L]
         """
-        score_fn = mutils.get_score_fn(model, train=False, sampling=True)
+        # Use sampling=False to get log_score, then apply softmax
+        score_fn = mutils.get_score_fn(model, train=False, sampling=False)
 
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
@@ -564,23 +565,24 @@ class DPerflowSampler:
         # Sample through each window in reverse order
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
-            t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Create time tensor
-            t = t_k * torch.ones(batch_dims[0], 1, device=device)
+            # Create time tensor - use 1D for noise
+            t = t_k * torch.ones(batch_dims[0], device=device)
             sigma = self.noise(t)[0]
 
-            # Get model prediction
+            # Get model prediction (log_score)
             logits = score_fn(x, sigma)
+
+            # Convert to probabilities
             probs = F.softmax(logits, dim=-1)
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
 
         # Optional: final denoising at t=eps
-        if self.graph.absorb:
+        if hasattr(self.graph, 'absorb') and self.graph.absorb:
             # Remove any remaining mask tokens
-            t = self.sampling_eps * torch.ones(batch_dims[0], 1, device=device)
+            t = self.sampling_eps * torch.ones(batch_dims[0], device=device)
             sigma = self.noise(t)[0]
             logits = score_fn(x, sigma)
 
