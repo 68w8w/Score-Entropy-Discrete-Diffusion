@@ -80,13 +80,17 @@ class DPerflowTrainer:
 
         Args:
             x_0: Original clean data [B, L]
-            t_k: Time at window upper boundary [B]
+            t_k: Time at window upper boundary [B] or [B, 1]
 
         Returns:
             x_t_k: Noisy state at time t_k [B, L]
         """
-        sigma_t_k = self.noise(t_k[:, None])[0]  # [B, 1]
-        x_t_k = self.graph.sample_transition(x_0, sigma_t_k)
+        # Ensure t_k is 1D [B] for noise, then expand for graph
+        t_k_1d = t_k.squeeze(-1) if t_k.dim() > 1 else t_k
+        sigma_t_k = self.noise(t_k_1d)[0]  # [B]
+        # Expand sigma for graph.sample_transition which expects [B, 1] or broadcastable
+        sigma_t_k_expanded = sigma_t_k[:, None]  # [B, 1]
+        x_t_k = self.graph.sample_transition(x_0, sigma_t_k_expanded)
         return x_t_k
 
     def compute_analytic_distribution(
@@ -105,31 +109,36 @@ class DPerflowTrainer:
         Args:
             score_fn: Score function from teacher model
             x: Current discrete state [B, L]
-            t: Current time [B, 1]
-            step_size: Step size for the transition [B, 1] or scalar
+            t: Current time [B] or [B, 1]
+            step_size: Step size for the transition [B], [B, 1] or scalar
 
         Returns:
             probs: Transition probability distribution [B, L, V]
         """
-        # Get noise levels
-        curr_sigma = self.noise(t)[0]  # [B, 1]
-
+        # Ensure time tensors are 1D [B]
+        t_1d = t.squeeze(-1) if t.dim() > 1 else t
         if isinstance(step_size, torch.Tensor):
-            next_sigma = self.noise(t - step_size)[0]
+            step_size_1d = step_size.squeeze(-1) if step_size.dim() > 1 else step_size
         else:
-            next_sigma = self.noise(t - step_size)[0]
+            step_size_1d = step_size
 
-        dsigma = curr_sigma - next_sigma  # Change in sigma
+        # Get noise levels
+        curr_sigma = self.noise(t_1d)[0]  # [B]
+        next_sigma = self.noise(t_1d - step_size_1d)[0]  # [B]
+
+        dsigma = curr_sigma - next_sigma  # [B]
 
         # Compute score from teacher model
         score = score_fn(x, curr_sigma)  # [B, L, V]
 
         # Apply staggered score adjustment
-        stag_score = self.graph.staggered_score(score, dsigma)  # [B, L, V]
+        # dsigma needs to be [B, 1] for graph methods
+        dsigma_expanded = dsigma[:, None]  # [B, 1]
+        stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
 
         # Compute transition probabilities
         # transp_transition gives the transition matrix row for each position
-        probs = stag_score * self.graph.transp_transition(x, dsigma)  # [B, L, V]
+        probs = stag_score * self.graph.transp_transition(x, dsigma_expanded)  # [B, L, V]
 
         # Normalize to ensure valid probability distribution
         probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
@@ -153,8 +162,8 @@ class DPerflowTrainer:
         Args:
             score_fn: Score function from teacher model
             x: Starting discrete state [B, L]
-            t_start: Start time [B, 1]
-            t_end: End time [B, 1]
+            t_start: Start time [B] or [B, 1]
+            t_end: End time [B] or [B, 1]
             num_steps: Number of Euler steps (default: 1 for single window step)
 
         Returns:
@@ -163,13 +172,16 @@ class DPerflowTrainer:
         batch_size, seq_len = x.shape
         device = x.device
 
-        # Total time to traverse
-        dt = (t_start - t_end) / num_steps  # [B, 1]
+        # Ensure time tensors are 1D [B]
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+
+        # Total time to traverse (scalar per batch)
+        dt = (t_start_1d - t_end_1d) / num_steps  # [B]
 
         # Initialize with one-hot of current state
-        # For the final step, we need to accumulate the reverse rate
         current_x = x
-        current_t = t_start.clone()
+        current_t = t_start_1d.clone()  # [B]
 
         # Accumulate transition
         accumulated_rate = torch.zeros(
@@ -177,11 +189,13 @@ class DPerflowTrainer:
         )
 
         for step in range(num_steps):
-            sigma, dsigma = self.noise(current_t)
-            score = score_fn(current_x, sigma)
+            sigma, dsigma = self.noise(current_t)  # Both [B]
+            score = score_fn(current_x, sigma)  # [B, L, V]
 
             # Compute reverse rate: step_size * dsigma * reverse_rate_matrix
-            rev_rate = dt * dsigma[..., None] * self.graph.reverse_rate(current_x, score)
+            # dt is [B], dsigma is [B], need to expand to [B, 1, 1] for broadcasting with [B, L, V]
+            scale = (dt * dsigma)[:, None, None]  # [B, 1, 1]
+            rev_rate = scale * self.graph.reverse_rate(current_x, score)  # [B, L, V]
             accumulated_rate = accumulated_rate + rev_rate
 
             # Update time
