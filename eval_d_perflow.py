@@ -100,10 +100,14 @@ def main():
                         help='Device to use')
     args = parser.parse_args()
 
-    # Load config using hydra compose
+    # Load config manually (merge base config with model config)
     config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "configs")
-    with initialize_config_dir(version_base=None, config_dir=config_dir):
-        cfg = compose(config_name="d_perflow")
+    base_cfg = OmegaConf.load(os.path.join(config_dir, "d_perflow.yaml"))
+    model_cfg = OmegaConf.load(os.path.join(config_dir, "model", "small.yaml"))
+
+    # Merge model config into base config
+    base_cfg.model = model_cfg
+    cfg = base_cfg
 
     device = torch.device(args.device)
     print(f"Using device: {device}")
