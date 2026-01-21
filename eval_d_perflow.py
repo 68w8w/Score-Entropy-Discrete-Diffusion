@@ -1,13 +1,19 @@
 """
 Evaluation script for D-PeRFlow model.
 Generates samples in batches and computes PPL on all samples together.
+
+Usage:
+    python eval_d_perflow.py --checkpoint checkpoints-meta/checkpoint_2002.pth \
+        --num_samples 1024 --batch_size 32 --device cuda:0
 """
 
 import torch
-import argparse
-import hydra
-from omegaconf import OmegaConf
+import sys
 import os
+
+import hydra
+from hydra import compose, initialize_config_dir
+from omegaconf import DictConfig, OmegaConf
 
 import noise_lib
 import graph_lib
@@ -78,11 +84,10 @@ def compute_perplexity(samples, batch_size=8):
 
 
 def main():
+    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--checkpoint', type=str, required=True,
                         help='Path to D-PeRFlow checkpoint')
-    parser.add_argument('--config', type=str, default='configs/d_perflow.yaml',
-                        help='Path to config file')
     parser.add_argument('--num_samples', type=int, default=1024,
                         help='Total number of samples to generate')
     parser.add_argument('--batch_size', type=int, default=32,
@@ -95,8 +100,10 @@ def main():
                         help='Device to use')
     args = parser.parse_args()
 
-    # Load config
-    cfg = OmegaConf.load(args.config)
+    # Load config using hydra compose
+    config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "configs")
+    with initialize_config_dir(version_base=None, config_dir=config_dir):
+        cfg = compose(config_name="d_perflow")
 
     device = torch.device(args.device)
     print(f"Using device: {device}")
