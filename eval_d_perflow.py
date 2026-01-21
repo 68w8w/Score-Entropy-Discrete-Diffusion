@@ -11,6 +11,7 @@ import os
 
 import noise_lib
 import graph_lib
+from model import SEDD
 from model import utils as mutils
 from model.ema import ExponentialMovingAverage
 from d_perflow import DPerflowSampler
@@ -21,7 +22,7 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 def load_model(cfg, checkpoint_path, device):
     """Load trained model from checkpoint."""
     # Create model
-    model = mutils.create_model(cfg)
+    model = SEDD(cfg)
 
     # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location=device)
