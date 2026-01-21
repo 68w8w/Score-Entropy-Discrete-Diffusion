@@ -124,7 +124,7 @@ def main():
         graph=graph,
         noise=noise,
         num_time_windows=args.num_time_windows,
-        cfg=cfg
+        sampling_eps=cfg.d_perflow.sampling_eps
     )
 
     # Generate samples in batches
