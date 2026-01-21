@@ -200,9 +200,10 @@ class DPerflowTrainer:
             # Update time
             current_t = current_t - dt
 
-            # For multi-step, sample intermediate state from current distribution
+            # For multi-step, use mode (argmax) instead of sampling to avoid variance
+            # This keeps the trajectory deterministic
             if step < num_steps - 1:
-                current_x = sample_categorical(probs, method="hard")
+                current_x = probs.argmax(dim=-1)
 
         return probs
 
