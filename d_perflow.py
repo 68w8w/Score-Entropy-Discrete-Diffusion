@@ -169,9 +169,6 @@ class DPerflowTrainer:
         Returns:
             probs: Target probability distribution at t_end [B, L, V]
         """
-        batch_size, seq_len = x.shape
-        device = x.device
-
         # Ensure time tensors are 1D [B]
         t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
         t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
@@ -179,39 +176,33 @@ class DPerflowTrainer:
         # Total time to traverse (scalar per batch)
         dt = (t_start_1d - t_end_1d) / num_steps  # [B]
 
-        # Initialize with one-hot of current state
+        # Initialize current state and time
         current_x = x
         current_t = t_start_1d.clone()  # [B]
-
-        # Accumulate transition
-        accumulated_rate = torch.zeros(
-            batch_size, seq_len, self.graph.dim, device=device
-        )
+        probs = None
 
         for step in range(num_steps):
             sigma, dsigma = self.noise(current_t)  # Both [B]
             score = score_fn(current_x, sigma)  # [B, L, V]
 
             # Compute reverse rate: step_size * dsigma * reverse_rate_matrix
-            # dt is [B], dsigma is [B], need to expand to [B, 1, 1] for broadcasting with [B, L, V]
             scale = (dt * dsigma)[:, None, None]  # [B, 1, 1]
             rev_rate = scale * self.graph.reverse_rate(current_x, score)  # [B, L, V]
-            accumulated_rate = accumulated_rate + rev_rate
+
+            # Compute distribution for this step: one-hot of CURRENT state + rate
+            one_hot_current = F.one_hot(current_x, num_classes=self.graph.dim).float()
+            probs = one_hot_current + rev_rate
+
+            # Clamp and normalize
+            probs = probs.clamp(min=0)
+            probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
             # Update time
             current_t = current_t - dt
 
-            # For multi-step, sample intermediate state
+            # For multi-step, sample intermediate state from current distribution
             if step < num_steps - 1:
-                current_x = self.graph.sample_rate(current_x, rev_rate)
-
-        # Final distribution: one_hot(x) + accumulated_rate
-        one_hot_x = F.one_hot(x, num_classes=self.graph.dim).float()
-        probs = one_hot_x + accumulated_rate
-
-        # Clamp and normalize to ensure valid probability distribution
-        probs = probs.clamp(min=0)
-        probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
+                current_x = sample_categorical(probs, method="hard")
 
         return probs
 
