@@ -200,10 +200,11 @@ class DPerflowTrainer:
             # Update time
             current_t = current_t - dt
 
-            # For multi-step, use mode (argmax) instead of sampling to avoid variance
-            # This keeps the trajectory deterministic
+            # For multi-step, sample intermediate states (like SEDD)
+            # Only the last step returns distribution without sampling
+            # This is consistent with how discrete diffusion actually works
             if step < num_steps - 1:
-                current_x = probs.argmax(dim=-1)
+                current_x = sample_categorical(probs, method="hard")
 
         return probs
 
