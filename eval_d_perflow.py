@@ -118,7 +118,7 @@ def main():
 
     # Create sampler
     noise = noise_lib.get_noise(cfg).to(device)
-    graph = graph_lib.get_graph(cfg)
+    graph = graph_lib.get_graph(cfg, device)
 
     sampler = DPerflowSampler(
         graph=graph,
