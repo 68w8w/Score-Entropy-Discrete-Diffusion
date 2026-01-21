@@ -61,9 +61,16 @@ def restore_checkpoint(ckpt_dir, state, device):
 
 
 def save_checkpoint(ckpt_dir, state):
+    # Handle both DDP (has .module) and single GPU (no .module) cases
+    model = state['model']
+    if hasattr(model, 'module'):
+        model_state_dict = model.module.state_dict()
+    else:
+        model_state_dict = model.state_dict()
+
     saved_state = {
         'optimizer': state['optimizer'].state_dict(),
-        'model': state['model'].module.state_dict(),
+        'model': model_state_dict,
         'ema': state['ema'].state_dict(),
         'step': state['step']
     }
