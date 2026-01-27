@@ -323,12 +323,11 @@ def _run(rank, world_size, cfg):
                     if cfg.eval.perplexity:
                         with torch.no_grad():
                             eval_model = GPT2LMHeadModel.from_pretrained("gpt2-large").to(device).eval()
-                            ppl_batch_size = min(cfg.eval.perplexity_batch_size, sample.shape[0])
-                            batches = (sample.shape[0] + ppl_batch_size - 1) // ppl_batch_size
+                            batches = sample.shape[0] // cfg.eval.perplexity_batch_size
                             total_perplexity = 0
 
                             for i in range(batches):
-                                s = sample[i * ppl_batch_size:(i + 1) * ppl_batch_size]
+                                s = sample[i * cfg.eval.perplexity_batch_size:(i + 1) * cfg.eval.perplexity_batch_size]
                                 loss_val, logits = eval_model(s, labels=s)[:2]
                                 logits = logits.transpose(-1, -2)
                                 perplexity = F.cross_entropy(
