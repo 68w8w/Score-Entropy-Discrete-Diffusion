@@ -8,6 +8,7 @@ Usage:
 """
 
 import torch
+import torch.nn.functional as F
 import sys
 import os
 
@@ -22,7 +23,7 @@ from model import utils as mutils
 from model.ema import ExponentialMovingAverage
 from d_perflow import DPerflowSampler
 import losses
-from transformers import GPT2LMHeadModel, GPT2TokenizerFast
+from transformers import GPT2LMHeadModel
 
 
 def load_model(cfg, checkpoint_path, device):
@@ -50,37 +51,41 @@ def load_model(cfg, checkpoint_path, device):
 
 
 def compute_perplexity(samples, batch_size=8):
-    """Compute perplexity using GPT-2."""
+    """Compute perplexity using GPT-2, consistent with SEDD evaluation.
+
+    Uses E[exp(L)]: per-sample cross-entropy -> exp -> average.
+    """
     device = samples.device
 
     # Load GPT-2
     gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2-large').to(device)
     gpt2_model.eval()
-    tokenizer = GPT2TokenizerFast.from_pretrained('gpt2-large')
 
-    total_loss = 0.0
-    total_tokens = 0
+    total_perplexity = 0.0
+    total_batches = 0
 
     with torch.no_grad():
         for i in range(0, len(samples), batch_size):
             batch = samples[i:i+batch_size]
 
-            # GPT-2 expects input_ids
+            # Get logits from GPT-2
             outputs = gpt2_model(input_ids=batch, labels=batch)
-            loss = outputs.loss
+            logits = outputs.logits.transpose(-1, -2)  # [B, V, L]
 
-            # Accumulate
-            num_tokens = batch.numel()
-            total_loss += loss.item() * num_tokens
-            total_tokens += num_tokens
+            # Per-sample cross-entropy, then exp, then average (consistent with SEDD)
+            perplexity = F.cross_entropy(
+                logits[..., :-1], batch[..., 1:], reduction="none"
+            ).mean(dim=-1).exp().mean()
+
+            total_perplexity += perplexity.item()
+            total_batches += 1
 
             print(f"  Batch {i//batch_size + 1}/{(len(samples) + batch_size - 1)//batch_size}, "
-                  f"batch_loss: {loss.item():.4f}")
+                  f"batch_ppl: {perplexity.item():.4f}")
 
-    avg_loss = total_loss / total_tokens
-    perplexity = torch.exp(torch.tensor(avg_loss)).item()
+    avg_perplexity = total_perplexity / total_batches
 
-    return perplexity
+    return avg_perplexity
 
 
 def main():
