@@ -150,6 +150,18 @@ def main():
     all_samples = torch.cat(all_samples, dim=0)
     print(f"Total samples generated: {all_samples.shape[0]}")
 
+    # Print sample texts for quality inspection
+    from transformers import GPT2TokenizerFast
+    tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
+    print(f"\n{'='*50}")
+    print("Sample texts (first 5):")
+    print(f"{'='*50}")
+    for idx in range(min(5, all_samples.shape[0])):
+        text = tokenizer.decode(all_samples[idx])
+        print(f"\n--- Sample {idx+1} ---")
+        print(text[:500])
+    print(f"\n{'='*50}")
+
     # Compute perplexity
     print(f"\nComputing perplexity...")
     ppl = compute_perplexity(all_samples, batch_size=args.ppl_batch_size)
