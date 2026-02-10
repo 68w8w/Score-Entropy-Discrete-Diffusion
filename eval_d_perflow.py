@@ -23,6 +23,7 @@ from model import utils as mutils
 from model.ema import ExponentialMovingAverage
 from d_perflow import DPerflowSampler
 import losses
+import sampling
 from transformers import GPT2LMHeadModel
 
 
@@ -103,6 +104,11 @@ def main():
                         help='Number of time windows (sampling steps)')
     parser.add_argument('--device', type=str, default='cuda:0',
                         help='Device to use')
+    parser.add_argument('--sampler', type=str, default='d_perflow',
+                        choices=['d_perflow', 'sedd'],
+                        help='Sampler to use: d_perflow or sedd (original SEDD sampler)')
+    parser.add_argument('--sedd_steps', type=int, default=128,
+                        help='Number of steps for SEDD sampler (only used when --sampler=sedd)')
     args = parser.parse_args()
 
     # Load config manually (merge base config with model config)
@@ -125,15 +131,21 @@ def main():
     noise = noise_lib.get_noise(cfg).to(device)
     graph = graph_lib.get_graph(cfg, device)
 
-    sampler = DPerflowSampler(
-        graph=graph,
-        noise=noise,
-        num_time_windows=args.num_time_windows,
-        sampling_eps=cfg.d_perflow.sampling_eps
-    )
+    if args.sampler == 'd_perflow':
+        sampler = DPerflowSampler(
+            graph=graph,
+            noise=noise,
+            num_time_windows=args.num_time_windows,
+            sampling_eps=cfg.d_perflow.sampling_eps
+        )
+        steps_info = f"{args.num_time_windows} steps (D-PeRFlow)"
+    else:
+        # Use SEDD original sampler (AnalyticPredictor)
+        sampler = None  # Will use get_pc_sampler directly
+        steps_info = f"{args.sedd_steps} steps (SEDD AnalyticPredictor)"
 
     # Generate samples in batches
-    print(f"\nGenerating {args.num_samples} samples with {args.num_time_windows} steps...")
+    print(f"\nGenerating {args.num_samples} samples with {steps_info}...")
     all_samples = []
     num_batches = (args.num_samples + args.batch_size - 1) // args.batch_size
 
@@ -142,7 +154,21 @@ def main():
             current_batch_size = min(args.batch_size, args.num_samples - i * args.batch_size)
             batch_dims = (current_batch_size, cfg.model.length)
 
-            samples = sampler.sample(model, batch_dims, device)
+            if args.sampler == 'd_perflow':
+                samples = sampler.sample(model, batch_dims, device)
+            else:
+                # Use SEDD original sampler
+                sedd_sampler = sampling.get_pc_sampler(
+                    graph=graph,
+                    noise=noise,
+                    batch_dims=batch_dims,
+                    predictor='analytic',
+                    steps=args.sedd_steps,
+                    denoise=True,
+                    eps=1e-5,
+                    device=device
+                )
+                samples = sedd_sampler(model)
             all_samples.append(samples)
 
             print(f"  Generated batch {i+1}/{num_batches} ({current_batch_size} samples)")
@@ -168,9 +194,14 @@ def main():
 
     print(f"\n{'='*50}")
     print(f"Results:")
+    print(f"  Sampler: {args.sampler}")
     print(f"  Samples: {args.num_samples}")
-    print(f"  Steps (K): {args.num_time_windows}")
-    print(f"  NFEs: {args.num_time_windows}")
+    if args.sampler == 'd_perflow':
+        print(f"  Steps (K): {args.num_time_windows}")
+        print(f"  NFEs: {args.num_time_windows}")
+    else:
+        print(f"  Steps: {args.sedd_steps}")
+        print(f"  NFEs: {args.sedd_steps}")
     print(f"  PPL: {ppl:.3f}")
     print(f"{'='*50}")
 
