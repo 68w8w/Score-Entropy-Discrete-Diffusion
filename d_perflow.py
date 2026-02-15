@@ -563,9 +563,9 @@ class DPerflowSampler:
             t_k = self.time_boundaries[k].to(device)
             t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Compute sigma at window boundaries
-            t = t_k * torch.ones(batch_dims[0], device=device)
-            t_prev = t_k_minus_1 * torch.ones(batch_dims[0], device=device)
+            # Compute sigma at window boundaries, [B, 1] for broadcasting
+            t = t_k * torch.ones(batch_dims[0], 1, device=device)
+            t_prev = t_k_minus_1 * torch.ones(batch_dims[0], 1, device=device)
 
             curr_sigma = self.noise(t)[0]
             next_sigma = self.noise(t_prev)[0]
@@ -583,7 +583,7 @@ class DPerflowSampler:
 
         # Final denoising step (same as SEDD Denoiser)
         if self.graph.absorb:
-            t = self.sampling_eps * torch.ones(batch_dims[0], device=device)
+            t = self.sampling_eps * torch.ones(batch_dims[0], 1, device=device)
             sigma = self.noise(t)[0]
 
             score = score_fn(x, sigma)
