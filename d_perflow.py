@@ -563,12 +563,18 @@ class DPerflowSampler:
             t_k = self.time_boundaries[k].to(device)
             t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Compute sigma at window boundaries, [B, 1] for broadcasting
+            # Compute sigma at window boundaries
             t = t_k * torch.ones(batch_dims[0], 1, device=device)
             t_prev = t_k_minus_1 * torch.ones(batch_dims[0], 1, device=device)
 
             curr_sigma = self.noise(t)[0]
             next_sigma = self.noise(t_prev)[0]
+
+            # Ensure [B, 1] shape for broadcasting with [B, L, V]
+            if curr_sigma.dim() == 1:
+                curr_sigma = curr_sigma.unsqueeze(-1)
+            if next_sigma.dim() == 1:
+                next_sigma = next_sigma.unsqueeze(-1)
             dsigma = curr_sigma - next_sigma
 
             # Get model score (true score, not log)
@@ -585,6 +591,8 @@ class DPerflowSampler:
         if self.graph.absorb:
             t = self.sampling_eps * torch.ones(batch_dims[0], 1, device=device)
             sigma = self.noise(t)[0]
+            if sigma.dim() == 1:
+                sigma = sigma.unsqueeze(-1)
 
             score = score_fn(x, sigma)
             stag_score = self.graph.staggered_score(score, sigma)
