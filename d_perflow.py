@@ -334,6 +334,44 @@ class DPerflowTrainer:
 
         return loss
 
+    def compute_kl_loss_probs(
+        self,
+        target_probs: torch.Tensor,
+        student_probs: torch.Tensor,
+        mask: torch.Tensor = None,
+    ):
+        """
+        Compute KL divergence loss between two probability distributions: D_KL(target || student)
+
+        Args:
+            target_probs: Target probability distribution P [B, L, V]
+            student_probs: Student probability distribution Q [B, L, V]
+            mask: Optional mask for positions to include [B, L]
+
+        Returns:
+            loss: KL divergence loss [B] (per sample)
+        """
+        # Student log probabilities (from probability distribution)
+        student_log_probs = (student_probs + 1e-10).log()
+
+        # Cross-entropy term: -sum_v P[v] * log Q[v]
+        cross_entropy = -(target_probs * student_log_probs).sum(dim=-1)  # [B, L]
+
+        # Entropy term: -sum_v P[v] * log P[v]
+        target_log_probs = (target_probs + 1e-10).log()
+        entropy = -(target_probs * target_log_probs).sum(dim=-1)  # [B, L]
+
+        # KL = cross_entropy - entropy
+        kl_div = cross_entropy - entropy  # [B, L]
+
+        if mask is not None:
+            kl_div = kl_div * mask
+            loss = kl_div.sum(dim=-1) / (mask.sum(dim=-1) + 1e-10)
+        else:
+            loss = kl_div.mean(dim=-1)  # [B]
+
+        return loss
+
 
 def get_d_perflow_loss_fn(
     noise,
@@ -420,14 +458,36 @@ def get_d_perflow_loss_fn(
         with torch.no_grad():
             x_t = trainer.resample_from_distribution(P_t)
 
-        # 7. Student prediction
-        student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
-        sigma_t = noise(t)[0]  # [B, 1]
-        student_logits = student_score_fn(x_t, sigma_t)  # [B, L, V]
+        # 7. Student prediction - use same transformation as inference
+        # Use sampling=True to get exp(model_output), same as SEDD inference
+        student_score_fn = mutils.get_score_fn(model, train=train, sampling=True)
 
-        # 8. Compute KL divergence loss
-        # Target is P_{t_{k-1}}, student predicts at time t
-        loss = trainer.compute_kl_loss(P_t_k_minus_1, student_logits)
+        # Get sigma at time t
+        t_1d = t.squeeze(-1) if t.dim() > 1 else t
+        sigma_t = noise(t_1d)[0]  # [B]
+        if sigma_t.dim() == 1:
+            sigma_t = sigma_t.unsqueeze(-1)  # [B, 1]
+
+        # Get student score (true score, not log)
+        student_score = student_score_fn(x_t, sigma_t)  # [B, L, V]
+
+        # Compute dsigma = sigma(t) - sigma(t_{k-1}) for the "jump" to t_{k-1}
+        t_k_minus_1_1d = t_k_minus_1.squeeze(-1) if t_k_minus_1.dim() > 1 else t_k_minus_1
+        sigma_t_k_minus_1 = noise(t_k_minus_1_1d)[0]  # [B]
+        if sigma_t_k_minus_1.dim() == 1:
+            sigma_t_k_minus_1 = sigma_t_k_minus_1.unsqueeze(-1)  # [B, 1]
+        dsigma = sigma_t - sigma_t_k_minus_1  # [B, 1]
+
+        # Apply stag_score * transp_transition (same as SEDD inference)
+        stag_score = graph.staggered_score(student_score, dsigma)  # [B, L, V]
+        student_probs = stag_score * graph.transp_transition(x_t, dsigma)  # [B, L, V]
+
+        # Normalize to valid probability distribution
+        student_probs = student_probs / (student_probs.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # 8. Compute KL divergence loss between probability distributions
+        # Target is P_{t_{k-1}}, student predicts distribution at t_{k-1} given x_t
+        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, student_probs)
 
         return loss
 
