@@ -541,6 +541,9 @@ class DPerflowSampler:
         """
         Generate samples using the trained student model.
 
+        Uses the same probability computation as SEDD's AnalyticPredictor:
+        stag_score * transp_transition, but with K large steps (one per window).
+
         Args:
             model: Trained student model
             batch_dims: Tuple of (batch_size, seq_length)
@@ -549,8 +552,8 @@ class DPerflowSampler:
         Returns:
             x: Generated samples [B, L]
         """
-        # Use sampling=False to get log_score, then apply softmax
-        score_fn = mutils.get_score_fn(model, train=False, sampling=False)
+        # Use sampling=True to get true score (exp of model output), same as SEDD
+        score_fn = mutils.get_score_fn(model, train=False, sampling=True)
 
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
@@ -558,29 +561,37 @@ class DPerflowSampler:
         # Sample through each window in reverse order
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
+            t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Create time tensor - use 1D for noise
+            # Compute sigma at window boundaries
             t = t_k * torch.ones(batch_dims[0], device=device)
-            sigma = self.noise(t)[0]
+            t_prev = t_k_minus_1 * torch.ones(batch_dims[0], device=device)
 
-            # Get model prediction (log_score)
-            logits = score_fn(x, sigma)
+            curr_sigma = self.noise(t)[0]
+            next_sigma = self.noise(t_prev)[0]
+            dsigma = curr_sigma - next_sigma
 
-            # Convert to probabilities
-            probs = F.softmax(logits, dim=-1)
+            # Get model score (true score, not log)
+            score = score_fn(x, curr_sigma)
+
+            # Compute transition probabilities (same as SEDD AnalyticPredictor)
+            stag_score = self.graph.staggered_score(score, dsigma)
+            probs = stag_score * self.graph.transp_transition(x, dsigma)
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
 
-        # Optional: final denoising at t=eps
-        if hasattr(self.graph, 'absorb') and self.graph.absorb:
-            # Remove any remaining mask tokens
+        # Final denoising step (same as SEDD Denoiser)
+        if self.graph.absorb:
             t = self.sampling_eps * torch.ones(batch_dims[0], device=device)
             sigma = self.noise(t)[0]
-            logits = score_fn(x, sigma)
 
-            # For absorbing graph, exclude mask token from final sampling
-            probs = F.softmax(logits[..., :-1], dim=-1)
+            score = score_fn(x, sigma)
+            stag_score = self.graph.staggered_score(score, sigma)
+            probs = stag_score * self.graph.transp_transition(x, sigma)
+
+            # Exclude mask token
+            probs = probs[..., :-1]
             x = sample_categorical(probs, method="hard")
 
         return x
