@@ -459,8 +459,9 @@ def get_d_perflow_loss_fn(
             x_t = trainer.resample_from_distribution(P_t)
 
         # 7. Student prediction - use same transformation as inference
-        # Use sampling=True to get exp(model_output), same as SEDD inference
-        student_score_fn = mutils.get_score_fn(model, train=train, sampling=True)
+        # Use sampling=False to get log score, then manually exp() to get true score
+        # (sampling=True requires train=False, but we need train=True for gradients)
+        student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
 
         # Get sigma at time t
         t_1d = t.squeeze(-1) if t.dim() > 1 else t
@@ -468,8 +469,9 @@ def get_d_perflow_loss_fn(
         if sigma_t.dim() == 1:
             sigma_t = sigma_t.unsqueeze(-1)  # [B, 1]
 
-        # Get student score (true score, not log)
-        student_score = student_score_fn(x_t, sigma_t)  # [B, L, V]
+        # Get student log score, then convert to true score via exp()
+        student_log_score = student_score_fn(x_t, sigma_t)  # [B, L, V] - log score
+        student_score = student_log_score.exp()  # [B, L, V] - true score (same as sampling=True)
 
         # Compute dsigma = sigma(t) - sigma(t_{k-1}) for the "jump" to t_{k-1}
         t_k_minus_1_1d = t_k_minus_1.squeeze(-1) if t_k_minus_1.dim() > 1 else t_k_minus_1
