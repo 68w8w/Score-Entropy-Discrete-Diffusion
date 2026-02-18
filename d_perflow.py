@@ -486,6 +486,9 @@ def get_d_perflow_loss_fn(
         stag_score = graph.staggered_score(student_score, dsigma)  # [B, L, V]
         student_probs = stag_score * graph.transp_transition(x_t, dsigma)  # [B, L, V]
 
+        # Clamp to ensure non-negative (staggered_score can produce negative values for large dsigma)
+        student_probs = student_probs.clamp(min=0)
+
         # Normalize to valid probability distribution
         student_probs = student_probs / (student_probs.sum(dim=-1, keepdim=True) + 1e-10)
 
