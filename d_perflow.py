@@ -411,7 +411,7 @@ def get_d_perflow_loss_fn(
     teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
 
     # Entropy regularization coefficient (prevents mode collapse)
-    entropy_reg = 0.01
+    entropy_reg = 0.1
 
     def loss_fn(model, batch):
         """
