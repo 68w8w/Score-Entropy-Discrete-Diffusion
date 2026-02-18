@@ -372,6 +372,52 @@ class DPerflowTrainer:
 
         return loss
 
+    def compute_reverse_kl_loss_probs(
+        self,
+        target_probs: torch.Tensor,
+        student_probs: torch.Tensor,
+        mask: torch.Tensor = None,
+    ):
+        """
+        Compute Reverse KL divergence loss: D_KL(student || target)
+
+        Reverse KL is more robust to mode collapse as it penalizes
+        student for putting mass where target has low probability.
+
+        Args:
+            target_probs: Target probability distribution P [B, L, V]
+            student_probs: Student probability distribution Q [B, L, V]
+            mask: Optional mask for positions to include [B, L]
+
+        Returns:
+            loss: Reverse KL divergence loss [B] (per sample)
+        """
+        # Student log probabilities
+        student_log_probs = (student_probs + 1e-10).log()
+
+        # Target log probabilities
+        target_log_probs = (target_probs + 1e-10).log()
+
+        # Reverse KL: sum_v Q[v] * (log Q[v] - log P[v])
+        # = -H(Q) + CE(Q, P)
+
+        # Cross-entropy term: -sum_v Q[v] * log P[v]
+        cross_entropy = -(student_probs * target_log_probs).sum(dim=-1)  # [B, L]
+
+        # Negative entropy term: sum_v Q[v] * log Q[v] = -H(Q)
+        neg_entropy = (student_probs * student_log_probs).sum(dim=-1)  # [B, L]
+
+        # Reverse KL = -H(Q) + CE(Q, P) = neg_entropy + cross_entropy
+        kl_div = neg_entropy + cross_entropy  # [B, L]
+
+        if mask is not None:
+            kl_div = kl_div * mask
+            loss = kl_div.sum(dim=-1) / (mask.sum(dim=-1) + 1e-10)
+        else:
+            loss = kl_div.mean(dim=-1)  # [B]
+
+        return loss
+
 
 def get_d_perflow_loss_fn(
     noise,
@@ -410,16 +456,13 @@ def get_d_perflow_loss_fn(
     # Get teacher score function (always in eval mode, returns true score for Euler)
     teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
 
-    # Entropy regularization coefficient (prevents mode collapse)
-    entropy_reg = 0.1
-
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss using PeRFlow approach with entropy regularization.
+        Compute D-PeRFlow loss using PeRFlow approach with Reverse KL.
 
         Teacher computes target distribution P_{t_{k-1}} via multi-step Euler.
         Student predicts distribution via softmax(logits).
-        Loss = KL(P_{t_{k-1}} || softmax(student)) - entropy_reg * H(softmax(student))
+        Loss = KL(student || target) - Reverse KL is more robust to mode collapse.
 
         Args:
             model: Student model
@@ -459,15 +502,10 @@ def get_d_perflow_loss_fn(
         student_logits = student_score_fn(x_t_k, sigma_t_k)  # [B, L, V]
         student_probs = F.softmax(student_logits, dim=-1)  # [B, L, V]
 
-        # 5. KL divergence loss: KL(P_{t_{k-1}} || student_probs)
-        kl_loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, student_probs)
-
-        # 6. Entropy regularization: encourage diverse outputs (prevent collapse)
-        student_log_probs = (student_probs + 1e-10).log()
-        student_entropy = -(student_probs * student_log_probs).sum(dim=-1).mean(dim=-1)  # [B]
-
-        # Total loss = KL - entropy_reg * entropy (maximize entropy)
-        loss = kl_loss - entropy_reg * student_entropy  # [B]
+        # 5. Reverse KL divergence loss: KL(student || target)
+        # Reverse KL penalizes student for putting mass where target has low probability
+        # This is more robust to mode collapse than forward KL
+        loss = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, student_probs)
 
         return loss
 
