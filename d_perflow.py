@@ -407,12 +407,12 @@ def get_d_perflow_loss_fn(
         sampling_eps=sampling_eps,
     )
 
-    # Get teacher score function (always in eval mode)
-    teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
+    # Get teacher score function (always in eval mode, returns log score)
+    teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=False)
 
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss for a batch.
+        Compute D-PeRFlow loss for a batch using direct score matching.
 
         Args:
             model: Student model
@@ -424,48 +424,30 @@ def get_d_perflow_loss_fn(
         device = batch.device
         batch_size = batch.shape[0]
 
-        # 1. Sample window index k uniformly from {1, ..., K}
-        k = torch.randint(
-            1, num_time_windows + 1, (batch_size,), device=device
-        )
+        # 1. Sample time t uniformly from [sampling_eps, 1.0]
+        t = torch.rand(batch_size, 1, device=device) * (1.0 - sampling_eps) + sampling_eps
 
-        # Get window boundaries
-        t_k_minus_1, t_k = trainer.get_window_boundaries(k, device)
-        t_k_minus_1 = t_k_minus_1.unsqueeze(-1)  # [B, 1]
-        t_k = t_k.unsqueeze(-1)  # [B, 1]
-
-        # 2. Sample time t uniformly within window (t_{k-1}, t_k]
-        u = torch.rand(batch_size, 1, device=device)
-        t = t_k_minus_1 + u * (t_k - t_k_minus_1)
-
-        # 3. Construct noisy state x_{t_k} at window boundary
+        # 2. Construct noisy state x_t
         with torch.no_grad():
-            x_t_k = trainer.construct_noisy_state(batch, t_k)
+            x_t = trainer.construct_noisy_state(batch, t)
 
-        # 4. Teacher guidance: compute boundary distributions
+        # 3. Get sigma at time t
+        t_1d = t.squeeze(-1)
+        sigma_t = noise(t_1d)[0]
+        if sigma_t.dim() == 1:
+            sigma_t = sigma_t.unsqueeze(-1)
+
+        # 4. Teacher score (log score)
         with torch.no_grad():
-            P_t_k, P_t_k_minus_1 = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
-            )
+            teacher_log_score = teacher_score_fn(x_t, sigma_t)  # [B, L, V]
 
-        # 5. Distribution interpolation
-        with torch.no_grad():
-            P_t = trainer.interpolate_distribution(
-                P_t_k, P_t_k_minus_1, t, t_k, t_k_minus_1
-            )
-
-        # 6. Resample student input from mixed distribution
-        with torch.no_grad():
-            x_t = trainer.resample_from_distribution(P_t)
-
-        # 7. Student prediction
+        # 5. Student score (log score)
         student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
-        sigma_t = noise(t)[0]  # [B, 1]
-        student_logits = student_score_fn(x_t, sigma_t)  # [B, L, V]
+        student_log_score = student_score_fn(x_t, sigma_t)  # [B, L, V]
 
-        # 8. Compute KL divergence loss
-        # Target is P_{t_{k-1}}, student predicts at time t via softmax
-        loss = trainer.compute_kl_loss(P_t_k_minus_1, student_logits)
+        # 6. Score matching loss: MSE between log scores
+        loss = F.mse_loss(student_log_score, teacher_log_score, reduction='none')
+        loss = loss.mean(dim=(-1, -2))  # [B]
 
         return loss
 
@@ -579,8 +561,8 @@ class DPerflowSampler:
         """
         Generate samples using the trained student model.
 
-        Uses softmax to convert model logits to probability distribution,
-        consistent with the training objective (KL divergence with softmax).
+        Uses SEDD's standard probability computation: stag_score * transp_transition.
+        Student is trained to match teacher's score, so this should work correctly.
 
         Args:
             model: Trained student model
@@ -590,8 +572,8 @@ class DPerflowSampler:
         Returns:
             x: Generated samples [B, L]
         """
-        # Use sampling=False to get raw logits (log score)
-        score_fn = mutils.get_score_fn(model, train=False, sampling=False)
+        # Use sampling=True to get true score (exp of log score)
+        score_fn = mutils.get_score_fn(model, train=False, sampling=True)
 
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
@@ -599,16 +581,27 @@ class DPerflowSampler:
         # Sample through each window in reverse order
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
+            t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Compute sigma at window boundary
+            # Compute sigma at window boundaries
             t = t_k * torch.ones(batch_dims[0], 1, device=device)
+            t_prev = t_k_minus_1 * torch.ones(batch_dims[0], 1, device=device)
+
             curr_sigma = self.noise(t)[0]
+            next_sigma = self.noise(t_prev)[0]
+
             if curr_sigma.dim() == 1:
                 curr_sigma = curr_sigma.unsqueeze(-1)
+            if next_sigma.dim() == 1:
+                next_sigma = next_sigma.unsqueeze(-1)
+            dsigma = curr_sigma - next_sigma
 
-            # Get model logits and convert to probabilities via softmax
-            logits = score_fn(x, curr_sigma)  # [B, L, V]
-            probs = F.softmax(logits, dim=-1)  # [B, L, V]
+            # Get model score (true score = exp(log_score))
+            score = score_fn(x, curr_sigma)
+
+            # Compute transition probabilities (SEDD standard)
+            stag_score = self.graph.staggered_score(score, dsigma)
+            probs = stag_score * self.graph.transp_transition(x, dsigma)
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
@@ -620,8 +613,9 @@ class DPerflowSampler:
             if sigma.dim() == 1:
                 sigma = sigma.unsqueeze(-1)
 
-            logits = score_fn(x, sigma)  # [B, L, V]
-            probs = F.softmax(logits, dim=-1)  # [B, L, V]
+            score = score_fn(x, sigma)
+            stag_score = self.graph.staggered_score(score, sigma)
+            probs = stag_score * self.graph.transp_transition(x, sigma)
 
             # Exclude mask token
             probs = probs[..., :-1]
