@@ -471,6 +471,8 @@ def get_d_perflow_loss_fn(
 
         # Get student log score, then convert to true score via exp()
         student_log_score = student_score_fn(x_t, sigma_t)  # [B, L, V] - log score
+        # Clamp to prevent exp overflow (exp(30) ≈ 1e13, exp(80) = inf)
+        student_log_score = student_log_score.clamp(min=-30, max=30)
         student_score = student_log_score.exp()  # [B, L, V] - true score (same as sampling=True)
 
         # Compute dsigma = sigma(t) - sigma(t_{k-1}) for the "jump" to t_{k-1}
