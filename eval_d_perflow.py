@@ -109,6 +109,8 @@ def main():
                         help='Sampler to use: d_perflow or sedd (original SEDD sampler)')
     parser.add_argument('--sedd_steps', type=int, default=128,
                         help='Number of steps for SEDD sampler (only used when --sampler=sedd)')
+    parser.add_argument('--temperature', type=float, default=1.0,
+                        help='Temperature for softmax (higher = more diverse outputs)')
     args = parser.parse_args()
 
     # Load config manually (merge base config with model config)
@@ -136,9 +138,10 @@ def main():
             graph=graph,
             noise=noise,
             num_time_windows=args.num_time_windows,
-            sampling_eps=cfg.d_perflow.sampling_eps
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            temperature=args.temperature
         )
-        steps_info = f"{args.num_time_windows} steps (D-PeRFlow)"
+        steps_info = f"{args.num_time_windows} steps (D-PeRFlow, T={args.temperature})"
     else:
         # Use SEDD original sampler (AnalyticPredictor)
         sampler = None  # Will use get_pc_sampler directly
