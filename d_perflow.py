@@ -523,9 +523,28 @@ def get_d_perflow_loss_fn(
                     student_entropy = -(student_probs * (student_probs + 1e-10).log()).sum(dim=-1).mean()
                     student_max_prob = student_probs.max(dim=-1).values.mean()
 
+                    # Argmax tokens analysis
+                    teacher_argmax = P_t_k_minus_1.argmax(dim=-1)  # [B, L]
+                    student_argmax = student_probs.argmax(dim=-1)  # [B, L]
+
+                    # Unique argmax tokens per sample (diversity)
+                    seq_len = teacher_argmax.shape[1]
+                    teacher_unique = torch.tensor([len(torch.unique(row)) for row in teacher_argmax]).float().mean()
+                    student_unique = torch.tensor([len(torch.unique(row)) for row in student_argmax]).float().mean()
+
+                    # Agreement rate: how often do teacher and student argmax match?
+                    agreement = (teacher_argmax == student_argmax).float().mean() * 100
+
+                    # Top-5 most common student argmax tokens
+                    student_flat = student_argmax.flatten()
+                    token_counts = torch.bincount(student_flat, minlength=student_probs.shape[-1])
+                    top5_tokens = token_counts.topk(5)
+
                     print(f"\n[DEBUG Step {loss_fn.debug_step}]")
-                    print(f"  Teacher: entropy={teacher_entropy:.4f}, max_prob={teacher_max_prob:.4f}")
-                    print(f"  Student: entropy={student_entropy:.4f}, max_prob={student_max_prob:.4f}")
+                    print(f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}")
+                    print(f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}")
+                    print(f"  Argmax agreement: {agreement:.1f}%")
+                    print(f"  Student top5 tokens: {top5_tokens.indices.tolist()} counts: {top5_tokens.values.tolist()}")
                     print(f"  Loss: {loss.mean():.4f}")
         else:
             loss_fn.debug_step = 0
@@ -682,11 +701,23 @@ class DPerflowSampler:
             if self.debug:
                 entropy = -(probs * (probs + 1e-10).log()).sum(dim=-1).mean()
                 max_prob = probs.max(dim=-1).values.mean()
-                # Count unique tokens in current x
-                unique_tokens = len(torch.unique(x))
-                print(f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] "
-                      f"t={t_k:.4f}, entropy={entropy:.4f}, max_prob={max_prob:.4f}, "
-                      f"unique_tokens={unique_tokens}")
+
+                # Argmax analysis
+                argmax_tokens = probs.argmax(dim=-1)  # [B, L]
+                seq_len = argmax_tokens.shape[1]
+                unique_argmax = torch.tensor([len(torch.unique(row)) for row in argmax_tokens]).float().mean()
+
+                # Top-5 most common argmax tokens
+                flat = argmax_tokens.flatten()
+                token_counts = torch.bincount(flat, minlength=probs.shape[-1])
+                top5 = token_counts.topk(5)
+
+                # Count unique tokens in current x (before sampling)
+                unique_in_x = len(torch.unique(x))
+
+                print(f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] t={t_k:.4f}")
+                print(f"  entropy={entropy:.4f}, unique_argmax={unique_argmax:.1f}/{seq_len}, unique_in_x={unique_in_x}")
+                print(f"  top5_tokens: {top5.indices.tolist()} counts: {top5.values.tolist()}")
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
