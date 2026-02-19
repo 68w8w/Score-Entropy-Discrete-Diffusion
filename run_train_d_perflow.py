@@ -215,7 +215,8 @@ def _run(rank, world_size, cfg):
         euler_steps=cfg.d_perflow.euler_steps,
         train=True,
         optimize_fn=optimize_fn,
-        accum=cfg.training.accum
+        accum=cfg.training.accum,
+        train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -228,7 +229,8 @@ def _run(rank, world_size, cfg):
         euler_steps=cfg.d_perflow.euler_steps,
         train=False,
         optimize_fn=optimize_fn,
-        accum=cfg.training.accum
+        accum=cfg.training.accum,
+        train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
     )
 
     # D-PeRFlow sampler for snapshot sampling

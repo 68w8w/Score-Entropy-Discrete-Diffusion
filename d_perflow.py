@@ -428,6 +428,7 @@ def get_d_perflow_loss_fn(
     sampling_eps: float = 1e-3,
     euler_steps: int = 1,
     train: bool = True,
+    train_temperature: float = 1.0,
 ):
     """
     Create the D-PeRFlow loss function.
@@ -441,6 +442,9 @@ def get_d_perflow_loss_fn(
         sampling_eps: Small epsilon to avoid t=0
         euler_steps: Number of Euler steps per window
         train: Whether in training mode
+        train_temperature: Temperature for softening distributions during training
+                          Higher temperature = softer distributions = more diverse outputs
+                          Default 1.0 means no temperature scaling
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -492,6 +496,12 @@ def get_d_perflow_loss_fn(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
             )
 
+            # Apply temperature to soften teacher distribution
+            # P_soft = P^(1/T) / sum(P^(1/T))
+            if train_temperature != 1.0:
+                P_t_k_minus_1_soft = (P_t_k_minus_1 + 1e-10) ** (1.0 / train_temperature)
+                P_t_k_minus_1 = P_t_k_minus_1_soft / (P_t_k_minus_1_soft.sum(dim=-1, keepdim=True) + 1e-10)
+
         # 4. Student prediction at t_k
         student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
         t_k_1d = t_k.squeeze(-1)
@@ -500,7 +510,8 @@ def get_d_perflow_loss_fn(
             sigma_t_k = sigma_t_k.unsqueeze(-1)
 
         student_logits = student_score_fn(x_t_k, sigma_t_k)  # [B, L, V]
-        student_probs = F.softmax(student_logits, dim=-1)  # [B, L, V]
+        # Apply temperature to soften student distribution
+        student_probs = F.softmax(student_logits / train_temperature, dim=-1)  # [B, L, V]
 
         # 5. Reverse KL divergence loss: KL(student || target)
         # Reverse KL penalizes student for putting mass where target has low probability
@@ -523,6 +534,7 @@ def get_d_perflow_step_fn(
     train: bool = True,
     optimize_fn=None,
     accum: int = 1,
+    train_temperature: float = 1.0,
 ):
     """
     Create the D-PeRFlow training step function.
@@ -538,6 +550,7 @@ def get_d_perflow_step_fn(
         train: Training mode flag
         optimize_fn: Optimization function
         accum: Gradient accumulation steps
+        train_temperature: Temperature for softening distributions during training
 
     Returns:
         step_fn: Training step function
@@ -551,6 +564,7 @@ def get_d_perflow_step_fn(
         sampling_eps=sampling_eps,
         euler_steps=euler_steps,
         train=train,
+        train_temperature=train_temperature,
     )
 
     accum_iter = 0
