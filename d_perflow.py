@@ -518,6 +518,26 @@ def get_d_perflow_loss_fn(
         # This is more robust to mode collapse than forward KL
         loss = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, student_probs)
 
+        # Debug: print distribution statistics every 100 steps
+        if hasattr(loss_fn, 'debug_step'):
+            loss_fn.debug_step += 1
+            if loss_fn.debug_step % 100 == 0:
+                with torch.no_grad():
+                    # Teacher distribution entropy
+                    teacher_entropy = -(P_t_k_minus_1 * (P_t_k_minus_1 + 1e-10).log()).sum(dim=-1).mean()
+                    teacher_max_prob = P_t_k_minus_1.max(dim=-1).values.mean()
+
+                    # Student distribution entropy
+                    student_entropy = -(student_probs * (student_probs + 1e-10).log()).sum(dim=-1).mean()
+                    student_max_prob = student_probs.max(dim=-1).values.mean()
+
+                    print(f"\n[DEBUG Step {loss_fn.debug_step}]")
+                    print(f"  Teacher: entropy={teacher_entropy:.4f}, max_prob={teacher_max_prob:.4f}")
+                    print(f"  Student: entropy={student_entropy:.4f}, max_prob={student_max_prob:.4f}")
+                    print(f"  Loss: {loss.mean():.4f}")
+        else:
+            loss_fn.debug_step = 0
+
         return loss
 
     return loss_fn
@@ -617,12 +637,13 @@ class DPerflowSampler:
     where K is the number of time windows.
     """
 
-    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0):
+    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False):
         self.graph = graph
         self.noise = noise
         self.num_time_windows = num_time_windows
         self.sampling_eps = sampling_eps
         self.temperature = temperature
+        self.debug = debug
 
         # Time boundaries
         self.time_boundaries = torch.linspace(
@@ -665,6 +686,16 @@ class DPerflowSampler:
             logits = score_fn(x, curr_sigma)  # [B, L, V]
             probs = F.softmax(logits / self.temperature, dim=-1)  # [B, L, V]
 
+            # Debug: print distribution statistics at each step
+            if self.debug:
+                entropy = -(probs * (probs + 1e-10).log()).sum(dim=-1).mean()
+                max_prob = probs.max(dim=-1).values.mean()
+                # Count unique tokens in current x
+                unique_tokens = len(torch.unique(x))
+                print(f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] "
+                      f"t={t_k:.4f}, entropy={entropy:.4f}, max_prob={max_prob:.4f}, "
+                      f"unique_tokens={unique_tokens}")
+
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
 
@@ -685,7 +716,7 @@ class DPerflowSampler:
         return x
 
 
-def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0):
+def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False):
     """
     Create a D-PeRFlow sampler.
 
@@ -695,8 +726,9 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         num_time_windows: Number of windows (= generation steps)
         sampling_eps: Epsilon to avoid t=0
         temperature: Temperature for softmax (higher = more diverse)
+        debug: Whether to print debug information during sampling
 
     Returns:
         sampler: DPerflowSampler instance
     """
-    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature)
+    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug)

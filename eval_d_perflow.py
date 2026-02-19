@@ -111,6 +111,8 @@ def main():
                         help='Number of steps for SEDD sampler (only used when --sampler=sedd)')
     parser.add_argument('--temperature', type=float, default=1.0,
                         help='Temperature for softmax (higher = more diverse outputs)')
+    parser.add_argument('--debug', action='store_true',
+                        help='Enable debug mode to print distribution statistics at each step')
     args = parser.parse_args()
 
     # Load config manually (merge base config with model config)
@@ -139,7 +141,8 @@ def main():
             noise=noise,
             num_time_windows=args.num_time_windows,
             sampling_eps=cfg.d_perflow.sampling_eps,
-            temperature=args.temperature
+            temperature=args.temperature,
+            debug=args.debug
         )
         steps_info = f"{args.num_time_windows} steps (D-PeRFlow, T={args.temperature})"
     else:
