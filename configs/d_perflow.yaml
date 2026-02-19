@@ -31,10 +31,8 @@ d_perflow:
   # More steps = more accurate teacher distribution but slower
   euler_steps: 1
 
-  # Training temperature for softening distributions
-  # Higher temperature = softer distributions = more diverse outputs
-  # Helps prevent mode collapse by preventing overly peaked distributions
-  train_temperature: 2.0
+  # Training temperature for softening distributions (1.0 = no scaling)
+  train_temperature: 1.0
 
 training:
   batch_size: 256  # Smaller batch for distillation

@@ -462,11 +462,11 @@ def get_d_perflow_loss_fn(
 
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss using PeRFlow approach with Reverse KL.
+        Compute D-PeRFlow loss using Forward KL.
 
         Teacher computes target distribution P_{t_{k-1}} via multi-step Euler.
         Student predicts distribution via softmax(logits).
-        Loss = KL(student || target) - Reverse KL is more robust to mode collapse.
+        Loss = KL(target || student) - Forward KL forces student to cover all teacher modes.
 
         Args:
             model: Student model
@@ -496,12 +496,6 @@ def get_d_perflow_loss_fn(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
             )
 
-            # Apply temperature to soften teacher distribution
-            # P_soft = P^(1/T) / sum(P^(1/T))
-            if train_temperature != 1.0:
-                P_t_k_minus_1_soft = (P_t_k_minus_1 + 1e-10) ** (1.0 / train_temperature)
-                P_t_k_minus_1 = P_t_k_minus_1_soft / (P_t_k_minus_1_soft.sum(dim=-1, keepdim=True) + 1e-10)
-
         # 4. Student prediction at t_k
         student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
         t_k_1d = t_k.squeeze(-1)
@@ -510,13 +504,11 @@ def get_d_perflow_loss_fn(
             sigma_t_k = sigma_t_k.unsqueeze(-1)
 
         student_logits = student_score_fn(x_t_k, sigma_t_k)  # [B, L, V]
-        # Apply temperature to soften student distribution
-        student_probs = F.softmax(student_logits / train_temperature, dim=-1)  # [B, L, V]
+        student_probs = F.softmax(student_logits, dim=-1)  # [B, L, V]
 
-        # 5. Reverse KL divergence loss: KL(student || target)
-        # Reverse KL penalizes student for putting mass where target has low probability
-        # This is more robust to mode collapse than forward KL
-        loss = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, student_probs)
+        # 5. Forward KL divergence loss: KL(target || student)
+        # Forward KL forces student to cover all modes of the teacher distribution
+        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, student_probs)
 
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
