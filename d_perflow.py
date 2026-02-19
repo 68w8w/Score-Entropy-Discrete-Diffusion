@@ -603,11 +603,12 @@ class DPerflowSampler:
     where K is the number of time windows.
     """
 
-    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3):
+    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0):
         self.graph = graph
         self.noise = noise
         self.num_time_windows = num_time_windows
         self.sampling_eps = sampling_eps
+        self.temperature = temperature
 
         # Time boundaries
         self.time_boundaries = torch.linspace(
@@ -646,9 +647,9 @@ class DPerflowSampler:
             if curr_sigma.dim() == 1:
                 curr_sigma = curr_sigma.unsqueeze(-1)
 
-            # Get model logits and convert to probabilities via softmax
+            # Get model logits and convert to probabilities via softmax with temperature
             logits = score_fn(x, curr_sigma)  # [B, L, V]
-            probs = F.softmax(logits, dim=-1)  # [B, L, V]
+            probs = F.softmax(logits / self.temperature, dim=-1)  # [B, L, V]
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
@@ -661,7 +662,7 @@ class DPerflowSampler:
                 sigma = sigma.unsqueeze(-1)
 
             logits = score_fn(x, sigma)  # [B, L, V]
-            probs = F.softmax(logits, dim=-1)  # [B, L, V]
+            probs = F.softmax(logits / self.temperature, dim=-1)  # [B, L, V]
 
             # Exclude mask token
             probs = probs[..., :-1]
@@ -670,7 +671,7 @@ class DPerflowSampler:
         return x
 
 
-def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3):
+def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0):
     """
     Create a D-PeRFlow sampler.
 
@@ -679,8 +680,9 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         noise: Noise schedule
         num_time_windows: Number of windows (= generation steps)
         sampling_eps: Epsilon to avoid t=0
+        temperature: Temperature for softmax (higher = more diverse)
 
     Returns:
         sampler: DPerflowSampler instance
     """
-    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps)
+    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature)
