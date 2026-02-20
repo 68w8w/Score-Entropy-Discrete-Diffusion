@@ -205,6 +205,11 @@ def _run(rank, world_size, cfg):
 
     # D-PeRFlow training step function
     optimize_fn = losses.optimization_manager(cfg)
+
+    # Debug log file path
+    debug_log_file = os.path.join(work_dir, 'debug_log.txt')
+    logging.info(f"Debug log will be saved to: {debug_log_file}")
+
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
         graph=graph,
@@ -217,6 +222,7 @@ def _run(rank, world_size, cfg):
         optimize_fn=optimize_fn,
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
+        debug_log_file=debug_log_file,
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -231,6 +237,7 @@ def _run(rank, world_size, cfg):
         optimize_fn=optimize_fn,
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
+        debug_log_file=debug_log_file,
     )
 
     # D-PeRFlow sampler for snapshot sampling

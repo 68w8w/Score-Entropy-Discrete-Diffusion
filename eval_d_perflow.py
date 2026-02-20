@@ -113,6 +113,8 @@ def main():
                         help='Temperature for softmax (higher = more diverse outputs)')
     parser.add_argument('--debug', action='store_true',
                         help='Enable debug mode to print distribution statistics at each step')
+    parser.add_argument('--debug_log_file', type=str, default=None,
+                        help='Path to save debug logs (if None, print to console only)')
     args = parser.parse_args()
 
     # Load config manually (merge base config with model config)
@@ -142,7 +144,8 @@ def main():
             num_time_windows=args.num_time_windows,
             sampling_eps=cfg.d_perflow.sampling_eps,
             temperature=args.temperature,
-            debug=args.debug
+            debug=args.debug,
+            debug_log_file=args.debug_log_file
         )
         steps_info = f"{args.num_time_windows} steps (D-PeRFlow, T={args.temperature})"
     else:

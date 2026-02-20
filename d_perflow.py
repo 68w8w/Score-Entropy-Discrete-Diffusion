@@ -429,6 +429,7 @@ def get_d_perflow_loss_fn(
     euler_steps: int = 1,
     train: bool = True,
     train_temperature: float = 1.0,
+    debug_log_file: str = None,
 ):
     """
     Create the D-PeRFlow loss function.
@@ -445,6 +446,7 @@ def get_d_perflow_loss_fn(
         train_temperature: Temperature for softening distributions during training
                           Higher temperature = softer distributions = more diverse outputs
                           Default 1.0 means no temperature scaling
+        debug_log_file: Path to save debug logs (if None, print to console)
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -540,12 +542,25 @@ def get_d_perflow_loss_fn(
                     token_counts = torch.bincount(student_flat, minlength=student_probs.shape[-1])
                     top5_tokens = token_counts.topk(5)
 
-                    print(f"\n[DEBUG Step {loss_fn.debug_step}]")
-                    print(f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}")
-                    print(f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}")
-                    print(f"  Argmax agreement: {agreement:.1f}%")
-                    print(f"  Student top5 tokens: {top5_tokens.indices.tolist()} counts: {top5_tokens.values.tolist()}")
-                    print(f"  Loss: {loss.mean():.4f}")
+                    # Format debug message
+                    import datetime
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    debug_msg = (
+                        f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
+                        f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
+                        f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
+                        f"  Argmax agreement: {agreement:.1f}%\n"
+                        f"  Student top5 tokens: {top5_tokens.indices.tolist()} counts: {top5_tokens.values.tolist()}\n"
+                        f"  Loss: {loss.mean():.4f}\n"
+                    )
+
+                    # Print to console
+                    print(debug_msg)
+
+                    # Also write to file if specified
+                    if debug_log_file is not None:
+                        with open(debug_log_file, 'a') as f:
+                            f.write(debug_msg)
         else:
             loss_fn.debug_step = 0
 
@@ -566,6 +581,7 @@ def get_d_perflow_step_fn(
     optimize_fn=None,
     accum: int = 1,
     train_temperature: float = 1.0,
+    debug_log_file: str = None,
 ):
     """
     Create the D-PeRFlow training step function.
@@ -582,6 +598,7 @@ def get_d_perflow_step_fn(
         optimize_fn: Optimization function
         accum: Gradient accumulation steps
         train_temperature: Temperature for softening distributions during training
+        debug_log_file: Path to save debug logs (if None, print to console only)
 
     Returns:
         step_fn: Training step function
@@ -596,6 +613,7 @@ def get_d_perflow_step_fn(
         euler_steps=euler_steps,
         train=train,
         train_temperature=train_temperature,
+        debug_log_file=debug_log_file,
     )
 
     accum_iter = 0
@@ -648,13 +666,14 @@ class DPerflowSampler:
     where K is the number of time windows.
     """
 
-    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False):
+    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False, debug_log_file: str = None):
         self.graph = graph
         self.noise = noise
         self.num_time_windows = num_time_windows
         self.sampling_eps = sampling_eps
         self.temperature = temperature
         self.debug = debug
+        self.debug_log_file = debug_log_file
 
         # Time boundaries
         self.time_boundaries = torch.linspace(
@@ -715,9 +734,20 @@ class DPerflowSampler:
                 # Count unique tokens in current x (before sampling)
                 unique_in_x = len(torch.unique(x))
 
-                print(f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] t={t_k:.4f}")
-                print(f"  entropy={entropy:.4f}, unique_argmax={unique_argmax:.1f}/{seq_len}, unique_in_x={unique_in_x}")
-                print(f"  top5_tokens: {top5.indices.tolist()} counts: {top5.values.tolist()}")
+                # Format debug message
+                debug_msg = (
+                    f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] t={t_k:.4f}\n"
+                    f"  entropy={entropy:.4f}, unique_argmax={unique_argmax:.1f}/{seq_len}, unique_in_x={unique_in_x}\n"
+                    f"  top5_tokens: {top5.indices.tolist()} counts: {top5.values.tolist()}\n"
+                )
+
+                # Print to console
+                print(debug_msg)
+
+                # Also write to file if specified
+                if self.debug_log_file is not None:
+                    with open(self.debug_log_file, 'a') as f:
+                        f.write(debug_msg)
 
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
@@ -739,7 +769,7 @@ class DPerflowSampler:
         return x
 
 
-def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False):
+def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False, debug_log_file: str = None):
     """
     Create a D-PeRFlow sampler.
 
@@ -750,8 +780,9 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         sampling_eps: Epsilon to avoid t=0
         temperature: Temperature for softmax (higher = more diverse)
         debug: Whether to print debug information during sampling
+        debug_log_file: Path to save debug logs (if None, print to console only)
 
     Returns:
         sampler: DPerflowSampler instance
     """
-    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug)
+    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug, debug_log_file)
