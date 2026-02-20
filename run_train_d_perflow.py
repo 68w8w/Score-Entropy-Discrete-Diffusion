@@ -208,7 +208,7 @@ def _run(rank, world_size, cfg):
 
     # Debug log file path
     debug_log_file = os.path.join(work_dir, 'debug_log.txt')
-    logging.info(f"Debug log will be saved to: {debug_log_file}")
+    mprint(f"Debug log will be saved to: {debug_log_file}")
 
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,

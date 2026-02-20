@@ -462,13 +462,31 @@ def get_d_perflow_loss_fn(
     # Get teacher score function (always in eval mode, returns true score for Euler)
     teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
 
+    def student_score_wrapper(model, train_mode):
+        """
+        Create a score function for the student that returns TRUE scores (not log).
+        Uses sampling=False (allows train=True for gradients) + manual exp() with clamping.
+        """
+        log_score_fn = mutils.get_score_fn(model, train=train_mode, sampling=False)
+
+        def wrapped_score_fn(x, sigma):
+            log_score = log_score_fn(x, sigma)
+            # Clamp to avoid overflow in exp()
+            log_score = log_score.clamp(min=-30, max=30)
+            return log_score.exp()
+
+        return wrapped_score_fn
+
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss using Forward KL.
+        Compute D-PeRFlow loss using Forward KL with SEDD native Euler steps.
 
         Teacher computes target distribution P_{t_{k-1}} via multi-step Euler.
-        Student predicts distribution via softmax(logits).
-        Loss = KL(target || student) - Forward KL forces student to cover all teacher modes.
+        Student computes distribution via 1-step Euler using its own scores.
+        Loss = KL(P_target || P_student)
+
+        This ensures training and inference use the SAME mechanism (Euler step),
+        eliminating the distribution shift that caused mode collapse with softmax.
 
         Args:
             model: Student model
@@ -492,25 +510,23 @@ def get_d_perflow_loss_fn(
         with torch.no_grad():
             x_t_k = trainer.construct_noisy_state(batch, t_k)
 
-        # 3. Teacher computes target distribution P_{t_{k-1}} via Euler steps
+        # 3. Teacher computes target distribution P_{t_{k-1}} via multi-step Euler
         with torch.no_grad():
             _, P_t_k_minus_1 = trainer.compute_teacher_distributions(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
             )
 
-        # 4. Student prediction at t_k
-        student_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
-        t_k_1d = t_k.squeeze(-1)
-        sigma_t_k = noise(t_k_1d)[0]
-        if sigma_t_k.dim() == 1:
-            sigma_t_k = sigma_t_k.unsqueeze(-1)
+        # 4. Student: 1-step Euler using student's scores
+        # This uses the SAME Euler mechanism as SEDD sampling:
+        #   probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
+        # The student's scores flow through this differentiably
+        student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
+        P_student = trainer.compute_euler_distribution(
+            student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+        )
 
-        student_logits = student_score_fn(x_t_k, sigma_t_k)  # [B, L, V]
-        student_probs = F.softmax(student_logits, dim=-1)  # [B, L, V]
-
-        # 5. Forward KL divergence loss: KL(target || student)
-        # Forward KL forces student to cover all modes of the teacher distribution
-        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, student_probs)
+        # 5. Forward KL divergence loss: KL(P_target || P_student)
+        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
 
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
@@ -519,34 +535,37 @@ def get_d_perflow_loss_fn(
                 with torch.no_grad():
                     # Teacher distribution entropy
                     teacher_entropy = -(P_t_k_minus_1 * (P_t_k_minus_1 + 1e-10).log()).sum(dim=-1).mean()
-                    teacher_max_prob = P_t_k_minus_1.max(dim=-1).values.mean()
 
                     # Student distribution entropy
-                    student_entropy = -(student_probs * (student_probs + 1e-10).log()).sum(dim=-1).mean()
-                    student_max_prob = student_probs.max(dim=-1).values.mean()
+                    student_entropy = -(P_student * (P_student + 1e-10).log()).sum(dim=-1).mean()
 
                     # Argmax tokens analysis
                     teacher_argmax = P_t_k_minus_1.argmax(dim=-1)  # [B, L]
-                    student_argmax = student_probs.argmax(dim=-1)  # [B, L]
+                    student_argmax = P_student.argmax(dim=-1)  # [B, L]
 
                     # Unique argmax tokens per sample (diversity)
                     seq_len = teacher_argmax.shape[1]
                     teacher_unique = torch.tensor([len(torch.unique(row)) for row in teacher_argmax]).float().mean()
                     student_unique = torch.tensor([len(torch.unique(row)) for row in student_argmax]).float().mean()
 
-                    # Agreement rate: how often do teacher and student argmax match?
+                    # Agreement rate
                     agreement = (teacher_argmax == student_argmax).float().mean() * 100
 
                     # Top-5 most common student argmax tokens
                     student_flat = student_argmax.flatten()
-                    token_counts = torch.bincount(student_flat, minlength=student_probs.shape[-1])
+                    token_counts = torch.bincount(student_flat, minlength=P_student.shape[-1])
                     top5_tokens = token_counts.topk(5)
+
+                    # Sampled k values for context
+                    k_mean = k.float().mean()
 
                     # Format debug message
                     import datetime
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     debug_msg = (
                         f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
+                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher)\n"
+                        f"  Avg window k: {k_mean:.1f}/{num_time_windows}\n"
                         f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
                         f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
                         f"  Argmax agreement: {agreement:.1f}%\n"
@@ -685,8 +704,10 @@ class DPerflowSampler:
         """
         Generate samples using the trained student model.
 
-        Uses SEDD's standard probability computation: stag_score * transp_transition.
-        Student is trained to match teacher's score, so this should work correctly.
+        Uses SEDD's native Euler step mechanism — the same mechanism used during training.
+        This eliminates distribution shift between training and inference.
+
+        At each window k: compute 1-step Euler from t_k to t_{k-1}, then sample.
 
         Args:
             model: Trained student model
@@ -696,30 +717,40 @@ class DPerflowSampler:
         Returns:
             x: Generated samples [B, L]
         """
-        # Use sampling=False to get logits
-        score_fn = mutils.get_score_fn(model, train=False, sampling=False)
+        # Use sampling=True for inference (eval mode, returns true scores via .exp())
+        score_fn = mutils.get_score_fn(model, train=False, sampling=True)
 
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
 
-        # Sample through each window in reverse order
+        # Sample through each window in reverse order using Euler steps
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
+            t_k_minus_1 = self.time_boundaries[k - 1].to(device)
 
-            # Compute sigma at window boundary
-            t = t_k * torch.ones(batch_dims[0], 1, device=device)
-            curr_sigma = self.noise(t)[0]
-            if curr_sigma.dim() == 1:
-                curr_sigma = curr_sigma.unsqueeze(-1)
+            # Time tensors [B]
+            t_start = t_k * torch.ones(batch_dims[0], device=device)
+            t_end = t_k_minus_1 * torch.ones(batch_dims[0], device=device)
 
-            # Get model logits and convert to probabilities via softmax with temperature
-            logits = score_fn(x, curr_sigma)  # [B, L, V]
-            probs = F.softmax(logits / self.temperature, dim=-1)  # [B, L, V]
+            # Compute 1-step Euler from t_k to t_{k-1}
+            # This is the SAME mechanism used during training
+            dt = t_start - t_end  # [B]
+            sigma, dsigma = self.noise(t_start)  # Both [B]
+            score = score_fn(x, sigma)  # [B, L, V] - true scores
+
+            # SEDD native Euler step: probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
+            scale = (dt * dsigma)[:, None, None]  # [B, 1, 1]
+            rev_rate = scale * self.graph.reverse_rate(x, score)  # [B, L, V]
+            one_hot_current = F.one_hot(x, num_classes=self.graph.dim).float()
+            probs = one_hot_current + rev_rate
+
+            # Clamp and normalize
+            probs = probs.clamp(min=0)
+            probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
             # Debug: print distribution statistics at each step
             if self.debug:
                 entropy = -(probs * (probs + 1e-10).log()).sum(dim=-1).mean()
-                max_prob = probs.max(dim=-1).values.mean()
 
                 # Argmax analysis
                 argmax_tokens = probs.argmax(dim=-1)  # [B, L]
@@ -734,17 +765,21 @@ class DPerflowSampler:
                 # Count unique tokens in current x (before sampling)
                 unique_in_x = len(torch.unique(x))
 
-                # Format debug message
+                # How many positions actually change?
+                # (probs at one_hot position vs new token probability)
+                stay_prob = probs.gather(-1, x.unsqueeze(-1)).squeeze(-1).mean()
+
                 debug_msg = (
-                    f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] t={t_k:.4f}\n"
-                    f"  entropy={entropy:.4f}, unique_argmax={unique_argmax:.1f}/{seq_len}, unique_in_x={unique_in_x}\n"
+                    f"[Sampling Step {self.num_time_windows - k + 1}/{self.num_time_windows}] "
+                    f"t={t_k:.4f} -> {t_k_minus_1:.4f}\n"
+                    f"  entropy={entropy:.4f}, unique_argmax={unique_argmax:.1f}/{seq_len}, "
+                    f"unique_in_x={unique_in_x}\n"
+                    f"  stay_prob={stay_prob:.4f} (prob of keeping current token)\n"
                     f"  top5_tokens: {top5.indices.tolist()} counts: {top5.values.tolist()}\n"
                 )
 
-                # Print to console
                 print(debug_msg)
 
-                # Also write to file if specified
                 if self.debug_log_file is not None:
                     with open(self.debug_log_file, 'a') as f:
                         f.write(debug_msg)
@@ -752,17 +787,19 @@ class DPerflowSampler:
             # Sample from distribution
             x = sample_categorical(probs, method="hard")
 
-        # Final denoising step
+        # Final denoising step: for absorbing graph, unmask remaining mask tokens
         if self.graph.absorb:
-            t = self.sampling_eps * torch.ones(batch_dims[0], 1, device=device)
-            sigma = self.noise(t)[0]
-            if sigma.dim() == 1:
-                sigma = sigma.unsqueeze(-1)
+            # At t=eps, use analytic predictor to remove remaining masks
+            t = self.sampling_eps * torch.ones(batch_dims[0], device=device)
+            sigma, dsigma = self.noise(t)
+            score = score_fn(x, sigma)
 
-            logits = score_fn(x, sigma)  # [B, L, V]
-            probs = F.softmax(logits / self.temperature, dim=-1)  # [B, L, V]
+            # Use stag_score * transp_transition for final denoising
+            stag_score = self.graph.staggered_score(score, dsigma[:, None])
+            probs = stag_score * self.graph.transp_transition(x, dsigma[:, None])
+            probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
-            # Exclude mask token
+            # Exclude mask token for final output
             probs = probs[..., :-1]
             x = sample_categorical(probs, method="hard")
 
