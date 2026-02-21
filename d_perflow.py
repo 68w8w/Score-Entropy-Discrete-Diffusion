@@ -430,6 +430,7 @@ def get_d_perflow_loss_fn(
     train: bool = True,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
+    score_matching_weight: float = 0.0,
 ):
     """
     Create the D-PeRFlow loss function.
@@ -447,6 +448,9 @@ def get_d_perflow_loss_fn(
                           Higher temperature = softer distributions = more diverse outputs
                           Default 1.0 means no temperature scaling
         debug_log_file: Path to save debug logs (if None, print to console)
+        score_matching_weight: Weight for score matching auxiliary loss (λ)
+                              Loss = KL_loss + λ * MSE(teacher_score, student_score)
+                              Default 0.0 means no score matching loss
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -461,6 +465,8 @@ def get_d_perflow_loss_fn(
 
     # Get teacher score function (always in eval mode, returns true score for Euler)
     teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
+    # Also get teacher log score function for score matching
+    teacher_log_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=False)
 
     def student_score_wrapper(model, train_mode):
         """
@@ -526,7 +532,31 @@ def get_d_perflow_loss_fn(
         )
 
         # 5. Forward KL divergence loss: KL(P_target || P_student)
-        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
+        kl_loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
+
+        # 6. Score matching auxiliary loss: MSE(teacher_score, student_score) at t_k
+        if score_matching_weight > 0:
+            # Get sigma at t_k
+            t_k_1d = t_k.squeeze(-1)
+            sigma_t_k = noise(t_k_1d)[0]
+
+            # Teacher score (log score, no gradient)
+            with torch.no_grad():
+                teacher_log_score = teacher_log_score_fn(x_t_k, sigma_t_k)
+
+            # Student score (log score, with gradient)
+            student_log_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
+            student_log_score = student_log_score_fn(x_t_k, sigma_t_k)
+
+            # MSE loss on log scores (more stable than on exp scores)
+            score_matching_loss = F.mse_loss(student_log_score, teacher_log_score, reduction='none')
+            score_matching_loss = score_matching_loss.mean(dim=(-1, -2))  # [B]
+
+            # Combined loss
+            loss = kl_loss + score_matching_weight * score_matching_loss
+        else:
+            score_matching_loss = torch.zeros_like(kl_loss)
+            loss = kl_loss
 
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
@@ -562,15 +592,16 @@ def get_d_perflow_loss_fn(
                     # Format debug message
                     import datetime
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    sm_info = f", SM loss: {score_matching_loss.mean():.4f}" if score_matching_weight > 0 else ""
                     debug_msg = (
                         f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
-                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher)\n"
+                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher) + Score Matching (λ={score_matching_weight})\n"
                         f"  Avg window k: {k_mean:.1f}/{num_time_windows}\n"
                         f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
                         f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
                         f"  Argmax agreement: {agreement:.1f}%\n"
                         f"  Student top5 tokens: {top5_tokens.indices.tolist()} counts: {top5_tokens.values.tolist()}\n"
-                        f"  Loss: {loss.mean():.4f}\n"
+                        f"  KL loss: {kl_loss.mean():.4f}{sm_info}, Total loss: {loss.mean():.4f}\n"
                     )
 
                     # Print to console
@@ -601,6 +632,7 @@ def get_d_perflow_step_fn(
     accum: int = 1,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
+    score_matching_weight: float = 0.0,
 ):
     """
     Create the D-PeRFlow training step function.
@@ -618,6 +650,7 @@ def get_d_perflow_step_fn(
         accum: Gradient accumulation steps
         train_temperature: Temperature for softening distributions during training
         debug_log_file: Path to save debug logs (if None, print to console only)
+        score_matching_weight: Weight for score matching auxiliary loss (λ)
 
     Returns:
         step_fn: Training step function
@@ -633,6 +666,7 @@ def get_d_perflow_step_fn(
         train=train,
         train_temperature=train_temperature,
         debug_log_file=debug_log_file,
+        score_matching_weight=score_matching_weight,
     )
 
     accum_iter = 0

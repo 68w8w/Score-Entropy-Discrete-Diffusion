@@ -34,6 +34,11 @@ d_perflow:
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0
 
+  # Score matching auxiliary loss weight (λ)
+  # Loss = KL_loss + λ * MSE(teacher_score, student_score)
+  # Default 0.0 means no score matching loss
+  score_matching_weight: 0.0
+
 training:
   batch_size: 256  # Smaller batch for distillation
   accum: 1
