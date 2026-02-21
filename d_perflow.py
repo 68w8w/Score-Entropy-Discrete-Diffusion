@@ -526,7 +526,12 @@ def get_d_perflow_loss_fn(
         )
 
         # 5. Forward KL divergence loss: KL(P_target || P_student)
-        loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
+        raw_loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
+
+        # 6. Apply weighting: low noise (small k) gets higher weight
+        # k=1 (near clean) → weight=1.0, k=16 (high noise) → weight=0.0625
+        weight = 1.0 / k.float()
+        loss = raw_loss * weight
 
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
@@ -556,21 +561,22 @@ def get_d_perflow_loss_fn(
                     token_counts = torch.bincount(student_flat, minlength=P_student.shape[-1])
                     top5_tokens = token_counts.topk(5)
 
-                    # Sampled k values for context
+                    # Sampled k values and weights for context
                     k_mean = k.float().mean()
+                    weight_mean = weight.mean()
 
                     # Format debug message
                     import datetime
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     debug_msg = (
                         f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
-                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher)\n"
-                        f"  Avg window k: {k_mean:.1f}/{num_time_windows}\n"
+                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher) + Weighted Loss\n"
+                        f"  Avg window k: {k_mean:.1f}/{num_time_windows}, Avg weight: {weight_mean:.4f}\n"
                         f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
                         f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
                         f"  Argmax agreement: {agreement:.1f}%\n"
                         f"  Student top5 tokens: {top5_tokens.indices.tolist()} counts: {top5_tokens.values.tolist()}\n"
-                        f"  Loss: {loss.mean():.4f}\n"
+                        f"  Raw loss: {raw_loss.mean():.4f}, Weighted loss: {loss.mean():.4f}\n"
                     )
 
                     # Print to console
