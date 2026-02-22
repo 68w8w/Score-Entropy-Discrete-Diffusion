@@ -203,55 +203,108 @@ def _run(rank, world_size, cfg):
     train_iter = iter(train_ds)
     eval_iter = iter(eval_ds)
 
-    # D-PeRFlow training step function
+    # Training step function
     optimize_fn = losses.optimization_manager(cfg)
 
     # Debug log file path
     debug_log_file = os.path.join(work_dir, 'debug_log.txt')
     mprint(f"Debug log will be saved to: {debug_log_file}")
 
-    train_step_fn = d_perflow.get_d_perflow_step_fn(
-        noise=noise,
-        graph=graph,
-        teacher_model=teacher_model,
-        num_time_windows=cfg.d_perflow.num_time_windows,
-        delta_t=cfg.d_perflow.delta_t,
-        sampling_eps=cfg.d_perflow.sampling_eps,
-        euler_steps=cfg.d_perflow.euler_steps,
-        train=True,
-        optimize_fn=optimize_fn,
-        accum=cfg.training.accum,
-        train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
-        debug_log_file=debug_log_file,
-    )
+    # Check training mode: d_perflow (default) or consistency
+    training_mode = cfg.d_perflow.get('training_mode', 'd_perflow')
+    mprint(f"Training mode: {training_mode}")
 
-    eval_step_fn = d_perflow.get_d_perflow_step_fn(
-        noise=noise,
-        graph=graph,
-        teacher_model=teacher_model,
-        num_time_windows=cfg.d_perflow.num_time_windows,
-        delta_t=cfg.d_perflow.delta_t,
-        sampling_eps=cfg.d_perflow.sampling_eps,
-        euler_steps=cfg.d_perflow.euler_steps,
-        train=False,
-        optimize_fn=optimize_fn,
-        accum=cfg.training.accum,
-        train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
-        debug_log_file=debug_log_file,
-    )
+    if training_mode == 'consistency':
+        # Consistency Training mode
+        mprint("Using Consistency Training...")
+        consistency_weight = cfg.d_perflow.get('consistency_weight', 1.0)
+        distillation_weight = cfg.d_perflow.get('distillation_weight', 1.0)
+        mprint(f"Consistency weight: {consistency_weight}, Distillation weight: {distillation_weight}")
 
-    # D-PeRFlow sampler for snapshot sampling
+        train_step_fn = d_perflow.get_consistency_step_fn(
+            noise=noise,
+            graph=graph,
+            teacher_model=teacher_model,
+            num_time_windows=cfg.d_perflow.num_time_windows,
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            train=True,
+            optimize_fn=optimize_fn,
+            accum=cfg.training.accum,
+            consistency_weight=consistency_weight,
+            distillation_weight=distillation_weight,
+            debug_log_file=debug_log_file,
+        )
+
+        eval_step_fn = d_perflow.get_consistency_step_fn(
+            noise=noise,
+            graph=graph,
+            teacher_model=teacher_model,
+            num_time_windows=cfg.d_perflow.num_time_windows,
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            train=False,
+            optimize_fn=optimize_fn,
+            accum=cfg.training.accum,
+            consistency_weight=consistency_weight,
+            distillation_weight=distillation_weight,
+            debug_log_file=debug_log_file,
+        )
+    else:
+        # Default D-PeRFlow training mode
+        train_step_fn = d_perflow.get_d_perflow_step_fn(
+            noise=noise,
+            graph=graph,
+            teacher_model=teacher_model,
+            num_time_windows=cfg.d_perflow.num_time_windows,
+            delta_t=cfg.d_perflow.delta_t,
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            euler_steps=cfg.d_perflow.euler_steps,
+            train=True,
+            optimize_fn=optimize_fn,
+            accum=cfg.training.accum,
+            train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
+            debug_log_file=debug_log_file,
+        )
+
+        eval_step_fn = d_perflow.get_d_perflow_step_fn(
+            noise=noise,
+            graph=graph,
+            teacher_model=teacher_model,
+            num_time_windows=cfg.d_perflow.num_time_windows,
+            delta_t=cfg.d_perflow.delta_t,
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            euler_steps=cfg.d_perflow.euler_steps,
+            train=False,
+            optimize_fn=optimize_fn,
+            accum=cfg.training.accum,
+            train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
+            debug_log_file=debug_log_file,
+        )
+
+    # Sampler for snapshot sampling
     if cfg.training.snapshot_sampling:
         sampling_shape = (
             cfg.training.batch_size // (cfg.ngpus * cfg.training.accum),
             cfg.model.length
         )
-        d_perflow_sampler = d_perflow.get_d_perflow_sampler(
-            graph=graph,
-            noise=noise,
-            num_time_windows=cfg.d_perflow.num_time_windows,
-            sampling_eps=cfg.d_perflow.sampling_eps
-        )
+        if training_mode == 'consistency':
+            # Use Consistency sampler
+            consistency_sampling_steps = cfg.d_perflow.get('consistency_sampling_steps', 1)
+            mprint(f"Using Consistency sampler with {consistency_sampling_steps} steps")
+            d_perflow_sampler = d_perflow.get_consistency_sampler(
+                graph=graph,
+                noise=noise,
+                num_steps=consistency_sampling_steps,
+                sampling_eps=cfg.d_perflow.sampling_eps,
+                debug=False
+            )
+        else:
+            # Use D-PeRFlow sampler
+            d_perflow_sampler = d_perflow.get_d_perflow_sampler(
+                graph=graph,
+                noise=noise,
+                num_time_windows=cfg.d_perflow.num_time_windows,
+                sampling_eps=cfg.d_perflow.sampling_eps
+            )
 
     num_train_steps = cfg.training.n_iters
     mprint(f"Starting D-PeRFlow training at step {initial_step}.")

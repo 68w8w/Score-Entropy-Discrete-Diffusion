@@ -823,3 +823,402 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         sampler: DPerflowSampler instance
     """
     return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug, debug_log_file)
+
+
+# =============================================================================
+# Consistency Training for Discrete Diffusion
+# =============================================================================
+
+def get_consistency_loss_fn(
+    noise,
+    graph,
+    teacher_model,
+    num_time_windows: int = 4,
+    sampling_eps: float = 1e-3,
+    train: bool = True,
+    consistency_weight: float = 1.0,
+    distillation_weight: float = 1.0,
+    debug_log_file: str = None,
+):
+    """
+    Create the Consistency Training loss function for discrete diffusion.
+
+    Consistency Training learns a model that can directly predict x_0 from any
+    point on the diffusion trajectory. The key constraint is that predictions
+    from different points on the SAME trajectory should be CONSISTENT.
+
+    Loss = consistency_loss + distillation_loss
+
+    consistency_loss: f(x_t, t) should equal f(x_{t-dt}, t-dt)
+    distillation_loss: f(x_t, t) should match teacher's prediction of x_0
+
+    Args:
+        noise: Noise schedule module
+        graph: Graph structure (Absorbing)
+        teacher_model: Pre-trained teacher model
+        num_time_windows: Number of time windows (for sampling time points)
+        sampling_eps: Epsilon to avoid t=0
+        train: Training mode
+        consistency_weight: Weight for consistency loss
+        distillation_weight: Weight for distillation loss (matching teacher)
+        debug_log_file: Path for debug logs
+
+    Returns:
+        loss_fn: Loss function
+    """
+    # Get teacher score function
+    teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
+
+    def compute_x0_prediction(score, x, mask_token_id=None):
+        """
+        Compute P(x_0 | x_t) from score predictions.
+
+        For SEDD with absorbing graph:
+        - At MASKED positions: P(x_0 = k) ∝ score_k (normalize over non-mask tokens)
+        - At non-masked positions: P(x_0 = x_t) = 1 (token is revealed)
+
+        Args:
+            score: Model scores [B, L, V]
+            x: Current noisy tokens [B, L]
+            mask_token_id: ID of the mask token (default: V-1 for absorbing graph)
+
+        Returns:
+            x0_probs: Predicted P(x_0 | x_t) distribution [B, L, V-1] (excludes mask token)
+        """
+        B, L, V = score.shape
+
+        if mask_token_id is None:
+            mask_token_id = V - 1  # Absorbing graph uses last token as mask
+
+        # Initialize output probabilities (excluding mask token)
+        x0_probs = torch.zeros(B, L, V - 1, device=score.device, dtype=score.dtype)
+
+        # Identify masked and non-masked positions
+        is_masked = (x == mask_token_id)  # [B, L]
+
+        # For MASKED positions: normalize score over non-mask tokens
+        # score[:, :, :-1] gives scores for actual tokens (not mask)
+        score_for_tokens = score[:, :, :-1]  # [B, L, V-1]
+
+        # Softmax to get probabilities (for masked positions)
+        masked_probs = F.softmax(score_for_tokens, dim=-1)  # [B, L, V-1]
+
+        # For NON-MASKED positions: one-hot at current token
+        non_mask_probs = F.one_hot(x.clamp(max=V-2), num_classes=V-1).float()  # [B, L, V-1]
+
+        # Combine: use masked_probs where masked, non_mask_probs otherwise
+        is_masked_expanded = is_masked.unsqueeze(-1)  # [B, L, 1]
+        x0_probs = torch.where(is_masked_expanded, masked_probs, non_mask_probs)
+
+        return x0_probs
+
+    def teacher_one_step_euler(x, t, dt):
+        """
+        Run one Euler step using the teacher to get x_{t-dt}.
+
+        Args:
+            x: Current state [B, L]
+            t: Current time [B]
+            dt: Step size (scalar or [B])
+
+        Returns:
+            x_next: State at t-dt [B, L]
+        """
+        sigma, dsigma = noise(t)  # Both [B]
+        score = teacher_score_fn(x, sigma)  # [B, L, V]
+
+        # SEDD Euler step
+        if isinstance(dt, float):
+            dt_tensor = torch.full_like(t, dt)
+        else:
+            dt_tensor = dt
+
+        scale = (dt_tensor * dsigma)[:, None, None]  # [B, 1, 1]
+        rev_rate = scale * graph.reverse_rate(x, score)  # [B, L, V]
+
+        one_hot_current = F.one_hot(x, num_classes=graph.dim).float()
+        probs = one_hot_current + rev_rate
+        probs = probs.clamp(min=0)
+        probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # Sample
+        x_next = sample_categorical(probs, method="hard")
+        return x_next
+
+    def loss_fn(model, batch):
+        """
+        Compute Consistency Training loss.
+
+        1. Sample time t uniformly in [eps, 1]
+        2. Construct x_t from x_0
+        3. Student predicts x_0 from x_t: f(x_t, t)
+        4. Teacher takes one step: x_t → x_{t-dt}
+        5. Student predicts x_0 from x_{t-dt}: f(x_{t-dt}, t-dt)
+        6. Consistency loss: KL(f(x_{t-dt}, t-dt) || f(x_t, t))
+        7. Distillation loss: KL(teacher_x0_pred || student_x0_pred)
+        """
+        device = batch.device
+        batch_size = batch.shape[0]
+        x_0 = batch
+
+        # 1. Sample time uniformly
+        t = torch.rand(batch_size, device=device) * (1.0 - sampling_eps) + sampling_eps  # [B]
+
+        # 2. Construct x_t
+        sigma_t = noise(t)[0]  # [B]
+        x_t = graph.sample_transition(x_0, sigma_t[:, None])  # [B, L]
+
+        # 3. Student predicts x_0 from x_t
+        student_log_score_fn = mutils.get_score_fn(model, train=train, sampling=False)
+        student_log_score_t = student_log_score_fn(x_t, sigma_t)  # [B, L, V]
+        # Convert log-score to score for x0 prediction
+        student_log_score_t_clamped = student_log_score_t.clamp(min=-30, max=30)
+        student_x0_pred_t = compute_x0_prediction(student_log_score_t_clamped, x_t)  # [B, L, V-1]
+
+        # 4. Teacher takes one step: x_t → x_{t-dt}
+        # dt = small step (we use fraction of remaining time)
+        dt = 0.1 * t  # 10% of current time as step size
+        t_next = t - dt  # [B]
+        t_next = t_next.clamp(min=sampling_eps)  # Don't go below eps
+        actual_dt = t - t_next  # Actual step taken
+
+        with torch.no_grad():
+            x_t_next = teacher_one_step_euler(x_t, t, actual_dt)  # [B, L]
+
+        # 5. Student predicts x_0 from x_{t-dt} (STOP GRADIENT on target)
+        sigma_t_next = noise(t_next)[0]
+
+        # For consistency loss, we use EMA model or stop gradient on target
+        # Here we use stop gradient on the target prediction
+        with torch.no_grad():
+            student_log_score_t_next = student_log_score_fn(x_t_next, sigma_t_next)
+            student_log_score_t_next_clamped = student_log_score_t_next.clamp(min=-30, max=30)
+            student_x0_pred_t_next = compute_x0_prediction(student_log_score_t_next_clamped, x_t_next)
+
+        # 6. Consistency loss: predictions should match
+        # KL(target || source) where target is from t-dt (stopped gradient)
+        consistency_loss = F.kl_div(
+            (student_x0_pred_t + 1e-10).log(),  # source (has gradient)
+            student_x0_pred_t_next,  # target (no gradient)
+            reduction='none'
+        ).sum(dim=-1).mean(dim=-1)  # [B]
+
+        # 7. Distillation loss: match teacher's x0 prediction
+        with torch.no_grad():
+            teacher_score_t = teacher_score_fn(x_t, sigma_t)  # [B, L, V]
+            teacher_x0_pred = compute_x0_prediction(teacher_score_t, x_t)  # [B, L, V-1]
+
+        distillation_loss = F.kl_div(
+            (student_x0_pred_t + 1e-10).log(),
+            teacher_x0_pred,
+            reduction='none'
+        ).sum(dim=-1).mean(dim=-1)  # [B]
+
+        # Combined loss
+        loss = consistency_weight * consistency_loss + distillation_weight * distillation_loss
+
+        # Debug logging
+        if hasattr(loss_fn, 'debug_step'):
+            loss_fn.debug_step += 1
+            if loss_fn.debug_step % 100 == 0:
+                with torch.no_grad():
+                    # Student prediction entropy
+                    student_entropy = -(student_x0_pred_t * (student_x0_pred_t + 1e-10).log()).sum(dim=-1).mean()
+
+                    # Teacher prediction entropy
+                    teacher_entropy = -(teacher_x0_pred * (teacher_x0_pred + 1e-10).log()).sum(dim=-1).mean()
+
+                    # Agreement rate
+                    student_argmax = student_x0_pred_t.argmax(dim=-1)
+                    teacher_argmax = teacher_x0_pred.argmax(dim=-1)
+                    agreement = (student_argmax == teacher_argmax).float().mean() * 100
+
+                    # Unique predictions
+                    seq_len = student_argmax.shape[1]
+                    student_unique = torch.tensor([len(torch.unique(row)) for row in student_argmax]).float().mean()
+
+                    # Masked ratio
+                    mask_token_id = graph.dim - 1
+                    masked_ratio = (x_t == mask_token_id).float().mean() * 100
+
+                    import datetime
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    debug_msg = (
+                        f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
+                        f"  Method: Consistency Training\n"
+                        f"  Avg t: {t.mean():.4f}, masked_ratio: {masked_ratio:.1f}%\n"
+                        f"  Teacher: entropy={teacher_entropy:.4f}\n"
+                        f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
+                        f"  Argmax agreement: {agreement:.1f}%\n"
+                        f"  Consistency loss: {consistency_loss.mean():.4f}\n"
+                        f"  Distillation loss: {distillation_loss.mean():.4f}\n"
+                        f"  Total loss: {loss.mean():.4f}\n"
+                    )
+
+                    print(debug_msg)
+
+                    if debug_log_file is not None:
+                        with open(debug_log_file, 'a') as f:
+                            f.write(debug_msg)
+        else:
+            loss_fn.debug_step = 0
+
+        return loss
+
+    return loss_fn
+
+
+def get_consistency_step_fn(
+    noise,
+    graph,
+    teacher_model,
+    num_time_windows: int = 4,
+    sampling_eps: float = 1e-3,
+    train: bool = True,
+    optimize_fn=None,
+    accum: int = 1,
+    consistency_weight: float = 1.0,
+    distillation_weight: float = 1.0,
+    debug_log_file: str = None,
+):
+    """
+    Create the Consistency Training step function.
+    """
+    loss_fn = get_consistency_loss_fn(
+        noise=noise,
+        graph=graph,
+        teacher_model=teacher_model,
+        num_time_windows=num_time_windows,
+        sampling_eps=sampling_eps,
+        train=train,
+        consistency_weight=consistency_weight,
+        distillation_weight=distillation_weight,
+        debug_log_file=debug_log_file,
+    )
+
+    accum_iter = 0
+    total_loss = 0
+
+    def step_fn(state, batch):
+        nonlocal accum_iter
+        nonlocal total_loss
+
+        model = state['model']
+
+        if train:
+            optimizer = state['optimizer']
+            scaler = state['scaler']
+            loss = loss_fn(model, batch).mean() / accum
+
+            scaler.scale(loss).backward()
+
+            accum_iter += 1
+            total_loss += loss.detach()
+
+            if accum_iter == accum:
+                accum_iter = 0
+
+                state['step'] += 1
+                optimize_fn(optimizer, scaler, model.parameters(), step=state['step'])
+                state['ema'].update(model.parameters())
+                optimizer.zero_grad()
+
+                loss = total_loss
+                total_loss = 0
+        else:
+            with torch.no_grad():
+                ema = state['ema']
+                ema.store(model.parameters())
+                ema.copy_to(model.parameters())
+                loss = loss_fn(model, batch).mean()
+                ema.restore(model.parameters())
+
+        return loss
+
+    return step_fn
+
+
+class ConsistencySampler:
+    """
+    Sampler for Consistency-trained models.
+
+    Consistency models can generate in 1 step by directly predicting x_0,
+    or in multiple steps for better quality.
+    """
+
+    def __init__(self, graph, noise, num_steps: int = 1, sampling_eps: float = 1e-3, debug: bool = False):
+        self.graph = graph
+        self.noise = noise
+        self.num_steps = num_steps
+        self.sampling_eps = sampling_eps
+        self.debug = debug
+
+    @torch.no_grad()
+    def sample(self, model, batch_dims, device):
+        """
+        Generate samples using consistency model.
+
+        For num_steps=1: Direct one-shot generation from noise
+        For num_steps>1: Iterative refinement
+        """
+        score_fn = mutils.get_score_fn(model, train=False, sampling=False)
+
+        # Start from pure noise
+        x = self.graph.sample_limit(*batch_dims).to(device)
+
+        # Time steps for multi-step generation
+        times = torch.linspace(1.0, self.sampling_eps, self.num_steps + 1, device=device)
+
+        mask_token_id = self.graph.dim - 1
+
+        for i in range(self.num_steps):
+            t = times[i] * torch.ones(batch_dims[0], device=device)
+            sigma = self.noise(t)[0]
+
+            # Get model predictions
+            log_score = score_fn(x, sigma)
+            log_score = log_score.clamp(min=-30, max=30)
+
+            # For masked positions: predict x_0 using softmax over non-mask tokens
+            score_for_tokens = log_score[:, :, :-1]  # Exclude mask token
+            x0_probs = F.softmax(score_for_tokens, dim=-1)  # [B, L, V-1]
+
+            if self.debug:
+                entropy = -(x0_probs * (x0_probs + 1e-10).log()).sum(dim=-1).mean()
+                masked_ratio = (x == mask_token_id).float().mean() * 100
+                print(f"[Step {i+1}/{self.num_steps}] t={times[i]:.4f}, masked_ratio={masked_ratio:.1f}%, entropy={entropy:.4f}")
+
+            # Sample x_0 for masked positions
+            is_masked = (x == mask_token_id)
+
+            # Sample from x0_probs
+            sampled_x0 = sample_categorical(x0_probs, method="hard")  # [B, L]
+
+            # Update only masked positions
+            x = torch.where(is_masked, sampled_x0, x)
+
+            # For multi-step: optionally add noise back for intermediate steps
+            if i < self.num_steps - 1:
+                # Re-noise to intermediate time
+                t_next = times[i + 1]
+                sigma_next = self.noise(t_next * torch.ones(batch_dims[0], device=device))[0]
+                x = self.graph.sample_transition(x, sigma_next[:, None])
+
+        return x
+
+
+def get_consistency_sampler(graph, noise, num_steps: int = 1, sampling_eps: float = 1e-3, debug: bool = False):
+    """
+    Create a Consistency model sampler.
+
+    Args:
+        graph: Graph structure
+        noise: Noise schedule
+        num_steps: Number of sampling steps (1 for one-shot, >1 for iterative)
+        sampling_eps: Epsilon to avoid t=0
+        debug: Print debug info
+
+    Returns:
+        sampler: ConsistencySampler instance
+    """
+    return ConsistencySampler(graph, noise, num_steps, sampling_eps, debug)

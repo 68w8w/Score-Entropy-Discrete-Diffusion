@@ -34,6 +34,19 @@ d_perflow:
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0
 
+  # Training mode: 'd_perflow' (default) or 'consistency'
+  # - d_perflow: Standard D-PeRFlow training (match teacher distribution at window boundaries)
+  # - consistency: Consistency Training (learn to predict x_0 from any point on trajectory)
+  training_mode: d_perflow
+
+  # Consistency Training specific settings (only used when training_mode=consistency)
+  # Weight for consistency loss: f(x_t, t) should equal f(x_{t-dt}, t-dt)
+  consistency_weight: 1.0
+  # Weight for distillation loss: f(x_t, t) should match teacher's x_0 prediction
+  distillation_weight: 1.0
+  # Number of sampling steps for consistency model inference (1 = one-shot, >1 = iterative)
+  consistency_sampling_steps: 1
+
 training:
   batch_size: 256  # Smaller batch for distillation
   accum: 1

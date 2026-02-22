@@ -27,7 +27,7 @@ import graph_lib
 from model import SEDD
 from model import utils as mutils
 from model.ema import ExponentialMovingAverage
-from d_perflow import DPerflowSampler
+from d_perflow import DPerflowSampler, ConsistencySampler
 import losses
 import sampling
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
@@ -243,10 +243,12 @@ def main():
     parser.add_argument('--device', type=str, default='cuda:0',
                         help='Device to use')
     parser.add_argument('--sampler', type=str, default='d_perflow',
-                        choices=['d_perflow', 'sedd'],
-                        help='Sampler to use: d_perflow or sedd (original SEDD sampler)')
+                        choices=['d_perflow', 'consistency', 'sedd'],
+                        help='Sampler to use: d_perflow, consistency, or sedd (original SEDD sampler)')
     parser.add_argument('--sedd_steps', type=int, default=128,
                         help='Number of steps for SEDD sampler (only used when --sampler=sedd)')
+    parser.add_argument('--consistency_steps', type=int, default=1,
+                        help='Number of steps for Consistency sampler (1 = one-shot, >1 = iterative)')
     parser.add_argument('--temperature', type=float, default=1.0,
                         help='Temperature for softmax (higher = more diverse outputs)')
     parser.add_argument('--debug', action='store_true',
@@ -300,6 +302,15 @@ def main():
             debug_log_file=args.debug_log_file
         )
         steps_info = f"{args.num_time_windows} steps (D-PeRFlow, T={args.temperature})"
+    elif args.sampler == 'consistency':
+        sampler = ConsistencySampler(
+            graph=graph,
+            noise=noise,
+            num_steps=args.consistency_steps,
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            debug=args.debug
+        )
+        steps_info = f"{args.consistency_steps} steps (Consistency)"
     else:
         # Use SEDD original sampler (AnalyticPredictor)
         sampler = None  # Will use get_pc_sampler directly
@@ -315,7 +326,7 @@ def main():
             current_batch_size = min(args.batch_size, args.num_samples - i * args.batch_size)
             batch_dims = (current_batch_size, cfg.model.length)
 
-            if args.sampler == 'd_perflow':
+            if args.sampler in ['d_perflow', 'consistency']:
                 samples = sampler.sample(model, batch_dims, device)
             else:
                 # Use SEDD original sampler
@@ -398,6 +409,9 @@ def main():
     if args.sampler == 'd_perflow':
         print(f"  Steps (K): {args.num_time_windows}")
         print(f"  NFEs: {args.num_time_windows}")
+    elif args.sampler == 'consistency':
+        print(f"  Steps: {args.consistency_steps}")
+        print(f"  NFEs: {args.consistency_steps}")
     else:
         print(f"  Steps: {args.sedd_steps}")
         print(f"  NFEs: {args.sedd_steps}")
