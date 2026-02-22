@@ -1,10 +1,16 @@
 """
 Evaluation script for D-PeRFlow model.
-Generates samples in batches and computes PPL on all samples together.
+Generates samples in batches and computes PPL, MAUVE, Self-BLEU on all samples.
 
 Usage:
     python eval_d_perflow.py --checkpoint checkpoints-meta/checkpoint_2002.pth \
         --num_samples 1024 --batch_size 32 --device cuda:0
+
+Metrics:
+    - PPL: Perplexity using GPT-2 (lower = better quality)
+    - MAUVE: Distribution similarity to real text (higher = better, 0-1)
+    - Self-BLEU: Sample diversity (lower = more diverse)
+    - Distinct-n: N-gram diversity (higher = more diverse)
 """
 
 import torch
@@ -24,7 +30,7 @@ from model.ema import ExponentialMovingAverage
 from d_perflow import DPerflowSampler
 import losses
 import sampling
-from transformers import GPT2LMHeadModel
+from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
 
 def load_model(cfg, checkpoint_path, device):
@@ -89,6 +95,138 @@ def compute_perplexity(samples, batch_size=8):
     return avg_perplexity
 
 
+def compute_distinct_n(texts, n=2):
+    """
+    Compute Distinct-n: ratio of unique n-grams to total n-grams.
+    Higher = more diverse (0-1).
+    """
+    all_ngrams = []
+    for text in texts:
+        tokens = text.split()
+        if len(tokens) >= n:
+            ngrams = [tuple(tokens[i:i+n]) for i in range(len(tokens)-n+1)]
+            all_ngrams.extend(ngrams)
+
+    if len(all_ngrams) == 0:
+        return 0.0
+
+    return len(set(all_ngrams)) / len(all_ngrams)
+
+
+def compute_self_bleu(texts, n=4, sample_size=100):
+    """
+    Compute Self-BLEU: average BLEU of each sample against others.
+    Lower = more diverse.
+
+    Args:
+        texts: List of generated texts
+        n: N-gram order for BLEU
+        sample_size: Number of samples to use (for speed)
+    """
+    try:
+        from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+    except ImportError:
+        print("Warning: nltk not installed. Skipping Self-BLEU. Install with: pip install nltk")
+        return None
+
+    # Sample if too many texts
+    import random
+    if len(texts) > sample_size:
+        texts = random.sample(texts, sample_size)
+
+    if len(texts) < 2:
+        return 0.0
+
+    smoothing = SmoothingFunction().method1
+    scores = []
+
+    # Compute BLEU for each sample against all others
+    for i, text in enumerate(texts):
+        hypothesis = text.split()
+        references = [t.split() for j, t in enumerate(texts) if j != i]
+
+        if len(hypothesis) == 0 or len(references) == 0:
+            continue
+
+        try:
+            # Use uniform weights up to n-gram
+            weights = [1.0/n] * n
+            score = sentence_bleu(references, hypothesis,
+                                  weights=weights,
+                                  smoothing_function=smoothing)
+            scores.append(score)
+        except:
+            continue
+
+    if len(scores) == 0:
+        return 0.0
+
+    return sum(scores) / len(scores)
+
+
+def compute_mauve(generated_texts, reference_texts=None, device_id=0, max_len=256):
+    """
+    Compute MAUVE score: distribution similarity between generated and real text.
+    Higher = better (0-1).
+
+    Args:
+        generated_texts: List of generated texts
+        reference_texts: List of reference texts (if None, uses wikitext)
+        device_id: GPU device ID
+        max_len: Maximum text length for MAUVE computation
+    """
+    try:
+        import mauve
+    except ImportError:
+        print("Warning: mauve-text not installed. Skipping MAUVE. Install with: pip install mauve-text")
+        return None
+
+    # If no reference texts provided, load some from a dataset
+    if reference_texts is None:
+        try:
+            from datasets import load_dataset
+            print("  Loading reference texts from wikitext-103...")
+            dataset = load_dataset("wikitext", "wikitext-103-raw-v1", split="test")
+            # Filter and get similar number of samples
+            reference_texts = [t for t in dataset["text"] if len(t.split()) > 20]
+            reference_texts = reference_texts[:len(generated_texts)]
+        except Exception as e:
+            print(f"Warning: Could not load reference dataset: {e}")
+            print("  Skipping MAUVE computation.")
+            return None
+
+    # Truncate texts to max_len tokens for efficiency
+    def truncate(text, max_tokens=max_len):
+        tokens = text.split()[:max_tokens]
+        return " ".join(tokens)
+
+    generated_texts = [truncate(t) for t in generated_texts]
+    reference_texts = [truncate(t) for t in reference_texts]
+
+    # Filter empty texts
+    generated_texts = [t for t in generated_texts if len(t.strip()) > 0]
+    reference_texts = [t for t in reference_texts if len(t.strip()) > 0]
+
+    if len(generated_texts) == 0 or len(reference_texts) == 0:
+        print("Warning: No valid texts for MAUVE computation.")
+        return None
+
+    print(f"  Computing MAUVE with {len(generated_texts)} generated and {len(reference_texts)} reference texts...")
+
+    try:
+        result = mauve.compute_mauve(
+            p_text=reference_texts,
+            q_text=generated_texts,
+            device_id=device_id,
+            max_text_length=max_len,
+            verbose=False
+        )
+        return result.mauve
+    except Exception as e:
+        print(f"Warning: MAUVE computation failed: {e}")
+        return None
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -115,7 +253,21 @@ def main():
                         help='Enable debug mode to print distribution statistics at each step')
     parser.add_argument('--debug_log_file', type=str, default=None,
                         help='Path to save debug logs (if None, print to console only)')
+    parser.add_argument('--compute_mauve', action='store_true',
+                        help='Compute MAUVE score (requires mauve-text package)')
+    parser.add_argument('--compute_self_bleu', action='store_true',
+                        help='Compute Self-BLEU score (requires nltk package)')
+    parser.add_argument('--compute_distinct', action='store_true',
+                        help='Compute Distinct-n scores')
+    parser.add_argument('--all_metrics', action='store_true',
+                        help='Compute all metrics (PPL, MAUVE, Self-BLEU, Distinct-n)')
     args = parser.parse_args()
+
+    # If --all_metrics, enable all
+    if args.all_metrics:
+        args.compute_mauve = True
+        args.compute_self_bleu = True
+        args.compute_distinct = True
 
     # Load config manually (merge base config with model config)
     config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "configs")
@@ -185,24 +337,62 @@ def main():
     all_samples = torch.cat(all_samples, dim=0)
     print(f"Total samples generated: {all_samples.shape[0]}")
 
-    # Print sample texts for quality inspection
-    from transformers import GPT2TokenizerFast
+    # Decode all samples to text
     tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
+    all_texts = [tokenizer.decode(sample) for sample in all_samples]
+
+    # Print sample texts for quality inspection
     print(f"\n{'='*50}")
     print("Sample texts (first 5):")
     print(f"{'='*50}")
-    for idx in range(min(5, all_samples.shape[0])):
-        text = tokenizer.decode(all_samples[idx])
+    for idx in range(min(5, len(all_texts))):
         print(f"\n--- Sample {idx+1} ---")
-        print(text[:500])
+        print(all_texts[idx][:500])
     print(f"\n{'='*50}")
 
-    # Compute perplexity
+    # Initialize results dict
+    results = {}
+
+    # Compute perplexity (always computed)
     print(f"\nComputing perplexity...")
     ppl = compute_perplexity(all_samples, batch_size=args.ppl_batch_size)
+    results['PPL'] = ppl
 
-    print(f"\n{'='*50}")
-    print(f"Results:")
+    # Compute Distinct-n
+    if args.compute_distinct:
+        print(f"\nComputing Distinct-n...")
+        distinct_1 = compute_distinct_n(all_texts, n=1)
+        distinct_2 = compute_distinct_n(all_texts, n=2)
+        distinct_3 = compute_distinct_n(all_texts, n=3)
+        results['Distinct-1'] = distinct_1
+        results['Distinct-2'] = distinct_2
+        results['Distinct-3'] = distinct_3
+        print(f"  Distinct-1: {distinct_1:.4f}")
+        print(f"  Distinct-2: {distinct_2:.4f}")
+        print(f"  Distinct-3: {distinct_3:.4f}")
+
+    # Compute Self-BLEU
+    if args.compute_self_bleu:
+        print(f"\nComputing Self-BLEU...")
+        self_bleu = compute_self_bleu(all_texts, n=4, sample_size=100)
+        if self_bleu is not None:
+            results['Self-BLEU'] = self_bleu
+            print(f"  Self-BLEU: {self_bleu:.4f}")
+
+    # Compute MAUVE
+    if args.compute_mauve:
+        print(f"\nComputing MAUVE...")
+        # Extract device ID from device string
+        device_id = int(args.device.split(':')[1]) if ':' in args.device else 0
+        mauve_score = compute_mauve(all_texts, device_id=device_id)
+        if mauve_score is not None:
+            results['MAUVE'] = mauve_score
+            print(f"  MAUVE: {mauve_score:.4f}")
+
+    # Print final results
+    print(f"\n{'='*60}")
+    print(f"Final Results:")
+    print(f"{'='*60}")
     print(f"  Sampler: {args.sampler}")
     print(f"  Samples: {args.num_samples}")
     if args.sampler == 'd_perflow':
@@ -211,8 +401,17 @@ def main():
     else:
         print(f"  Steps: {args.sedd_steps}")
         print(f"  NFEs: {args.sedd_steps}")
-    print(f"  PPL: {ppl:.3f}")
-    print(f"{'='*50}")
+    print(f"-" * 60)
+    print(f"  PPL: {results['PPL']:.3f} (lower = better quality)")
+    if 'Distinct-1' in results:
+        print(f"  Distinct-1: {results['Distinct-1']:.4f} (higher = more diverse)")
+        print(f"  Distinct-2: {results['Distinct-2']:.4f} (higher = more diverse)")
+        print(f"  Distinct-3: {results['Distinct-3']:.4f} (higher = more diverse)")
+    if 'Self-BLEU' in results:
+        print(f"  Self-BLEU: {results['Self-BLEU']:.4f} (lower = more diverse)")
+    if 'MAUVE' in results:
+        print(f"  MAUVE: {results['MAUVE']:.4f} (higher = closer to real text)")
+    print(f"{'='*60}")
 
 
 if __name__ == '__main__':
