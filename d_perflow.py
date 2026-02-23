@@ -252,8 +252,13 @@ class DPerflowTrainer:
             # Get current and next sigma
             curr_sigma = self.noise(current_t)[0]  # [B]
             next_t = current_t - dt
+            # Clamp next_t to avoid going below eps
+            next_t = next_t.clamp(min=self.sampling_eps)
             next_sigma = self.noise(next_t)[0]  # [B]
             dsigma = curr_sigma - next_sigma  # [B]
+
+            # Clamp dsigma to avoid numerical issues at low noise
+            dsigma = dsigma.clamp(min=1e-6)
 
             # Compute score
             score = score_fn(current_x, curr_sigma)  # [B, L, V]
@@ -264,7 +269,8 @@ class DPerflowTrainer:
             stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
             probs = stag_score * self.graph.transp_transition(current_x, dsigma_expanded)  # [B, L, V]
 
-            # Normalize
+            # Clamp to avoid negative values and normalize
+            probs = probs.clamp(min=1e-10)
             probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
             # Update time
