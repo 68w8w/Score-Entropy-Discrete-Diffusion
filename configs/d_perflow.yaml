@@ -27,9 +27,15 @@ d_perflow:
   # Small epsilon to avoid t=0 numerical issues
   sampling_eps: 1e-3
 
-  # Number of Euler steps per window for ODE solver
-  # More steps = more accurate teacher distribution but slower
-  euler_steps: 1
+  # Teacher sampling configuration (NEW - like SDTT)
+  # teacher_sampler: 'analytical' (SEDD native, recommended) or 'euler' (legacy)
+  # - 'analytical' uses discrete transition matrix: stag_score * transp_transition
+  # - 'euler' uses continuous ODE approximation: one_hot + dt * dsigma * reverse_rate
+  teacher_sampler: analytical
+
+  # Number of teacher steps per window (default: 2 as in SDTT)
+  # Using 2 steps instead of 64 makes training ~32x faster!
+  teacher_steps: 2
 
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0

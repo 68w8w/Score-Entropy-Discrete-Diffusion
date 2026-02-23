@@ -208,6 +208,75 @@ class DPerflowTrainer:
 
         return probs
 
+    def compute_analytical_distribution(
+        self,
+        score_fn,
+        x: torch.Tensor,
+        t_start: torch.Tensor,
+        t_end: torch.Tensor,
+        num_steps: int = 2,
+    ):
+        """
+        Compute the target distribution using SEDD's native Analytical sampling.
+
+        This is the DISCRETE-NATIVE method that uses:
+            probs = staggered_score(score, dsigma) * transp_transition(x, dsigma)
+
+        Unlike Euler which is a continuous ODE approximation, this directly uses
+        the discrete transition probability matrix. SDTT paper found this works
+        as well or better than complex alternatives.
+
+        Args:
+            score_fn: Score function from teacher model (returns true scores)
+            x: Starting discrete state [B, L]
+            t_start: Start time [B] or [B, 1]
+            t_end: End time [B] or [B, 1]
+            num_steps: Number of analytical steps (default: 2 as in SDTT)
+
+        Returns:
+            probs: Target probability distribution at t_end [B, L, V]
+        """
+        # Ensure time tensors are 1D [B]
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+
+        # Total time to traverse
+        dt = (t_start_1d - t_end_1d) / num_steps  # [B]
+
+        # Initialize current state and time
+        current_x = x
+        current_t = t_start_1d.clone()  # [B]
+        probs = None
+
+        for step in range(num_steps):
+            # Get current and next sigma
+            curr_sigma = self.noise(current_t)[0]  # [B]
+            next_t = current_t - dt
+            next_sigma = self.noise(next_t)[0]  # [B]
+            dsigma = curr_sigma - next_sigma  # [B]
+
+            # Compute score
+            score = score_fn(current_x, curr_sigma)  # [B, L, V]
+
+            # SEDD native analytical sampling:
+            # probs = staggered_score(score, dsigma) * transp_transition(x, dsigma)
+            dsigma_expanded = dsigma[:, None]  # [B, 1]
+            stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
+            probs = stag_score * self.graph.transp_transition(current_x, dsigma_expanded)  # [B, L, V]
+
+            # Normalize
+            probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
+
+            # Update time
+            current_t = next_t
+
+            # For multi-step, sample intermediate states
+            # Only the last step returns distribution without sampling
+            if step < num_steps - 1:
+                current_x = sample_categorical(probs, method="hard")
+
+        return probs
+
     def compute_teacher_distributions(
         self,
         teacher_score_fn,
@@ -426,7 +495,8 @@ def get_d_perflow_loss_fn(
     num_time_windows: int = 4,
     delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 2,
+    teacher_sampler: str = "analytical",
     train: bool = True,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
@@ -441,7 +511,10 @@ def get_d_perflow_loss_fn(
         num_time_windows: Number of time windows K
         delta_t: Small step for analytic distribution computation
         sampling_eps: Small epsilon to avoid t=0
-        euler_steps: Number of Euler steps per window
+        teacher_steps: Number of steps for teacher sampling (default: 2 as in SDTT)
+        teacher_sampler: Teacher sampling method - 'analytical' (SEDD native) or 'euler'
+                        'analytical' uses discrete transition matrix (recommended)
+                        'euler' uses continuous ODE approximation
         train: Whether in training mode
         train_temperature: Temperature for softening distributions during training
                           Higher temperature = softer distributions = more diverse outputs
@@ -459,7 +532,7 @@ def get_d_perflow_loss_fn(
         sampling_eps=sampling_eps,
     )
 
-    # Get teacher score function (always in eval mode, returns true score for Euler)
+    # Get teacher score function (always in eval mode, returns true score)
     teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
 
     def student_score_wrapper(model, train_mode):
@@ -479,14 +552,11 @@ def get_d_perflow_loss_fn(
 
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss using Forward KL with SEDD native Euler steps.
+        Compute D-PeRFlow loss using Forward KL.
 
-        Teacher computes target distribution P_{t_{k-1}} via multi-step Euler.
-        Student computes distribution via 1-step Euler using its own scores.
+        Teacher computes target distribution P_{t_{k-1}} via multi-step sampling.
+        Student computes distribution via 1-step using its own scores.
         Loss = KL(P_target || P_student)
-
-        This ensures training and inference use the SAME mechanism (Euler step),
-        eliminating the distribution shift that caused mode collapse with softmax.
 
         Args:
             model: Student model
@@ -510,20 +580,31 @@ def get_d_perflow_loss_fn(
         with torch.no_grad():
             x_t_k = trainer.construct_noisy_state(batch, t_k)
 
-        # 3. Teacher computes target distribution P_{t_{k-1}} via multi-step Euler
+        # 3. Teacher computes target distribution P_{t_{k-1}}
+        # Using either Analytical (SEDD native) or Euler sampling
         with torch.no_grad():
-            _, P_t_k_minus_1 = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
-            )
+            if teacher_sampler == "analytical":
+                # SEDD native discrete sampling (recommended)
+                P_t_k_minus_1 = trainer.compute_analytical_distribution(
+                    teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=teacher_steps
+                )
+            else:
+                # Euler ODE approximation (legacy)
+                P_t_k_minus_1 = trainer.compute_euler_distribution(
+                    teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=teacher_steps
+                )
 
-        # 4. Student: 1-step Euler using student's scores
-        # This uses the SAME Euler mechanism as SEDD sampling:
-        #   probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
-        # The student's scores flow through this differentiably
+        # 4. Student: 1-step using student's scores
+        # Use the SAME method as teacher for consistency
         student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
-        P_student = trainer.compute_euler_distribution(
-            student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
-        )
+        if teacher_sampler == "analytical":
+            P_student = trainer.compute_analytical_distribution(
+                student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+            )
+        else:
+            P_student = trainer.compute_euler_distribution(
+                student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+            )
 
         # 5. Forward KL divergence loss: KL(P_target || P_student)
         loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
@@ -564,7 +645,7 @@ def get_d_perflow_loss_fn(
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     debug_msg = (
                         f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
-                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher)\n"
+                        f"  Method: {teacher_sampler.upper()} ({teacher_steps}-step teacher, 1-step student)\n"
                         f"  Avg window k: {k_mean:.1f}/{num_time_windows}\n"
                         f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
                         f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
@@ -595,7 +676,8 @@ def get_d_perflow_step_fn(
     num_time_windows: int = 4,
     delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 2,
+    teacher_sampler: str = "analytical",
     train: bool = True,
     optimize_fn=None,
     accum: int = 1,
@@ -612,7 +694,8 @@ def get_d_perflow_step_fn(
         num_time_windows: Number of time windows
         delta_t: Small step for analytic distribution
         sampling_eps: Epsilon to avoid t=0
-        euler_steps: Euler steps per window
+        teacher_steps: Number of steps for teacher sampling (default: 2)
+        teacher_sampler: 'analytical' (SEDD native, recommended) or 'euler'
         train: Training mode flag
         optimize_fn: Optimization function
         accum: Gradient accumulation steps
@@ -629,7 +712,8 @@ def get_d_perflow_step_fn(
         num_time_windows=num_time_windows,
         delta_t=delta_t,
         sampling_eps=sampling_eps,
-        euler_steps=euler_steps,
+        teacher_steps=teacher_steps,
+        teacher_sampler=teacher_sampler,
         train=train,
         train_temperature=train_temperature,
         debug_log_file=debug_log_file,
@@ -685,11 +769,14 @@ class DPerflowSampler:
     where K is the number of time windows.
     """
 
-    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False, debug_log_file: str = None):
+    def __init__(self, graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3,
+                 sampler_type: str = "analytical", temperature: float = 1.0,
+                 debug: bool = False, debug_log_file: str = None):
         self.graph = graph
         self.noise = noise
         self.num_time_windows = num_time_windows
         self.sampling_eps = sampling_eps
+        self.sampler_type = sampler_type  # 'analytical' or 'euler'
         self.temperature = temperature
         self.debug = debug
         self.debug_log_file = debug_log_file
@@ -704,10 +791,10 @@ class DPerflowSampler:
         """
         Generate samples using the trained student model.
 
-        Uses SEDD's native Euler step mechanism — the same mechanism used during training.
-        This eliminates distribution shift between training and inference.
+        Uses either Analytical (SEDD native) or Euler sampling mechanism.
+        Should match the method used during training.
 
-        At each window k: compute 1-step Euler from t_k to t_{k-1}, then sample.
+        At each window k: compute 1-step from t_k to t_{k-1}, then sample.
 
         Args:
             model: Trained student model
@@ -723,7 +810,7 @@ class DPerflowSampler:
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
 
-        # Sample through each window in reverse order using Euler steps
+        # Sample through each window in reverse order
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
             t_k_minus_1 = self.time_boundaries[k - 1].to(device)
@@ -732,20 +819,31 @@ class DPerflowSampler:
             t_start = t_k * torch.ones(batch_dims[0], device=device)
             t_end = t_k_minus_1 * torch.ones(batch_dims[0], device=device)
 
-            # Compute 1-step Euler from t_k to t_{k-1}
-            # This is the SAME mechanism used during training
-            dt = t_start - t_end  # [B]
-            sigma, dsigma = self.noise(t_start)  # Both [B]
-            score = score_fn(x, sigma)  # [B, L, V] - true scores
+            # Get sigma values
+            curr_sigma = self.noise(t_start)[0]  # [B]
+            next_sigma = self.noise(t_end)[0]  # [B]
+            dsigma = curr_sigma - next_sigma  # [B]
 
-            # SEDD native Euler step: probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
-            scale = (dt * dsigma)[:, None, None]  # [B, 1, 1]
-            rev_rate = scale * self.graph.reverse_rate(x, score)  # [B, L, V]
-            one_hot_current = F.one_hot(x, num_classes=self.graph.dim).float()
-            probs = one_hot_current + rev_rate
+            # Compute score
+            score = score_fn(x, curr_sigma)  # [B, L, V] - true scores
 
-            # Clamp and normalize
-            probs = probs.clamp(min=0)
+            if self.sampler_type == "analytical":
+                # SEDD native Analytical sampling (recommended)
+                # probs = staggered_score(score, dsigma) * transp_transition(x, dsigma)
+                dsigma_expanded = dsigma[:, None]  # [B, 1]
+                stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
+                probs = stag_score * self.graph.transp_transition(x, dsigma_expanded)  # [B, L, V]
+            else:
+                # Euler ODE approximation (legacy)
+                dt = t_start - t_end  # [B]
+                _, dsigma_euler = self.noise(t_start)  # dsigma from noise schedule
+                scale = (dt * dsigma_euler)[:, None, None]  # [B, 1, 1]
+                rev_rate = scale * self.graph.reverse_rate(x, score)  # [B, L, V]
+                one_hot_current = F.one_hot(x, num_classes=self.graph.dim).float()
+                probs = one_hot_current + rev_rate
+                probs = probs.clamp(min=0)
+
+            # Normalize
             probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
             # Debug: print distribution statistics at each step
@@ -806,7 +904,9 @@ class DPerflowSampler:
         return x
 
 
-def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3, temperature: float = 1.0, debug: bool = False, debug_log_file: str = None):
+def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps: float = 1e-3,
+                          sampler_type: str = "analytical", temperature: float = 1.0,
+                          debug: bool = False, debug_log_file: str = None):
     """
     Create a D-PeRFlow sampler.
 
@@ -815,6 +915,7 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         noise: Noise schedule
         num_time_windows: Number of windows (= generation steps)
         sampling_eps: Epsilon to avoid t=0
+        sampler_type: 'analytical' (SEDD native, recommended) or 'euler'
         temperature: Temperature for softmax (higher = more diverse)
         debug: Whether to print debug information during sampling
         debug_log_file: Path to save debug logs (if None, print to console only)
@@ -822,4 +923,4 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
     Returns:
         sampler: DPerflowSampler instance
     """
-    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug, debug_log_file)
+    return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, sampler_type, temperature, debug, debug_log_file)

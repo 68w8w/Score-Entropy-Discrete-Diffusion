@@ -210,6 +210,11 @@ def _run(rank, world_size, cfg):
     debug_log_file = os.path.join(work_dir, 'debug_log.txt')
     mprint(f"Debug log will be saved to: {debug_log_file}")
 
+    # Get teacher sampling config (new: analytical with 2 steps, like SDTT)
+    teacher_steps = cfg.d_perflow.get('teacher_steps', 2)
+    teacher_sampler = cfg.d_perflow.get('teacher_sampler', 'analytical')
+    mprint(f"Teacher sampling: {teacher_sampler} with {teacher_steps} steps")
+
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
         graph=graph,
@@ -217,7 +222,8 @@ def _run(rank, world_size, cfg):
         num_time_windows=cfg.d_perflow.num_time_windows,
         delta_t=cfg.d_perflow.delta_t,
         sampling_eps=cfg.d_perflow.sampling_eps,
-        euler_steps=cfg.d_perflow.euler_steps,
+        teacher_steps=teacher_steps,
+        teacher_sampler=teacher_sampler,
         train=True,
         optimize_fn=optimize_fn,
         accum=cfg.training.accum,
@@ -232,7 +238,8 @@ def _run(rank, world_size, cfg):
         num_time_windows=cfg.d_perflow.num_time_windows,
         delta_t=cfg.d_perflow.delta_t,
         sampling_eps=cfg.d_perflow.sampling_eps,
-        euler_steps=cfg.d_perflow.euler_steps,
+        teacher_steps=teacher_steps,
+        teacher_sampler=teacher_sampler,
         train=False,
         optimize_fn=optimize_fn,
         accum=cfg.training.accum,
@@ -250,7 +257,8 @@ def _run(rank, world_size, cfg):
             graph=graph,
             noise=noise,
             num_time_windows=cfg.d_perflow.num_time_windows,
-            sampling_eps=cfg.d_perflow.sampling_eps
+            sampling_eps=cfg.d_perflow.sampling_eps,
+            sampler_type=teacher_sampler,  # Use same method as training
         )
 
     num_train_steps = cfg.training.n_iters
