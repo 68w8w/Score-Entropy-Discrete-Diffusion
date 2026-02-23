@@ -215,16 +215,21 @@ class DPerflowTrainer:
         t_start: torch.Tensor,
         t_end: torch.Tensor,
         num_steps: int = 2,
+        dsigma_threshold: float = 0.1,
     ):
         """
-        Compute the target distribution using SEDD's native Analytical sampling.
+        Compute the target distribution using SEDD's native Analytical sampling,
+        with automatic fallback to Euler at low noise levels for numerical stability.
 
-        This is the DISCRETE-NATIVE method that uses:
-            probs = staggered_score(score, dsigma) * transp_transition(x, dsigma)
+        Mathematical justification:
+        - Analytical: probs = stag_score * transp_transition
+          where stag_score = score + (1 - dsigma * score.sum()) / dsigma
+          This has a 1/dsigma term that explodes as dsigma → 0
 
-        Unlike Euler which is a continuous ODE approximation, this directly uses
-        the discrete transition probability matrix. SDTT paper found this works
-        as well or better than complex alternatives.
+        - Euler: probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
+          As dsigma → 0, probs → one_hot(x), which is the correct identity limit
+
+        We use Analytical when dsigma > threshold, Euler otherwise.
 
         Args:
             score_fn: Score function from teacher model (returns true scores)
@@ -232,6 +237,7 @@ class DPerflowTrainer:
             t_start: Start time [B] or [B, 1]
             t_end: End time [B] or [B, 1]
             num_steps: Number of analytical steps (default: 2 as in SDTT)
+            dsigma_threshold: Below this dsigma, use Euler instead (default: 0.1)
 
         Returns:
             probs: Target probability distribution at t_end [B, L, V]
@@ -250,26 +256,36 @@ class DPerflowTrainer:
 
         for step in range(num_steps):
             # Get current and next sigma
-            curr_sigma = self.noise(current_t)[0]  # [B]
-            next_t = current_t - dt
-            # Clamp next_t to avoid going below eps
-            next_t = next_t.clamp(min=self.sampling_eps)
+            curr_sigma, curr_dsigma_dt = self.noise(current_t)  # Both [B]
+            next_t = (current_t - dt).clamp(min=self.sampling_eps)
             next_sigma = self.noise(next_t)[0]  # [B]
             dsigma = curr_sigma - next_sigma  # [B]
-
-            # Clamp dsigma to avoid numerical issues at low noise
-            dsigma = dsigma.clamp(min=1e-6)
+            step_dt = current_t - next_t  # Actual dt after clamping
 
             # Compute score
             score = score_fn(current_x, curr_sigma)  # [B, L, V]
 
-            # SEDD native analytical sampling:
-            # probs = staggered_score(score, dsigma) * transp_transition(x, dsigma)
+            # Decide method based on dsigma magnitude (per-sample)
+            # Use Analytical where dsigma is large enough, Euler otherwise
             dsigma_expanded = dsigma[:, None]  # [B, 1]
-            stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
-            probs = stag_score * self.graph.transp_transition(current_x, dsigma_expanded)  # [B, L, V]
 
-            # Clamp to avoid negative values and normalize
+            # Compute Analytical distribution
+            stag_score = self.graph.staggered_score(score, dsigma_expanded)  # [B, L, V]
+            probs_analytical = stag_score * self.graph.transp_transition(current_x, dsigma_expanded)
+
+            # Compute Euler distribution (mathematically stable at low dsigma)
+            scale = (step_dt * curr_dsigma_dt)[:, None, None]  # [B, 1, 1]
+            rev_rate = scale * self.graph.reverse_rate(current_x, score)  # [B, L, V]
+            one_hot_current = F.one_hot(current_x, num_classes=self.graph.dim).float()
+            probs_euler = one_hot_current + rev_rate
+            probs_euler = probs_euler.clamp(min=0)
+
+            # Select method based on dsigma threshold (per-sample selection)
+            # dsigma: [B], need to broadcast to [B, L, V]
+            use_analytical = (dsigma > dsigma_threshold).float()[:, None, None]  # [B, 1, 1]
+            probs = use_analytical * probs_analytical + (1 - use_analytical) * probs_euler
+
+            # Normalize
             probs = probs.clamp(min=1e-10)
             probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
 
@@ -277,7 +293,6 @@ class DPerflowTrainer:
             current_t = next_t
 
             # For multi-step, sample intermediate states
-            # Only the last step returns distribution without sampling
             if step < num_steps - 1:
                 current_x = sample_categorical(probs, method="hard")
 
