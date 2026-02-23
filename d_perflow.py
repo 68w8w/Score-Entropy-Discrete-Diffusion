@@ -916,6 +916,13 @@ def get_adversarial_d_perflow_loss_fn(
 
         return P_teacher, P_student, t_k.squeeze(-1), k
 
+    def _write_debug(msg):
+        """Helper to print and optionally write debug message to file."""
+        print(msg)
+        if debug_log_file is not None:
+            with open(debug_log_file, 'a') as f:
+                f.write(msg)
+
     def generator_loss_fn(model, batch):
         """
         Compute combined KL + adversarial loss for the student model.
@@ -936,33 +943,104 @@ def get_adversarial_d_perflow_loss_fn(
         # Combined KL + adversarial loss
         total_loss, metrics = adv_loss_module.combined_loss(kl_loss, P_student, t)
 
-        # Debug logging
+        # Comprehensive debug logging every 100 steps
         if hasattr(generator_loss_fn, 'debug_step'):
             generator_loss_fn.debug_step += 1
             if generator_loss_fn.debug_step % 100 == 0:
                 with torch.no_grad():
-                    teacher_entropy = -(P_teacher * (P_teacher + 1e-10).log()).sum(dim=-1).mean()
-                    student_entropy = -(P_student * (P_student + 1e-10).log()).sum(dim=-1).mean()
-                    agreement = (P_teacher.argmax(dim=-1) == P_student.argmax(dim=-1)).float().mean() * 100
-
                     import datetime
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                    # === Distribution entropy ===
+                    teacher_entropy = -(P_teacher * (P_teacher + 1e-10).log()).sum(dim=-1).mean()
+                    student_entropy = -(P_student * (P_student + 1e-10).log()).sum(dim=-1).mean()
+
+                    # === Per-position max probability (confidence) ===
+                    teacher_max_prob = P_teacher.max(dim=-1).values.mean()
+                    student_max_prob = P_student.max(dim=-1).values.mean()
+
+                    # === Argmax analysis ===
+                    teacher_argmax = P_teacher.argmax(dim=-1)  # [B, L]
+                    student_argmax = P_student.argmax(dim=-1)  # [B, L]
+                    seq_len = teacher_argmax.shape[1]
+
+                    # Agreement rate
+                    agreement = (teacher_argmax == student_argmax).float().mean() * 100
+
+                    # Unique tokens per sample (diversity measure)
+                    teacher_unique = torch.tensor([len(torch.unique(row)) for row in teacher_argmax]).float()
+                    student_unique = torch.tensor([len(torch.unique(row)) for row in student_argmax]).float()
+
+                    # === Top-5 most common tokens ===
+                    teacher_flat = teacher_argmax.flatten()
+                    student_flat = student_argmax.flatten()
+                    teacher_counts = torch.bincount(teacher_flat, minlength=P_teacher.shape[-1])
+                    student_counts = torch.bincount(student_flat, minlength=P_student.shape[-1])
+                    teacher_top5 = teacher_counts.topk(5)
+                    student_top5 = student_counts.topk(5)
+
+                    # === KL divergence per window ===
+                    kl_per_sample = kl_loss.detach()
+                    kl_min, kl_max, kl_mean, kl_std = kl_per_sample.min(), kl_per_sample.max(), kl_per_sample.mean(), kl_per_sample.std()
+
+                    # === Discriminator predictions on current batch ===
+                    disc_logit_teacher = adv_loss_module.discriminator(P_teacher, t)
+                    disc_logit_student = adv_loss_module.discriminator(P_student, t)
+                    disc_prob_teacher = torch.sigmoid(disc_logit_teacher).mean()
+                    disc_prob_student = torch.sigmoid(disc_logit_student).mean()
+                    # Discriminator accuracy: teacher should be classified as real (>0.5), student as fake (<0.5)
+                    disc_acc_real = (disc_logit_teacher > 0).float().mean() * 100
+                    disc_acc_fake = (disc_logit_student < 0).float().mean() * 100
+                    disc_acc_total = (disc_acc_real + disc_acc_fake) / 2
+
+                    # === JS divergence (symmetric measure) ===
+                    M = 0.5 * (P_teacher + P_student)
+                    js_div = 0.5 * (P_teacher * ((P_teacher + 1e-10) / (M + 1e-10)).log()).sum(-1).mean() + \
+                             0.5 * (P_student * ((P_student + 1e-10) / (M + 1e-10)).log()).sum(-1).mean()
+
+                    # === L2 distance between distributions ===
+                    l2_dist = (P_teacher - P_student).pow(2).sum(dim=-1).sqrt().mean()
+
+                    # === Window-wise breakdown ===
+                    k_values = k.detach()
+                    window_strs = []
+                    for w in range(1, num_time_windows + 1):
+                        mask = (k_values == w)
+                        if mask.sum() > 0:
+                            w_kl = kl_per_sample[mask].mean()
+                            window_strs.append(f"k={w}: kl={w_kl:.4f}(n={mask.sum()})")
+
                     debug_msg = (
-                        f"\n[ADV-DEBUG Step {generator_loss_fn.debug_step}] {timestamp}\n"
-                        f"  Method: Adversarial D-PeRFlow (1-step student, {euler_steps}-step teacher)\n"
-                        f"  Avg window k: {k.float().mean():.1f}/{num_time_windows}\n"
-                        f"  Teacher entropy: {teacher_entropy:.4f}\n"
-                        f"  Student entropy: {student_entropy:.4f}\n"
-                        f"  Argmax agreement: {agreement:.1f}%\n"
-                        f"  KL loss: {metrics['gen_kl_loss']:.4f}\n"
-                        f"  Adv loss: {metrics['gen_adv_loss']:.4f}\n"
-                        f"  Total loss: {metrics['gen_total_loss']:.4f}\n"
+                        f"\n{'='*80}\n"
+                        f"[ADV-GEN Step {generator_loss_fn.debug_step}] {timestamp}\n"
+                        f"{'='*80}\n"
+                        f"  Config: Adversarial D-PeRFlow | 1-step student | {euler_steps}-step teacher\n"
                         f"  Lambda_adv: {metrics['lambda_adv']}\n"
+                        f"\n  --- Loss Breakdown ---\n"
+                        f"  KL loss:    {metrics['gen_kl_loss']:.6f}  (min={kl_min:.4f} max={kl_max:.4f} std={kl_std:.4f})\n"
+                        f"  Adv loss:   {metrics['gen_adv_loss']:.6f}\n"
+                        f"  Total loss: {metrics['gen_total_loss']:.6f}\n"
+                        f"\n  --- Distribution Quality ---\n"
+                        f"  Teacher entropy:  {teacher_entropy:.4f}  |  Student entropy:  {student_entropy:.4f}  |  ratio: {student_entropy/(teacher_entropy+1e-10):.4f}\n"
+                        f"  Teacher max_prob: {teacher_max_prob:.4f}  |  Student max_prob: {student_max_prob:.4f}\n"
+                        f"  JS divergence:    {js_div:.6f}\n"
+                        f"  L2 distance:      {l2_dist:.6f}\n"
+                        f"\n  --- Token Diversity ---\n"
+                        f"  Argmax agreement: {agreement:.1f}%\n"
+                        f"  Teacher unique tokens: mean={teacher_unique.mean():.1f} std={teacher_unique.std():.1f} / {seq_len}\n"
+                        f"  Student unique tokens: mean={student_unique.mean():.1f} std={student_unique.std():.1f} / {seq_len}\n"
+                        f"  Teacher top5 tokens: {teacher_top5.indices.tolist()} counts: {teacher_top5.values.tolist()}\n"
+                        f"  Student top5 tokens: {student_top5.indices.tolist()} counts: {student_top5.values.tolist()}\n"
+                        f"\n  --- Discriminator Status ---\n"
+                        f"  D(teacher) prob: {disc_prob_teacher:.4f}  |  D(student) prob: {disc_prob_student:.4f}\n"
+                        f"  D accuracy: {disc_acc_total:.1f}% (real={disc_acc_real:.1f}%, fake={disc_acc_fake:.1f}%)\n"
+                        f"  D logit gap: {(disc_logit_teacher.mean() - disc_logit_student.mean()):.4f}\n"
+                        f"\n  --- Per-Window Breakdown ---\n"
+                        f"  Avg window k: {k.float().mean():.2f}/{num_time_windows}\n"
+                        f"  {' | '.join(window_strs)}\n"
+                        f"{'='*80}\n"
                     )
-                    print(debug_msg)
-                    if debug_log_file is not None:
-                        with open(debug_log_file, 'a') as f:
-                            f.write(debug_msg)
+                    _write_debug(debug_msg)
         else:
             generator_loss_fn.debug_step = 0
 
@@ -970,7 +1048,7 @@ def get_adversarial_d_perflow_loss_fn(
 
     def discriminator_loss_fn(model, batch):
         """
-        Compute discriminator loss.
+        Compute discriminator loss with detailed debug logging.
 
         Args:
             model: Student model (used to generate student distribution)
@@ -981,9 +1059,45 @@ def get_adversarial_d_perflow_loss_fn(
             metrics: Dict with loss components
         """
         with torch.no_grad():
-            P_teacher, P_student, t, _ = _compute_distributions(model, batch)
+            P_teacher, P_student, t, k = _compute_distributions(model, batch)
 
         disc_loss, metrics = adv_loss_module.discriminator_loss(P_teacher, P_student, t)
+
+        # Discriminator-specific debug logging every 100 steps
+        if hasattr(discriminator_loss_fn, 'debug_step'):
+            discriminator_loss_fn.debug_step += 1
+            if discriminator_loss_fn.debug_step % 100 == 0:
+                with torch.no_grad():
+                    import datetime
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                    # Gradient norm of discriminator
+                    disc_params = adv_loss_module.discriminator.parameters()
+                    grad_norm = 0.0
+                    param_norm = 0.0
+                    for p in disc_params:
+                        if p.grad is not None:
+                            grad_norm += p.grad.data.norm(2).item() ** 2
+                        param_norm += p.data.norm(2).item() ** 2
+                    grad_norm = grad_norm ** 0.5
+                    param_norm = param_norm ** 0.5
+
+                    debug_msg = (
+                        f"\n[ADV-DISC Step {discriminator_loss_fn.debug_step}] {timestamp}\n"
+                        f"  Disc total loss:  {metrics['disc_loss']:.6f}\n"
+                        f"  Disc real loss:   {metrics['disc_real_loss']:.6f}\n"
+                        f"  Disc fake loss:   {metrics['disc_fake_loss']:.6f}\n"
+                        f"  R1 penalty:       {metrics['disc_r1_penalty']:.6f}\n"
+                        f"  D(real) logit:    {metrics['disc_real_logit_mean']:.4f}\n"
+                        f"  D(fake) logit:    {metrics['disc_fake_logit_mean']:.4f}\n"
+                        f"  Logit gap:        {metrics['disc_real_logit_mean'] - metrics['disc_fake_logit_mean']:.4f}\n"
+                        f"  Disc grad norm:   {grad_norm:.4f}\n"
+                        f"  Disc param norm:  {param_norm:.4f}\n"
+                    )
+                    _write_debug(debug_msg)
+        else:
+            discriminator_loss_fn.debug_step = 0
+
         return disc_loss, metrics
 
     return generator_loss_fn, discriminator_loss_fn

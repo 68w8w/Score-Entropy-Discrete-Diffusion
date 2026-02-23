@@ -318,16 +318,26 @@ def _run(rank, world_size, cfg):
                 log_msg = "step: %d, loss: %.5e" % (step, loss.item())
                 if gen_metrics:
                     log_msg += (
-                        f", kl: {gen_metrics.get('gen_kl_loss', 0):.4f}"
-                        f", adv: {gen_metrics.get('gen_adv_loss', 0):.4f}"
+                        f", kl: {gen_metrics.get('gen_kl_loss', 0):.6f}"
+                        f", adv: {gen_metrics.get('gen_adv_loss', 0):.6f}"
+                        f", total: {gen_metrics.get('gen_total_loss', 0):.6f}"
                     )
                 if disc_metrics:
+                    d_real = disc_metrics.get('disc_real_logit_mean', 0)
+                    d_fake = disc_metrics.get('disc_fake_logit_mean', 0)
                     log_msg += (
                         f", disc: {disc_metrics.get('disc_loss', 0):.4f}"
-                        f", d_real: {disc_metrics.get('disc_real_logit_mean', 0):.3f}"
-                        f", d_fake: {disc_metrics.get('disc_fake_logit_mean', 0):.3f}"
+                        f", d_real: {d_real:.3f}"
+                        f", d_fake: {d_fake:.3f}"
+                        f", d_gap: {d_real - d_fake:.3f}"
+                        f", r1: {disc_metrics.get('disc_r1_penalty', 0):.4f}"
                     )
                 mprint(log_msg)
+
+                # Also write to debug log file for persistent tracking
+                if rank == 0:
+                    with open(debug_log_file, 'a') as f:
+                        f.write(f"[TRAIN] {log_msg}\n")
 
             if step % cfg.training.snapshot_freq_for_preemption == 0 and rank == 0:
                 utils.save_checkpoint(checkpoint_meta_dir, state)
