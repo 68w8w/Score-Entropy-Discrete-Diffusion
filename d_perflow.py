@@ -823,3 +823,290 @@ def get_d_perflow_sampler(graph, noise, num_time_windows: int = 4, sampling_eps:
         sampler: DPerflowSampler instance
     """
     return DPerflowSampler(graph, noise, num_time_windows, sampling_eps, temperature, debug, debug_log_file)
+
+
+# ==============================================================================
+# Adversarial Distillation Integration
+# ==============================================================================
+
+
+def get_adversarial_d_perflow_loss_fn(
+    noise,
+    graph,
+    teacher_model,
+    adv_loss_module,
+    num_time_windows: int = 4,
+    delta_t: float = 1e-4,
+    sampling_eps: float = 1e-3,
+    euler_steps: int = 1,
+    train: bool = True,
+    debug_log_file: str = None,
+):
+    """
+    Create D-PeRFlow loss function with adversarial distillation.
+
+    Returns two loss functions:
+    - generator_loss_fn: For updating the student model (KL + adversarial)
+    - discriminator_loss_fn: For updating the discriminator
+
+    Args:
+        noise: Noise schedule module
+        graph: Graph structure (Absorbing or Uniform)
+        teacher_model: Pre-trained teacher model
+        adv_loss_module: AdversarialDistillationLoss instance
+        num_time_windows: Number of time windows K
+        delta_t: Small step for analytic distribution computation
+        sampling_eps: Small epsilon to avoid t=0
+        euler_steps: Number of Euler steps per window
+        train: Whether in training mode
+        debug_log_file: Path to save debug logs
+
+    Returns:
+        generator_loss_fn: Loss function for student updates
+        discriminator_loss_fn: Loss function for discriminator updates
+    """
+    trainer = DPerflowTrainer(
+        graph=graph,
+        noise=noise,
+        num_time_windows=num_time_windows,
+        delta_t=delta_t,
+        sampling_eps=sampling_eps,
+    )
+
+    teacher_score_fn = mutils.get_score_fn(teacher_model, train=False, sampling=True)
+
+    def student_score_wrapper(model, train_mode):
+        log_score_fn = mutils.get_score_fn(model, train=train_mode, sampling=False)
+
+        def wrapped_score_fn(x, sigma):
+            log_score = log_score_fn(x, sigma)
+            log_score = log_score.clamp(min=-30, max=30)
+            return log_score.exp()
+
+        return wrapped_score_fn
+
+    def _compute_distributions(model, batch):
+        """Shared computation for both generator and discriminator losses."""
+        device = batch.device
+        batch_size = batch.shape[0]
+
+        # Sample window index k
+        k = torch.randint(1, num_time_windows + 1, (batch_size,), device=device)
+
+        # Get window boundaries
+        t_k_minus_1, t_k = trainer.get_window_boundaries(k, device)
+        t_k_minus_1 = t_k_minus_1.unsqueeze(-1)  # [B, 1]
+        t_k = t_k.unsqueeze(-1)  # [B, 1]
+
+        # Construct noisy state
+        with torch.no_grad():
+            x_t_k = trainer.construct_noisy_state(batch, t_k)
+
+        # Teacher distribution
+        with torch.no_grad():
+            _, P_teacher = trainer.compute_teacher_distributions(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
+            )
+
+        # Student distribution (with gradients)
+        student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
+        P_student = trainer.compute_euler_distribution(
+            student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+        )
+
+        return P_teacher, P_student, t_k.squeeze(-1), k
+
+    def generator_loss_fn(model, batch):
+        """
+        Compute combined KL + adversarial loss for the student model.
+
+        Args:
+            model: Student model
+            batch: Input batch [B, L]
+
+        Returns:
+            loss: Combined loss [B]
+            metrics: Dict with loss components
+        """
+        P_teacher, P_student, t, k = _compute_distributions(model, batch)
+
+        # KL divergence loss
+        kl_loss = trainer.compute_kl_loss_probs(P_teacher, P_student)
+
+        # Combined KL + adversarial loss
+        total_loss, metrics = adv_loss_module.combined_loss(kl_loss, P_student, t)
+
+        # Debug logging
+        if hasattr(generator_loss_fn, 'debug_step'):
+            generator_loss_fn.debug_step += 1
+            if generator_loss_fn.debug_step % 100 == 0:
+                with torch.no_grad():
+                    teacher_entropy = -(P_teacher * (P_teacher + 1e-10).log()).sum(dim=-1).mean()
+                    student_entropy = -(P_student * (P_student + 1e-10).log()).sum(dim=-1).mean()
+                    agreement = (P_teacher.argmax(dim=-1) == P_student.argmax(dim=-1)).float().mean() * 100
+
+                    import datetime
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    debug_msg = (
+                        f"\n[ADV-DEBUG Step {generator_loss_fn.debug_step}] {timestamp}\n"
+                        f"  Method: Adversarial D-PeRFlow (1-step student, {euler_steps}-step teacher)\n"
+                        f"  Avg window k: {k.float().mean():.1f}/{num_time_windows}\n"
+                        f"  Teacher entropy: {teacher_entropy:.4f}\n"
+                        f"  Student entropy: {student_entropy:.4f}\n"
+                        f"  Argmax agreement: {agreement:.1f}%\n"
+                        f"  KL loss: {metrics['gen_kl_loss']:.4f}\n"
+                        f"  Adv loss: {metrics['gen_adv_loss']:.4f}\n"
+                        f"  Total loss: {metrics['gen_total_loss']:.4f}\n"
+                        f"  Lambda_adv: {metrics['lambda_adv']}\n"
+                    )
+                    print(debug_msg)
+                    if debug_log_file is not None:
+                        with open(debug_log_file, 'a') as f:
+                            f.write(debug_msg)
+        else:
+            generator_loss_fn.debug_step = 0
+
+        return total_loss, metrics
+
+    def discriminator_loss_fn(model, batch):
+        """
+        Compute discriminator loss.
+
+        Args:
+            model: Student model (used to generate student distribution)
+            batch: Input batch [B, L]
+
+        Returns:
+            loss: Discriminator loss scalar
+            metrics: Dict with loss components
+        """
+        with torch.no_grad():
+            P_teacher, P_student, t, _ = _compute_distributions(model, batch)
+
+        disc_loss, metrics = adv_loss_module.discriminator_loss(P_teacher, P_student, t)
+        return disc_loss, metrics
+
+    return generator_loss_fn, discriminator_loss_fn
+
+
+def get_adversarial_d_perflow_step_fn(
+    noise,
+    graph,
+    teacher_model,
+    adv_loss_module,
+    num_time_windows: int = 4,
+    delta_t: float = 1e-4,
+    sampling_eps: float = 1e-3,
+    euler_steps: int = 1,
+    train: bool = True,
+    optimize_fn=None,
+    disc_optimizer=None,
+    accum: int = 1,
+    disc_steps_per_gen: int = 1,
+    debug_log_file: str = None,
+):
+    """
+    Create D-PeRFlow training step with adversarial distillation.
+
+    Alternates between discriminator and generator (student) updates:
+    - disc_steps_per_gen discriminator updates per generator update
+    - Generator update uses combined KL + adversarial loss
+
+    Args:
+        noise: Noise schedule module
+        graph: Graph structure
+        teacher_model: Pre-trained teacher model
+        adv_loss_module: AdversarialDistillationLoss instance
+        num_time_windows: Number of time windows
+        delta_t: Small step for analytic distribution
+        sampling_eps: Epsilon to avoid t=0
+        euler_steps: Euler steps per window
+        train: Training mode flag
+        optimize_fn: Optimization function for student
+        disc_optimizer: Optimizer for discriminator
+        accum: Gradient accumulation steps
+        disc_steps_per_gen: Number of discriminator updates per generator update
+        debug_log_file: Path to save debug logs
+
+    Returns:
+        step_fn: Training step function
+    """
+    gen_loss_fn, disc_loss_fn = get_adversarial_d_perflow_loss_fn(
+        noise=noise,
+        graph=graph,
+        teacher_model=teacher_model,
+        adv_loss_module=adv_loss_module,
+        num_time_windows=num_time_windows,
+        delta_t=delta_t,
+        sampling_eps=sampling_eps,
+        euler_steps=euler_steps,
+        train=train,
+        debug_log_file=debug_log_file,
+    )
+
+    accum_iter = 0
+    total_gen_loss = 0
+    # Track where we are in the disc/gen cycle.
+    # Phase: 0..disc_steps_per_gen-1 = discriminator updates, then gen update
+    phase_counter = 0
+
+    def step_fn(state, batch):
+        nonlocal accum_iter, total_gen_loss, phase_counter
+
+        model = state['model']
+
+        if train:
+            optimizer = state['optimizer']
+            scaler = state['scaler']
+
+            # --- Discriminator update phase ---
+            if phase_counter < disc_steps_per_gen:
+                phase_counter += 1
+
+                disc_loss, disc_metrics = disc_loss_fn(model, batch)
+
+                disc_optimizer.zero_grad()
+                disc_loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    adv_loss_module.discriminator.parameters(), max_norm=1.0
+                )
+                disc_optimizer.step()
+
+                state['disc_metrics'] = disc_metrics
+                return disc_loss.detach()
+
+            # --- Generator (student) update phase ---
+            # Reset phase counter for next cycle
+            phase_counter = 0
+
+            gen_loss, gen_metrics = gen_loss_fn(model, batch)
+            loss = gen_loss.mean() / accum
+
+            scaler.scale(loss).backward()
+
+            accum_iter += 1
+            total_gen_loss += loss.detach()
+
+            if accum_iter == accum:
+                accum_iter = 0
+                state['step'] += 1
+                optimize_fn(optimizer, scaler, model.parameters(), step=state['step'])
+                state['ema'].update(model.parameters())
+                optimizer.zero_grad()
+
+                loss = total_gen_loss
+                total_gen_loss = 0
+
+            state['gen_metrics'] = gen_metrics
+            return loss
+        else:
+            with torch.no_grad():
+                ema = state['ema']
+                ema.store(model.parameters())
+                ema.copy_to(model.parameters())
+                gen_loss, _ = gen_loss_fn(model, batch)
+                loss = gen_loss.mean()
+                ema.restore(model.parameters())
+            return loss
+
+    return step_fn
