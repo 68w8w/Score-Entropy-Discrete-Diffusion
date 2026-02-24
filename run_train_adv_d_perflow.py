@@ -181,7 +181,14 @@ def _run(rank, world_size, cfg):
     ).to(device)
 
     if distributed:
-        discriminator = DDP(discriminator, device_ids=[rank], find_unused_parameters=True)
+        # broadcast_buffers=False is required because the R1 gradient penalty
+        # uses create_graph=True, and DDP buffer broadcasting is an in-place
+        # operation that would corrupt the autograd version tracking.
+        # The only buffer (embed_weight) is already identical across ranks
+        # (cloned from the same teacher checkpoint), so no sync is needed.
+        discriminator = DDP(discriminator, device_ids=[rank],
+                            find_unused_parameters=True,
+                            broadcast_buffers=False)
 
     disc_params = sum(p.numel() for p in discriminator.parameters())
     mprint(f"Discriminator parameters: {disc_params}")
