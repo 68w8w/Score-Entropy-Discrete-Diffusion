@@ -196,13 +196,17 @@ class ProjectedDiscriminator(nn.Module):
         """
         B, L, V = probs.shape
 
+        # Clone embed_weight to avoid DDP in-place buffer broadcast
+        # breaking autograd (needed for R1 gradient penalty)
+        embed_w = self.embed_weight.clone()
+
         # 1. Soft embedding: project V-dim probs to D_model via teacher embedding
         #    This is differentiable: d(feat)/d(probs) = embed_weight^T
-        feat = torch.matmul(probs, self.embed_weight)  # [B, L, D_model]
+        feat = torch.matmul(probs, embed_w)  # [B, L, D_model]
         feat = self.feat_proj(feat)  # [B, L, hidden]
 
         # 2. Condition: embed the noisy input tokens
-        cond = self.embed_weight[x_t]  # [B, L, D_model]  (index into frozen embed)
+        cond = embed_w[x_t]  # [B, L, D_model]  (index into frozen embed)
         cond = self.cond_proj(cond)  # [B, L, hidden]
 
         # 3. Fuse features and condition
