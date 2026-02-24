@@ -1,22 +1,27 @@
 """
 Adversarial Distillation for Discrete Diffusion Models
 
-This module implements adversarial training to complement the KL divergence loss
-in the D-PeRFlow distillation framework. The key idea is to train a discriminator
-to distinguish between teacher (multi-step) and student (single-step) denoised
-distributions, providing a richer training signal than KL divergence alone.
+Projected discriminator design for adversarial distillation in the D-PeRFlow
+framework. Key design principles drawn from Projected GAN (Sauer et al. 2021)
+and Adversarial Diffusion Distillation (ADD, Sauer et al. 2023):
 
-Architecture:
-- Discriminator: Lightweight transformer that takes soft token distributions
-  (probability vectors over vocabulary) and a timestep conditioning signal,
-  producing a real/fake classification per sequence.
-- Training: Alternating updates — discriminator learns to classify, student
-  learns to fool discriminator while also minimizing KL divergence.
+1. Projected features: Use pre-trained teacher token embeddings to project
+   probability distributions from V=50258 to D_model=768. This "soft embedding
+   lookup" (probs @ embed_weight) naturally lives in a semantically organized
+   space and avoids learning a 50258->256 projection from scratch.
+
+2. Conditional discrimination: The discriminator receives the noisy input x_t
+   as context, so it only needs to judge "is this output correct for this
+   input?" rather than learning the unconditional teacher/student difference.
+
+3. Per-token + sequence-level dual heads: Per-token classification provides
+   L=1024x denser training signal than a single sequence logit. The sequence
+   head captures global coherence.
 
 References:
-- Adversarial Diffusion Distillation (ADD), Sauer et al. 2023
+- Projected GAN Converges Faster, Sauer et al. NeurIPS 2021
+- Adversarial Diffusion Distillation, Sauer et al. ECCV 2024
 - Consistency Training with GAN loss, Kim et al. 2023
-- Score Distillation with GAN, Wang et al. 2024
 """
 
 import torch
@@ -47,33 +52,24 @@ class DiscriminatorBlock(nn.Module):
         self.dropout2 = nn.Dropout(dropout)
 
     def forward(self, x):
-        """
-        Args:
-            x: [B, L, D]
-        Returns:
-            x: [B, L, D]
-        """
-        # Self-attention with pre-norm
         residual = x
         x = self.norm1(x)
         B, L, D = x.shape
 
         qkv = self.attn_qkv(x).reshape(B, L, 3, self.n_heads, self.head_dim)
-        qkv = qkv.permute(2, 0, 3, 1, 4)  # [3, B, H, L, D_h]
+        qkv = qkv.permute(2, 0, 3, 1, 4)
         q, k, v = qkv[0], qkv[1], qkv[2]
 
-        # Scaled dot-product attention
         scale = math.sqrt(self.head_dim)
-        attn = torch.matmul(q, k.transpose(-2, -1)) / scale  # [B, H, L, L]
+        attn = torch.matmul(q, k.transpose(-2, -1)) / scale
         attn = F.softmax(attn, dim=-1)
         attn = self.dropout1(attn)
 
-        out = torch.matmul(attn, v)  # [B, H, L, D_h]
+        out = torch.matmul(attn, v)
         out = out.transpose(1, 2).reshape(B, L, D)
         out = self.attn_out(out)
         x = residual + out
 
-        # FFN with pre-norm
         residual = x
         x = self.norm2(x)
         x = self.mlp(x)
@@ -83,63 +79,79 @@ class DiscriminatorBlock(nn.Module):
         return x
 
 
-class DistributionDiscriminator(nn.Module):
+class ProjectedDiscriminator(nn.Module):
     """
-    Discriminator for adversarial distillation of discrete diffusion models.
+    Projected discriminator for adversarial distillation of discrete diffusion.
 
-    Takes soft token probability distributions [B, L, V] and a timestep
-    conditioning signal, and outputs a real/fake logit per sequence.
+    Instead of projecting raw V-dim probability vectors through a learned
+    Linear(V, D), this discriminator uses the teacher model's pre-trained
+    token embeddings as a frozen projection:
 
-    The discriminator operates on log-probability distributions rather than
-    raw probabilities, which amplifies differences in the distribution tails
-    and makes it easier to distinguish teacher from student outputs.
+        feat = probs @ teacher_embed   # [B, L, V] @ [V, D_model] -> [B, L, D_model]
 
-    Uses spectral normalization on linear layers for stable training.
+    This "soft embedding lookup" has three key advantages:
+    1. The projection is semantically organized (similar tokens are close)
+    2. No need to learn a V-dimensional projection from scratch
+    3. Clean gradient flow: d(feat)/d(probs) = embed^T (no log, no clamp)
+
+    The discriminator is also conditioned on x_t (noisy input tokens), which
+    provides the context "what was the model asked to denoise?". This converts
+    the task from unconditional distribution classification (very hard) to
+    conditional output verification (much easier).
+
+    Dual output heads provide dense training signal:
+    - Per-token head: classifies each position independently (L signals/sample)
+    - Sequence head: captures global coherence (1 signal/sample)
     """
 
     def __init__(
         self,
-        vocab_size,
+        teacher_embed_weight,
         hidden_size=256,
         n_heads=4,
         n_blocks=4,
         mlp_ratio=4,
         dropout=0.1,
         max_seq_len=1024,
-        use_spectral_norm=True,
     ):
         """
         Args:
-            vocab_size: Size of the token vocabulary (including mask token if absorbing)
-            hidden_size: Hidden dimension of the discriminator
+            teacher_embed_weight: Pre-trained teacher embedding [V, D_model]
+            hidden_size: Discriminator hidden dimension
             n_heads: Number of attention heads
             n_blocks: Number of transformer blocks
             mlp_ratio: MLP expansion ratio
             dropout: Dropout rate
             max_seq_len: Maximum sequence length
-            use_spectral_norm: Whether to apply spectral normalization
         """
         super().__init__()
 
-        self.use_spectral_norm = use_spectral_norm
+        vocab_size, d_model = teacher_embed_weight.shape
 
-        def maybe_sn(layer):
-            """Apply spectral normalization if enabled."""
-            if use_spectral_norm and isinstance(layer, nn.Linear):
-                return nn.utils.spectral_norm(layer)
-            return layer
+        # Frozen teacher embedding as projection matrix
+        self.register_buffer('embed_weight', teacher_embed_weight.detach().clone())
 
-        # Project vocab-sized log-probability vectors to hidden size
-        self.input_proj = maybe_sn(nn.Linear(vocab_size, hidden_size))
+        # Project from teacher embedding dim to discriminator hidden dim
+        self.feat_proj = nn.Linear(d_model, hidden_size)
+
+        # Condition projection: noisy input tokens -> hidden
+        # Uses the same frozen embedding, then a learned projection
+        self.cond_proj = nn.Linear(d_model, hidden_size)
+
+        # Fuse distribution features with noisy-input condition
+        self.fusion = nn.Sequential(
+            nn.Linear(2 * hidden_size, hidden_size),
+            nn.GELU(),
+        )
 
         # Timestep conditioning
         self.time_embed = nn.Sequential(
-            maybe_sn(nn.Linear(256, hidden_size)),
+            nn.Linear(256, hidden_size),
             nn.SiLU(),
-            maybe_sn(nn.Linear(hidden_size, hidden_size)),
+            nn.Linear(hidden_size, hidden_size),
         )
 
-        # Learnable positional embedding
+        # Positional embedding
         self.pos_embed = nn.Parameter(torch.zeros(1, max_seq_len, hidden_size))
         nn.init.normal_(self.pos_embed, std=0.02)
 
@@ -149,79 +161,83 @@ class DistributionDiscriminator(nn.Module):
             for _ in range(n_blocks)
         ])
 
-        # Output head: pool over sequence then classify
         self.norm = nn.LayerNorm(hidden_size)
-        self.head = nn.Sequential(
-            maybe_sn(nn.Linear(hidden_size, hidden_size)),
+
+        # Per-token head: dense supervision signal
+        self.token_head = nn.Linear(hidden_size, 1)
+
+        # Sequence-level head: global coherence
+        self.seq_head = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size),
             nn.GELU(),
-            maybe_sn(nn.Linear(hidden_size, 1)),
+            nn.Linear(hidden_size, 1),
         )
 
     @staticmethod
     def timestep_embedding(t, dim=256, max_period=10000):
-        """Sinusoidal timestep embedding."""
         half = dim // 2
         freqs = torch.exp(
-            -math.log(max_period) * torch.arange(0, half, dtype=torch.float32, device=t.device) / half
+            -math.log(max_period)
+            * torch.arange(0, half, dtype=torch.float32, device=t.device) / half
         )
         args = t[:, None].float() * freqs[None]
         return torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
 
-    def forward(self, probs, t):
+    def forward(self, probs, x_t, t):
         """
         Args:
             probs: Token probability distributions [B, L, V]
-            t: Timestep [B] (window boundary time)
+            x_t: Noisy input token IDs [B, L] (conditioning context)
+            t: Timestep [B]
 
         Returns:
-            logits: Real/fake logits [B, 1]
+            token_logits: Per-token real/fake logits [B, L, 1]
+            seq_logit: Sequence-level real/fake logit [B, 1]
         """
         B, L, V = probs.shape
 
-        # Convert to log-probabilities to amplify distributional differences.
-        # Raw probs are nearly one-hot (max_prob > 0.93), making teacher/student
-        # indistinguishable in probability space. Log-space spreads out the
-        # distribution tail where the meaningful differences exist.
-        # Clamp to [-20, 0] to avoid -inf while preserving dynamic range.
-        log_probs = torch.log(probs + 1e-8).clamp(min=-20.0)
+        # 1. Soft embedding: project V-dim probs to D_model via teacher embedding
+        #    This is differentiable: d(feat)/d(probs) = embed_weight^T
+        feat = torch.matmul(probs, self.embed_weight)  # [B, L, D_model]
+        feat = self.feat_proj(feat)  # [B, L, hidden]
 
-        # Project log-probabilities to hidden space
-        x = self.input_proj(log_probs)  # [B, L, D]
+        # 2. Condition: embed the noisy input tokens
+        cond = self.embed_weight[x_t]  # [B, L, D_model]  (index into frozen embed)
+        cond = self.cond_proj(cond)  # [B, L, hidden]
 
-        # Add positional embedding
-        x = x + self.pos_embed[:, :L, :]
+        # 3. Fuse features and condition
+        h = self.fusion(torch.cat([feat, cond], dim=-1))  # [B, L, hidden]
 
-        # Add timestep conditioning (broadcast over sequence)
-        t_emb = self.time_embed(self.timestep_embedding(t))  # [B, D]
-        x = x + t_emb.unsqueeze(1)
+        # 4. Add position and time embeddings
+        h = h + self.pos_embed[:, :L, :]
+        t_emb = self.time_embed(self.timestep_embedding(t))  # [B, hidden]
+        h = h + t_emb.unsqueeze(1)
 
-        # Transformer blocks
+        # 5. Transformer blocks
         for block in self.blocks:
-            x = block(x)
+            h = block(h)
+        h = self.norm(h)
 
-        # Pool and classify
-        x = self.norm(x)
-        x = x.mean(dim=1)  # [B, D] - mean pooling over sequence
-        logits = self.head(x)  # [B, 1]
+        # 6. Dual heads
+        token_logits = self.token_head(h)  # [B, L, 1]
+        seq_logit = self.seq_head(h.mean(dim=1))  # [B, 1]
 
-        return logits
+        return token_logits, seq_logit
 
 
 class AdversarialDistillationLoss(nn.Module):
     """
-    Combines KL divergence and adversarial losses for distillation.
+    Adversarial distillation loss with projected discriminator.
 
-    The total generator (student) loss is:
+    Generator (student) loss:
         L_student = L_KL + lambda_adv * L_adv
 
-    where:
-    - L_KL: Forward KL divergence between teacher and student distributions
-    - L_adv: Adversarial loss (non-saturating GAN loss)
+    Discriminator loss (per-token + sequence-level):
+        L_disc = L_token(real, fake) + L_seq(real, fake) + R1_penalty
 
-    The discriminator loss is the standard binary cross-entropy:
-        L_disc = -E[log D(teacher)] - E[log(1 - D(student))]
-
-    We use R1 gradient penalty for discriminator regularization.
+    The per-token loss provides L=1024 independent training signals per sample,
+    making discriminator training dramatically more data-efficient than the
+    single sequence-level logit of conventional approaches.
     """
 
     def __init__(
@@ -229,69 +245,75 @@ class AdversarialDistillationLoss(nn.Module):
         discriminator,
         lambda_adv=0.1,
         r1_gamma=10.0,
-        label_smoothing=0.0,
+        token_loss_weight=1.0,
+        seq_loss_weight=1.0,
     ):
         """
         Args:
-            discriminator: DistributionDiscriminator instance
-            lambda_adv: Weight for adversarial loss relative to KL loss
+            discriminator: ProjectedDiscriminator instance
+            lambda_adv: Weight for adversarial loss in generator update
             r1_gamma: R1 gradient penalty coefficient (0 to disable)
-            label_smoothing: Label smoothing for discriminator targets
-                (default 0.0 — label smoothing is counterproductive when
-                teacher/student distributions are already very similar)
+            token_loss_weight: Weight for per-token discrimination loss
+            seq_loss_weight: Weight for sequence-level discrimination loss
         """
         super().__init__()
         self.discriminator = discriminator
         self.lambda_adv = lambda_adv
         self.r1_gamma = r1_gamma
-        self.label_smoothing = label_smoothing
+        self.token_loss_weight = token_loss_weight
+        self.seq_loss_weight = seq_loss_weight
 
-    def discriminator_loss(self, teacher_probs, student_probs, t):
+    def discriminator_loss(self, teacher_probs, student_probs, x_t, t):
         """
-        Compute discriminator loss.
+        Compute discriminator loss with per-token + sequence-level heads.
 
         Args:
-            teacher_probs: Teacher distribution [B, L, V] (detached, no grad)
-            student_probs: Student distribution [B, L, V] (detached, no grad)
+            teacher_probs: Teacher distribution [B, L, V] (detached)
+            student_probs: Student distribution [B, L, V] (detached)
+            x_t: Noisy input tokens [B, L]
             t: Timestep [B]
 
         Returns:
             loss: Discriminator loss scalar
             metrics: Dict with loss components
         """
-        # Detach both to ensure no grad flows to generator
         teacher_probs = teacher_probs.detach()
         student_probs = student_probs.detach()
 
-        # R1 gradient penalty on real (teacher) samples
         if self.r1_gamma > 0:
             teacher_probs.requires_grad_(True)
 
-        # Discriminator predictions
-        real_logits = self.discriminator(teacher_probs, t)  # [B, 1]
-        fake_logits = self.discriminator(student_probs, t)  # [B, 1]
+        # Forward pass
+        real_tok, real_seq = self.discriminator(teacher_probs, x_t, t)
+        fake_tok, fake_seq = self.discriminator(student_probs, x_t, t)
 
-        # Labels with smoothing
-        real_label = 1.0 - self.label_smoothing
-        fake_label = self.label_smoothing
-
-        # Binary cross-entropy with logits
-        real_loss = F.binary_cross_entropy_with_logits(
-            real_logits,
-            torch.full_like(real_logits, real_label),
+        # Per-token loss: BCE at each position
+        real_tok_loss = F.binary_cross_entropy_with_logits(
+            real_tok, torch.ones_like(real_tok),
         )
-        fake_loss = F.binary_cross_entropy_with_logits(
-            fake_logits,
-            torch.full_like(fake_logits, fake_label),
+        fake_tok_loss = F.binary_cross_entropy_with_logits(
+            fake_tok, torch.zeros_like(fake_tok),
         )
+        token_loss = real_tok_loss + fake_tok_loss
 
-        loss = real_loss + fake_loss
+        # Sequence-level loss
+        real_seq_loss = F.binary_cross_entropy_with_logits(
+            real_seq, torch.ones_like(real_seq),
+        )
+        fake_seq_loss = F.binary_cross_entropy_with_logits(
+            fake_seq, torch.zeros_like(fake_seq),
+        )
+        seq_loss = real_seq_loss + fake_seq_loss
 
-        # R1 gradient penalty
+        loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
+
+        # R1 gradient penalty on real samples
         r1_penalty = torch.tensor(0.0, device=loss.device)
         if self.r1_gamma > 0 and teacher_probs.requires_grad:
+            # Penalize sensitivity to input on both heads
+            r1_target = real_tok.sum() + real_seq.sum()
             grad_real = torch.autograd.grad(
-                outputs=real_logits.sum(),
+                outputs=r1_target,
                 inputs=teacher_probs,
                 create_graph=True,
             )[0]
@@ -300,54 +322,61 @@ class AdversarialDistillationLoss(nn.Module):
 
         metrics = {
             "disc_loss": loss.item(),
-            "disc_real_loss": real_loss.item(),
-            "disc_fake_loss": fake_loss.item(),
+            "disc_token_loss": token_loss.item(),
+            "disc_seq_loss": seq_loss.item(),
             "disc_r1_penalty": r1_penalty.item(),
-            "disc_real_logit_mean": real_logits.mean().item(),
-            "disc_fake_logit_mean": fake_logits.mean().item(),
+            "disc_real_logit_mean": real_seq.mean().item(),
+            "disc_fake_logit_mean": fake_seq.mean().item(),
+            "disc_real_tok_acc": (real_tok > 0).float().mean().item(),
+            "disc_fake_tok_acc": (fake_tok < 0).float().mean().item(),
         }
 
         return loss, metrics
 
-    def generator_loss(self, student_probs, t):
+    def generator_loss(self, student_probs, x_t, t):
         """
         Compute adversarial loss for the student (generator).
 
-        Uses non-saturating loss: -log(D(student))
-        This provides stronger gradients when the discriminator is confident.
+        Non-saturating loss at both per-token and sequence levels.
 
         Args:
             student_probs: Student distribution [B, L, V] (with grad)
+            x_t: Noisy input tokens [B, L]
             t: Timestep [B]
 
         Returns:
             loss: Generator adversarial loss [B]
         """
-        fake_logits = self.discriminator(student_probs, t)  # [B, 1]
+        fake_tok, fake_seq = self.discriminator(student_probs, x_t, t)
 
-        # Non-saturating GAN loss: -log(sigmoid(D(x))) = BCE with label=1
-        loss = F.binary_cross_entropy_with_logits(
-            fake_logits,
-            torch.ones_like(fake_logits),
-            reduction='none',
-        )
+        # Per-token: non-saturating loss averaged over positions
+        tok_loss = F.binary_cross_entropy_with_logits(
+            fake_tok, torch.ones_like(fake_tok), reduction='none',
+        ).squeeze(-1).mean(dim=-1)  # [B]
 
-        return loss.squeeze(-1)  # [B]
+        # Sequence-level: non-saturating loss
+        seq_loss = F.binary_cross_entropy_with_logits(
+            fake_seq, torch.ones_like(fake_seq), reduction='none',
+        ).squeeze(-1)  # [B]
 
-    def combined_loss(self, kl_loss, student_probs, t):
+        loss = self.token_loss_weight * tok_loss + self.seq_loss_weight * seq_loss
+        return loss
+
+    def combined_loss(self, kl_loss, student_probs, x_t, t):
         """
         Compute combined KL + adversarial loss for the student.
 
         Args:
             kl_loss: KL divergence loss [B]
             student_probs: Student distribution [B, L, V] (with grad)
+            x_t: Noisy input tokens [B, L]
             t: Timestep [B]
 
         Returns:
             total_loss: Combined loss [B]
             metrics: Dict with loss components
         """
-        adv_loss = self.generator_loss(student_probs, t)
+        adv_loss = self.generator_loss(student_probs, x_t, t)
         total_loss = kl_loss + self.lambda_adv * adv_loss
 
         metrics = {
@@ -361,35 +390,32 @@ class AdversarialDistillationLoss(nn.Module):
 
 
 def create_discriminator(
-    vocab_size,
+    teacher_embed_weight,
     hidden_size=256,
     n_heads=4,
     n_blocks=4,
     dropout=0.1,
     max_seq_len=1024,
-    use_spectral_norm=True,
 ):
     """
-    Factory function to create a discriminator.
+    Factory function to create a projected discriminator.
 
     Args:
-        vocab_size: Token vocabulary size
+        teacher_embed_weight: Pre-trained teacher embedding weight [V, D_model]
         hidden_size: Discriminator hidden dimension
         n_heads: Number of attention heads
         n_blocks: Number of transformer blocks
         dropout: Dropout rate
         max_seq_len: Maximum sequence length
-        use_spectral_norm: Whether to apply spectral normalization
 
     Returns:
-        DistributionDiscriminator instance
+        ProjectedDiscriminator instance
     """
-    return DistributionDiscriminator(
-        vocab_size=vocab_size,
+    return ProjectedDiscriminator(
+        teacher_embed_weight=teacher_embed_weight,
         hidden_size=hidden_size,
         n_heads=n_heads,
         n_blocks=n_blocks,
         dropout=dropout,
         max_seq_len=max_seq_len,
-        use_spectral_norm=use_spectral_norm,
     )

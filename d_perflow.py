@@ -914,7 +914,7 @@ def get_adversarial_d_perflow_loss_fn(
             student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
         )
 
-        return P_teacher, P_student, t_k.squeeze(-1), k
+        return P_teacher, P_student, x_t_k, t_k.squeeze(-1), k
 
     def _write_debug(msg):
         """Helper to print and optionally write debug message to file."""
@@ -935,13 +935,13 @@ def get_adversarial_d_perflow_loss_fn(
             loss: Combined loss [B]
             metrics: Dict with loss components
         """
-        P_teacher, P_student, t, k = _compute_distributions(model, batch)
+        P_teacher, P_student, x_t_k, t, k = _compute_distributions(model, batch)
 
         # KL divergence loss
         kl_loss = trainer.compute_kl_loss_probs(P_teacher, P_student)
 
-        # Combined KL + adversarial loss
-        total_loss, metrics = adv_loss_module.combined_loss(kl_loss, P_student, t)
+        # Combined KL + adversarial loss (pass x_t_k for conditional discrimination)
+        total_loss, metrics = adv_loss_module.combined_loss(kl_loss, P_student, x_t_k, t)
 
         # Comprehensive debug logging every 100 steps
         if hasattr(generator_loss_fn, 'debug_step'):
@@ -984,14 +984,16 @@ def get_adversarial_d_perflow_loss_fn(
                     kl_min, kl_max, kl_mean, kl_std = kl_per_sample.min(), kl_per_sample.max(), kl_per_sample.mean(), kl_per_sample.std()
 
                     # === Discriminator predictions on current batch ===
-                    disc_logit_teacher = adv_loss_module.discriminator(P_teacher, t)
-                    disc_logit_student = adv_loss_module.discriminator(P_student, t)
-                    disc_prob_teacher = torch.sigmoid(disc_logit_teacher).mean()
-                    disc_prob_student = torch.sigmoid(disc_logit_student).mean()
-                    # Discriminator accuracy: teacher should be classified as real (>0.5), student as fake (<0.5)
-                    disc_acc_real = (disc_logit_teacher > 0).float().mean() * 100
-                    disc_acc_fake = (disc_logit_student < 0).float().mean() * 100
+                    _, disc_seq_teacher = adv_loss_module.discriminator(P_teacher, x_t_k, t)
+                    disc_tok_student, disc_seq_student = adv_loss_module.discriminator(P_student, x_t_k, t)
+                    disc_prob_teacher = torch.sigmoid(disc_seq_teacher).mean()
+                    disc_prob_student = torch.sigmoid(disc_seq_student).mean()
+                    # Discriminator accuracy (sequence-level)
+                    disc_acc_real = (disc_seq_teacher > 0).float().mean() * 100
+                    disc_acc_fake = (disc_seq_student < 0).float().mean() * 100
                     disc_acc_total = (disc_acc_real + disc_acc_fake) / 2
+                    # Token-level accuracy
+                    tok_acc_fake = (disc_tok_student < 0).float().mean() * 100
 
                     # === JS divergence (symmetric measure) ===
                     M = 0.5 * (P_teacher + P_student)
@@ -1033,8 +1035,9 @@ def get_adversarial_d_perflow_loss_fn(
                         f"  Student top5 tokens: {student_top5.indices.tolist()} counts: {student_top5.values.tolist()}\n"
                         f"\n  --- Discriminator Status ---\n"
                         f"  D(teacher) prob: {disc_prob_teacher:.4f}  |  D(student) prob: {disc_prob_student:.4f}\n"
-                        f"  D accuracy: {disc_acc_total:.1f}% (real={disc_acc_real:.1f}%, fake={disc_acc_fake:.1f}%)\n"
-                        f"  D logit gap: {(disc_logit_teacher.mean() - disc_logit_student.mean()):.4f}\n"
+                        f"  D seq accuracy: {disc_acc_total:.1f}% (real={disc_acc_real:.1f}%, fake={disc_acc_fake:.1f}%)\n"
+                        f"  D tok accuracy (fake): {tok_acc_fake:.1f}%\n"
+                        f"  D seq logit gap: {(disc_seq_teacher.mean() - disc_seq_student.mean()):.4f}\n"
                         f"\n  --- Per-Window Breakdown ---\n"
                         f"  Avg window k: {k.float().mean():.2f}/{num_time_windows}\n"
                         f"  {' | '.join(window_strs)}\n"
@@ -1059,9 +1062,9 @@ def get_adversarial_d_perflow_loss_fn(
             metrics: Dict with loss components
         """
         with torch.no_grad():
-            P_teacher, P_student, t, k = _compute_distributions(model, batch)
+            P_teacher, P_student, x_t_k, t, k = _compute_distributions(model, batch)
 
-        disc_loss, metrics = adv_loss_module.discriminator_loss(P_teacher, P_student, t)
+        disc_loss, metrics = adv_loss_module.discriminator_loss(P_teacher, P_student, x_t_k, t)
 
         # Discriminator-specific debug logging every 100 steps
         if hasattr(discriminator_loss_fn, 'debug_step'):
@@ -1085,12 +1088,14 @@ def get_adversarial_d_perflow_loss_fn(
                     debug_msg = (
                         f"\n[ADV-DISC Step {discriminator_loss_fn.debug_step}] {timestamp}\n"
                         f"  Disc total loss:  {metrics['disc_loss']:.6f}\n"
-                        f"  Disc real loss:   {metrics['disc_real_loss']:.6f}\n"
-                        f"  Disc fake loss:   {metrics['disc_fake_loss']:.6f}\n"
+                        f"  Disc token loss:  {metrics['disc_token_loss']:.6f}\n"
+                        f"  Disc seq loss:    {metrics['disc_seq_loss']:.6f}\n"
                         f"  R1 penalty:       {metrics['disc_r1_penalty']:.6f}\n"
-                        f"  D(real) logit:    {metrics['disc_real_logit_mean']:.4f}\n"
-                        f"  D(fake) logit:    {metrics['disc_fake_logit_mean']:.4f}\n"
-                        f"  Logit gap:        {metrics['disc_real_logit_mean'] - metrics['disc_fake_logit_mean']:.4f}\n"
+                        f"  D(real) seq logit:  {metrics['disc_real_logit_mean']:.4f}\n"
+                        f"  D(fake) seq logit:  {metrics['disc_fake_logit_mean']:.4f}\n"
+                        f"  Seq logit gap:      {metrics['disc_real_logit_mean'] - metrics['disc_fake_logit_mean']:.4f}\n"
+                        f"  Tok acc (real):     {metrics['disc_real_tok_acc']:.4f}\n"
+                        f"  Tok acc (fake):     {metrics['disc_fake_tok_acc']:.4f}\n"
                         f"  Disc grad norm:   {grad_norm:.4f}\n"
                         f"  Disc param norm:  {param_norm:.4f}\n"
                     )

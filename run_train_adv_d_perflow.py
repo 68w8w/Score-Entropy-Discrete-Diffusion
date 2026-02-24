@@ -161,13 +161,18 @@ def _run(rank, world_size, cfg):
     ema = ExponentialMovingAverage(student_model.parameters(), decay=cfg.training.ema)
 
     # =========================================================================
-    # Create discriminator and adversarial loss
+    # Create projected discriminator using teacher embeddings
     # =========================================================================
     adv_cfg = cfg.adversarial
-    vocab_size = graph.dim  # Includes mask token for absorbing graph
+
+    # Extract teacher's pre-trained token embedding for projected discrimination.
+    # This provides a semantically organized V->D_model projection without
+    # learning a 50258-dim linear layer from scratch.
+    teacher_embed_weight = teacher_model.vocab_embed.embedding.data  # [V, D_model]
+    mprint(f"Teacher embedding shape: {teacher_embed_weight.shape}")
 
     discriminator = create_discriminator(
-        vocab_size=vocab_size,
+        teacher_embed_weight=teacher_embed_weight,
         hidden_size=adv_cfg.disc_hidden_size,
         n_heads=adv_cfg.disc_n_heads,
         n_blocks=adv_cfg.disc_n_blocks,
@@ -186,7 +191,6 @@ def _run(rank, world_size, cfg):
         discriminator=discriminator,
         lambda_adv=adv_cfg.lambda_adv,
         r1_gamma=adv_cfg.r1_gamma,
-        label_smoothing=adv_cfg.label_smoothing,
     ).to(device)
 
     # Discriminator optimizer
@@ -327,9 +331,11 @@ def _run(rank, world_size, cfg):
                     d_fake = disc_metrics.get('disc_fake_logit_mean', 0)
                     log_msg += (
                         f", disc: {disc_metrics.get('disc_loss', 0):.4f}"
-                        f", d_real: {d_real:.3f}"
-                        f", d_fake: {d_fake:.3f}"
+                        f", d_tok: {disc_metrics.get('disc_token_loss', 0):.4f}"
+                        f", d_seq: {disc_metrics.get('disc_seq_loss', 0):.4f}"
                         f", d_gap: {d_real - d_fake:.3f}"
+                        f", tok_acc_r: {disc_metrics.get('disc_real_tok_acc', 0):.2f}"
+                        f", tok_acc_f: {disc_metrics.get('disc_fake_tok_acc', 0):.2f}"
                         f", r1: {disc_metrics.get('disc_r1_penalty', 0):.4f}"
                     )
                 mprint(log_msg)
