@@ -1182,7 +1182,7 @@ def get_adversarial_d_perflow_step_fn(
                 disc_optimizer.zero_grad()
                 disc_loss.backward()
                 torch.nn.utils.clip_grad_norm_(
-                    adv_loss_module.discriminator.parameters(), max_norm=1.0
+                    adv_loss_module.discriminator.parameters(), max_norm=10.0
                 )
                 disc_optimizer.step()
 

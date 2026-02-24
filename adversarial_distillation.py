@@ -90,11 +90,11 @@ class DistributionDiscriminator(nn.Module):
     Takes soft token probability distributions [B, L, V] and a timestep
     conditioning signal, and outputs a real/fake logit per sequence.
 
-    The discriminator operates on probability distributions rather than
-    discrete tokens, which:
-    1. Preserves gradient flow (no sampling required)
-    2. Captures distribution shape beyond just argmax tokens
-    3. Can detect subtle differences between teacher/student distributions
+    The discriminator operates on log-probability distributions rather than
+    raw probabilities, which amplifies differences in the distribution tails
+    and makes it easier to distinguish teacher from student outputs.
+
+    Uses spectral normalization on linear layers for stable training.
     """
 
     def __init__(
@@ -106,6 +106,7 @@ class DistributionDiscriminator(nn.Module):
         mlp_ratio=4,
         dropout=0.1,
         max_seq_len=1024,
+        use_spectral_norm=True,
     ):
         """
         Args:
@@ -116,17 +117,26 @@ class DistributionDiscriminator(nn.Module):
             mlp_ratio: MLP expansion ratio
             dropout: Dropout rate
             max_seq_len: Maximum sequence length
+            use_spectral_norm: Whether to apply spectral normalization
         """
         super().__init__()
 
-        # Project vocab-sized probability vectors to hidden size
-        self.input_proj = nn.Linear(vocab_size, hidden_size)
+        self.use_spectral_norm = use_spectral_norm
+
+        def maybe_sn(layer):
+            """Apply spectral normalization if enabled."""
+            if use_spectral_norm and isinstance(layer, nn.Linear):
+                return nn.utils.spectral_norm(layer)
+            return layer
+
+        # Project vocab-sized log-probability vectors to hidden size
+        self.input_proj = maybe_sn(nn.Linear(vocab_size, hidden_size))
 
         # Timestep conditioning
         self.time_embed = nn.Sequential(
-            nn.Linear(256, hidden_size),
+            maybe_sn(nn.Linear(256, hidden_size)),
             nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size),
+            maybe_sn(nn.Linear(hidden_size, hidden_size)),
         )
 
         # Learnable positional embedding
@@ -142,9 +152,9 @@ class DistributionDiscriminator(nn.Module):
         # Output head: pool over sequence then classify
         self.norm = nn.LayerNorm(hidden_size)
         self.head = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size),
+            maybe_sn(nn.Linear(hidden_size, hidden_size)),
             nn.GELU(),
-            nn.Linear(hidden_size, 1),
+            maybe_sn(nn.Linear(hidden_size, 1)),
         )
 
     @staticmethod
@@ -168,8 +178,15 @@ class DistributionDiscriminator(nn.Module):
         """
         B, L, V = probs.shape
 
-        # Project probabilities to hidden space
-        x = self.input_proj(probs)  # [B, L, D]
+        # Convert to log-probabilities to amplify distributional differences.
+        # Raw probs are nearly one-hot (max_prob > 0.93), making teacher/student
+        # indistinguishable in probability space. Log-space spreads out the
+        # distribution tail where the meaningful differences exist.
+        # Clamp to [-20, 0] to avoid -inf while preserving dynamic range.
+        log_probs = torch.log(probs + 1e-8).clamp(min=-20.0)
+
+        # Project log-probabilities to hidden space
+        x = self.input_proj(log_probs)  # [B, L, D]
 
         # Add positional embedding
         x = x + self.pos_embed[:, :L, :]
@@ -212,7 +229,7 @@ class AdversarialDistillationLoss(nn.Module):
         discriminator,
         lambda_adv=0.1,
         r1_gamma=10.0,
-        label_smoothing=0.1,
+        label_smoothing=0.0,
     ):
         """
         Args:
@@ -220,6 +237,8 @@ class AdversarialDistillationLoss(nn.Module):
             lambda_adv: Weight for adversarial loss relative to KL loss
             r1_gamma: R1 gradient penalty coefficient (0 to disable)
             label_smoothing: Label smoothing for discriminator targets
+                (default 0.0 — label smoothing is counterproductive when
+                teacher/student distributions are already very similar)
         """
         super().__init__()
         self.discriminator = discriminator
@@ -348,6 +367,7 @@ def create_discriminator(
     n_blocks=4,
     dropout=0.1,
     max_seq_len=1024,
+    use_spectral_norm=True,
 ):
     """
     Factory function to create a discriminator.
@@ -359,6 +379,7 @@ def create_discriminator(
         n_blocks: Number of transformer blocks
         dropout: Dropout rate
         max_seq_len: Maximum sequence length
+        use_spectral_norm: Whether to apply spectral normalization
 
     Returns:
         DistributionDiscriminator instance
@@ -370,4 +391,5 @@ def create_discriminator(
         n_blocks=n_blocks,
         dropout=dropout,
         max_seq_len=max_seq_len,
+        use_spectral_norm=use_spectral_norm,
     )

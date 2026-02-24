@@ -36,15 +36,18 @@ adversarial:
   r1_gamma: 10.0
 
   # Label smoothing for discriminator targets
-  # Helps prevent discriminator overconfidence
-  label_smoothing: 0.1
+  # Set to 0.0: label smoothing is counterproductive when teacher/student
+  # distributions are already very similar (96-98% argmax agreement).
+  # With smoothing=0.1, the optimal disc output for identical inputs is
+  # logit=0 (loss=1.3863), which provides zero gradient signal.
+  label_smoothing: 0.0
 
   # Number of discriminator updates per generator update
   # More disc steps = stronger discriminator signal
   disc_steps_per_gen: 1
 
   # Discriminator optimizer settings
-  disc_lr: 2e-4            # Often higher than generator lr
+  disc_lr: 1e-3            # Higher lr to compensate for subtle input differences
   disc_beta1: 0.0          # Low beta1 is standard for GAN discriminators
   disc_beta2: 0.99
   disc_weight_decay: 0.01
