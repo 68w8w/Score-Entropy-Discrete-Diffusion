@@ -128,8 +128,13 @@ class ProjectedDiscriminator(nn.Module):
 
         vocab_size, d_model = teacher_embed_weight.shape
 
-        # Frozen teacher embedding as projection matrix
-        self.register_buffer('embed_weight', teacher_embed_weight.detach().clone())
+        # Store as a plain tensor, NOT a registered buffer. This is critical
+        # because DDP modifies registered buffers in-place (broadcasting,
+        # version tracking) which breaks autograd.grad() in the R1 penalty.
+        # By keeping it outside Module's buffer system, DDP cannot touch it.
+        # The tensor is frozen and identical across all ranks (cloned from the
+        # same teacher checkpoint), so no cross-rank sync is needed.
+        self._frozen_embed = teacher_embed_weight.detach().clone()
 
         # Project from teacher embedding dim to discriminator hidden dim
         self.feat_proj = nn.Linear(d_model, hidden_size)
@@ -173,6 +178,12 @@ class ProjectedDiscriminator(nn.Module):
             nn.Linear(hidden_size, 1),
         )
 
+    def _apply(self, fn, recurse=True):
+        """Override to handle device/dtype transfer for _frozen_embed."""
+        result = super()._apply(fn, recurse)
+        self._frozen_embed = fn(self._frozen_embed)
+        return result
+
     @staticmethod
     def timestep_embedding(t, dim=256, max_period=10000):
         half = dim // 2
@@ -196,9 +207,9 @@ class ProjectedDiscriminator(nn.Module):
         """
         B, L, V = probs.shape
 
-        # Clone embed_weight to avoid DDP in-place buffer broadcast
-        # breaking autograd (needed for R1 gradient penalty)
-        embed_w = self.embed_weight.clone()
+        # Use the frozen embed directly — it's a plain tensor outside Module's
+        # buffer system, so DDP cannot modify it in-place.
+        embed_w = self._frozen_embed
 
         # 1. Soft embedding: project V-dim probs to D_model via teacher embedding
         #    This is differentiable: d(feat)/d(probs) = embed_weight^T
