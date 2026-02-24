@@ -247,6 +247,7 @@ class AdversarialDistillationLoss(nn.Module):
         r1_gamma=10.0,
         token_loss_weight=1.0,
         seq_loss_weight=1.0,
+        r1_interval=16,
     ):
         """
         Args:
@@ -255,6 +256,9 @@ class AdversarialDistillationLoss(nn.Module):
             r1_gamma: R1 gradient penalty coefficient (0 to disable)
             token_loss_weight: Weight for per-token discrimination loss
             seq_loss_weight: Weight for sequence-level discrimination loss
+            r1_interval: Lazy R1 interval (StyleGAN2). Compute R1 only every
+                N discriminator steps and scale gamma by N. Set to 1 to
+                compute every step (original behavior). Default 16.
         """
         super().__init__()
         self.discriminator = discriminator
@@ -262,10 +266,17 @@ class AdversarialDistillationLoss(nn.Module):
         self.r1_gamma = r1_gamma
         self.token_loss_weight = token_loss_weight
         self.seq_loss_weight = seq_loss_weight
+        self.r1_interval = r1_interval
+        self._disc_step = 0
 
     def discriminator_loss(self, teacher_probs, student_probs, x_t, t):
         """
         Compute discriminator loss with per-token + sequence-level heads.
+
+        Uses lazy R1 regularization (StyleGAN2): compute R1 penalty only every
+        r1_interval discriminator steps, scaling gamma by the interval so the
+        effective regularization strength is unchanged. This avoids the cost
+        of create_graph=True second-order gradients on most steps.
 
         Args:
             teacher_probs: Teacher distribution [B, L, V] (detached)
@@ -277,10 +288,14 @@ class AdversarialDistillationLoss(nn.Module):
             loss: Discriminator loss scalar
             metrics: Dict with loss components
         """
+        self._disc_step += 1
+        do_r1 = (self.r1_gamma > 0 and
+                 self._disc_step % self.r1_interval == 0)
+
         teacher_probs = teacher_probs.detach()
         student_probs = student_probs.detach()
 
-        if self.r1_gamma > 0:
+        if do_r1:
             teacher_probs.requires_grad_(True)
 
         # Forward pass
@@ -307,10 +322,10 @@ class AdversarialDistillationLoss(nn.Module):
 
         loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
 
-        # R1 gradient penalty on real samples
+        # Lazy R1 gradient penalty on real samples (StyleGAN2)
+        # Scale gamma by r1_interval so the time-averaged penalty is unchanged.
         r1_penalty = torch.tensor(0.0, device=loss.device)
-        if self.r1_gamma > 0 and teacher_probs.requires_grad:
-            # Penalize sensitivity to input on both heads
+        if do_r1:
             r1_target = real_tok.sum() + real_seq.sum()
             grad_real = torch.autograd.grad(
                 outputs=r1_target,
@@ -318,7 +333,8 @@ class AdversarialDistillationLoss(nn.Module):
                 create_graph=True,
             )[0]
             r1_penalty = grad_real.pow(2).sum(dim=[1, 2]).mean()
-            loss = loss + self.r1_gamma * 0.5 * r1_penalty
+            lazy_gamma = self.r1_gamma * self.r1_interval
+            loss = loss + lazy_gamma * 0.5 * r1_penalty
 
         metrics = {
             "disc_loss": loss.item(),

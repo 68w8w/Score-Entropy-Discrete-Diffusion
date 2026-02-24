@@ -198,6 +198,7 @@ def _run(rank, world_size, cfg):
         discriminator=discriminator,
         lambda_adv=adv_cfg.lambda_adv,
         r1_gamma=adv_cfg.r1_gamma,
+        r1_interval=adv_cfg.r1_interval,
     ).to(device)
 
     # Discriminator optimizer
@@ -301,7 +302,7 @@ def _run(rank, world_size, cfg):
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
     mprint(f"Adversarial weight (lambda_adv): {adv_cfg.lambda_adv}")
     mprint(f"Discriminator steps per generator step: {adv_cfg.disc_steps_per_gen}")
-    mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma}")
+    mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma} (lazy interval={adv_cfg.r1_interval})")
 
     while state['step'] < num_train_steps + 1:
         step = state['step']
