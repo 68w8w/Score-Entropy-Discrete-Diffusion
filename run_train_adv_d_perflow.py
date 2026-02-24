@@ -181,7 +181,12 @@ def _run(rank, world_size, cfg):
     ).to(device)
 
     if distributed:
-        discriminator = DDP(discriminator, device_ids=[rank], find_unused_parameters=True)
+        # broadcast_buffers=False: the embed_weight buffer is identical across
+        # ranks (cloned from same teacher), and DDP buffer broadcast is an
+        # in-place op that can corrupt autograd version tracking for R1 penalty.
+        discriminator = DDP(discriminator, device_ids=[rank],
+                            find_unused_parameters=True,
+                            broadcast_buffers=False)
 
     disc_params = sum(p.numel() for p in discriminator.parameters())
     mprint(f"Discriminator parameters: {disc_params}")
@@ -191,6 +196,7 @@ def _run(rank, world_size, cfg):
         discriminator=discriminator,
         lambda_adv=adv_cfg.lambda_adv,
         r1_gamma=adv_cfg.r1_gamma,
+        r1_interval=adv_cfg.r1_interval,
     ).to(device)
 
     # Discriminator optimizer
@@ -294,7 +300,7 @@ def _run(rank, world_size, cfg):
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
     mprint(f"Adversarial weight (lambda_adv): {adv_cfg.lambda_adv}")
     mprint(f"Discriminator steps per generator step: {adv_cfg.disc_steps_per_gen}")
-    mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma}")
+    mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma} (lazy interval={adv_cfg.r1_interval})")
 
     while state['step'] < num_train_steps + 1:
         step = state['step']

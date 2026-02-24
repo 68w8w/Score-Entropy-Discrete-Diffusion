@@ -36,6 +36,8 @@ adversarial:
 
   # R1 gradient penalty for discriminator regularization
   r1_gamma: 10.0
+  # Lazy R1 interval (StyleGAN2): compute R1 every N disc steps, scale gamma by N
+  r1_interval: 16
 
   # Number of discriminator updates per generator update
   disc_steps_per_gen: 1
