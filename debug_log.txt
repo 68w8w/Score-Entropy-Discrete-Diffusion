@@ -1,0 +1,3881 @@
+[TRAIN] step: 0, loss: 4.51061e-01, kl: 0.194944, adv: 2.621185, total: 0.457063, disc: 2.8111, d_tok: 1.3896, d_seq: 1.4215, d_gap: -0.000, tok_acc_r: 0.57, tok_acc_f: 0.42, r1: 0.0000
+[TRAIN] step: 50, loss: 2.90294e-01, kl: 0.145189, adv: 1.351705, total: 0.280360, disc: 2.7746, d_tok: 1.3867, d_seq: 1.3878, d_gap: 0.000, tok_acc_r: 0.44, tok_acc_f: 0.55, r1: 0.0000
+
+[ADV-DISC Step 100] 2026-02-24 22:13:53
+  Disc total loss:  2.773712
+  Disc token loss:  1.386189
+  Disc seq loss:    1.387524
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0632
+  D(fake) seq logit:  0.0636
+  Seq logit gap:      -0.0004
+  Tok acc (real):     0.4963
+  Tok acc (fake):     0.4971
+  Disc grad norm:   59023.1595
+  Disc param norm:  77.5112
+
+[ADV-DISC Step 100] 2026-02-24 22:13:53
+  Disc total loss:  2.773817
+  Disc token loss:  1.386507
+  Disc seq loss:    1.387310
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0634
+  D(fake) seq logit:  0.0634
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.5073
+  Tok acc (fake):     0.5071
+  Disc grad norm:   59023.1595
+  Disc param norm:  77.5112
+
+[ADV-DISC Step 100] 2026-02-24 22:13:53
+  Disc total loss:  2.773976
+  Disc token loss:  1.386597
+  Disc seq loss:    1.387380
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0637
+  D(fake) seq logit:  0.0638
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.5259
+  Tok acc (fake):     0.4695
+  Disc grad norm:   59023.1595
+  Disc param norm:  77.5112
+
+[ADV-DISC Step 100] 2026-02-24 22:13:53
+  Disc total loss:  2.773667
+  Disc token loss:  1.386259
+  Disc seq loss:    1.387408
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0636
+  D(fake) seq logit:  0.0638
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.5317
+  Tok acc (fake):     0.4751
+  Disc grad norm:   59023.1595
+  Disc param norm:  77.5112
+
+================================================================================
+[ADV-GEN Step 100] 2026-02-24 22:13:54
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.138528  (min=0.0283 max=0.2459 std=0.0906)
+  Adv loss:   1.421083
+  Total loss: 0.280636
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1715  |  Student entropy:  0.3090  |  ratio: 1.8013
+  Teacher max_prob: 0.9727  |  Student max_prob: 0.9491
+  JS divergence:    0.016636
+  L2 distance:      0.051151
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=329.2 std=197.2 / 1024
+  Student unique tokens: mean=319.2 std=203.7 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 198, 13] counts: [1472, 113, 101, 99, 93]
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [1533, 109, 99, 95, 91]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4836  |  D(student) prob: 0.4838
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 53.9%
+  D seq logit gap: -0.0005
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=1: kl=0.0283(n=1) | k=2: kl=0.1183(n=1) | k=7: kl=0.1616(n=1) | k=15: kl=0.2459(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 100] 2026-02-24 22:13:54
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.103038  (min=0.0393 max=0.2049 std=0.0757)
+  Adv loss:   1.421797
+  Total loss: 0.245218
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1244  |  Student entropy:  0.2247  |  ratio: 1.8060
+  Teacher max_prob: 0.9744  |  Student max_prob: 0.9499
+  JS divergence:    0.016713
+  L2 distance:      0.053154
+
+  --- Token Diversity ---
+  Argmax agreement: 97.3%
+  Teacher unique tokens: mean=393.2 std=79.9 / 1024
+  Student unique tokens: mean=384.8 std=84.5 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 198, 13] counts: [863, 124, 123, 122, 98]
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [960, 120, 118, 117, 95]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4837  |  D(student) prob: 0.4837
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 57.5%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 4.00/16
+  k=1: kl=0.0520(n=1) | k=3: kl=0.0393(n=1) | k=4: kl=0.1160(n=1) | k=8: kl=0.2049(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 100] 2026-02-24 22:13:54
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.164980  (min=0.0965 max=0.2775 std=0.0782)
+  Adv loss:   1.420907
+  Total loss: 0.307071
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1610  |  Student entropy:  0.3039  |  ratio: 1.8878
+  Teacher max_prob: 0.9737  |  Student max_prob: 0.9470
+  JS divergence:    0.021335
+  L2 distance:      0.061709
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=313.0 std=148.6 / 1024
+  Student unique tokens: mean=300.5 std=152.2 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 286] counts: [1482, 100, 95, 90, 66]
+  Student top5 tokens: [50257, 11, 13, 262, 286] counts: [1591, 97, 92, 87, 65]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4837  |  D(student) prob: 0.4839
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 53.7%
+  D seq logit gap: -0.0010
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.50/16
+  k=1: kl=0.0965(n=1) | k=5: kl=0.1463(n=1) | k=6: kl=0.1396(n=1) | k=14: kl=0.2775(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 100] 2026-02-24 22:13:54
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.211211  (min=0.0532 max=0.3317 std=0.1396)
+  Adv loss:   1.419687
+  Total loss: 0.353180
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2265  |  Student entropy:  0.4354  |  ratio: 1.9227
+  Teacher max_prob: 0.9743  |  Student max_prob: 0.9487
+  JS divergence:    0.022065
+  L2 distance:      0.060583
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=215.0 std=182.3 / 1024
+  Student unique tokens: mean=198.5 std=192.0 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 12] counts: [2333, 77, 70, 69, 63]
+  Student top5 tokens: [50257, 262, 13, 12, 11] counts: [2440, 72, 63, 61, 59]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4839  |  D(student) prob: 0.4837
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.8%
+  D seq logit gap: 0.0007
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.75/16
+  k=1: kl=0.0532(n=1) | k=8: kl=0.1344(n=1) | k=14: kl=0.3317(n=1) | k=16: kl=0.3256(n=1)
+================================================================================
+[TRAIN] step: 100, loss: 2.96526e-01, kl: 0.211211, adv: 1.419687, total: 0.353180, disc: 2.7737, d_tok: 1.3862, d_seq: 1.3875, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+[TRAIN] step: 150, loss: 3.27883e-01, kl: 0.171208, adv: 1.356924, total: 0.306900, disc: 2.7737, d_tok: 1.3865, d_seq: 1.3873, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+
+[ADV-DISC Step 200] 2026-02-24 22:15:12
+  Disc total loss:  2.774199
+  Disc token loss:  1.386479
+  Disc seq loss:    1.387721
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0757
+  D(fake) seq logit:  0.0757
+  Seq logit gap:      0.0000
+  Tok acc (real):     0.4961
+  Tok acc (fake):     0.4907
+  Disc grad norm:   57445.0583
+  Disc param norm:  77.5881
+
+[ADV-DISC Step 200] 2026-02-24 22:15:12
+  Disc total loss:  2.774382
+  Disc token loss:  1.386878
+  Disc seq loss:    1.387504
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0761
+  D(fake) seq logit:  0.0756
+  Seq logit gap:      0.0005
+  Tok acc (real):     0.5059
+  Tok acc (fake):     0.4858
+  Disc grad norm:   57445.0583
+  Disc param norm:  77.5881
+
+[ADV-DISC Step 200] 2026-02-24 22:15:12
+  Disc total loss:  2.774182
+  Disc token loss:  1.386371
+  Disc seq loss:    1.387811
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0752
+  D(fake) seq logit:  0.0754
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.4961
+  Tok acc (fake):     0.5066
+  Disc grad norm:   57445.0583
+  Disc param norm:  77.5881
+
+[ADV-DISC Step 200] 2026-02-24 22:15:12
+  Disc total loss:  2.774234
+  Disc token loss:  1.386457
+  Disc seq loss:    1.387777
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0758
+  D(fake) seq logit:  0.0758
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.5098
+  Tok acc (fake):     0.4961
+  Disc grad norm:   57445.0583
+  Disc param norm:  77.5881
+
+================================================================================
+[ADV-GEN Step 200] 2026-02-24 22:15:12
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.136224  (min=0.0368 max=0.1992 std=0.0698)
+  Adv loss:   1.426082
+  Total loss: 0.278832
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1457  |  Student entropy:  0.2768  |  ratio: 1.8992
+  Teacher max_prob: 0.9754  |  Student max_prob: 0.9489
+  JS divergence:    0.019878
+  L2 distance:      0.059613
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=329.2 std=127.7 / 1024
+  Student unique tokens: mean=320.2 std=130.2 / 1024
+  Teacher top5 tokens: [50257, 11, 198, 262, 13] counts: [1424, 134, 106, 82, 82]
+  Student top5 tokens: [50257, 11, 198, 262, 13] counts: [1529, 124, 103, 79, 79]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4803  |  D(student) prob: 0.4803
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=1: kl=0.0368(n=1) | k=4: kl=0.1610(n=1) | k=10: kl=0.1736(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 200] 2026-02-24 22:15:12
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.114590  (min=0.0665 max=0.1856 std=0.0508)
+  Adv loss:   1.426642
+  Total loss: 0.257254
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1558  |  Student entropy:  0.2766  |  ratio: 1.7748
+  Teacher max_prob: 0.9703  |  Student max_prob: 0.9429
+  JS divergence:    0.018414
+  L2 distance:      0.060998
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=328.0 std=85.4 / 1024
+  Student unique tokens: mean=319.8 std=85.7 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 257] counts: [1296, 133, 110, 104, 89]
+  Student top5 tokens: [50257, 262, 13, 11, 257] counts: [1405, 129, 108, 101, 87]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4803  |  D(student) prob: 0.4803
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.9%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.75/16
+  k=4: kl=0.0909(n=3) | k=11: kl=0.1856(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 200] 2026-02-24 22:15:12
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.183896  (min=0.0812 max=0.2751 std=0.0863)
+  Adv loss:   1.426870
+  Total loss: 0.326583
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2219  |  Student entropy:  0.4124  |  ratio: 1.8587
+  Teacher max_prob: 0.9688  |  Student max_prob: 0.9385
+  JS divergence:    0.021799
+  L2 distance:      0.065748
+
+  --- Token Diversity ---
+  Argmax agreement: 96.6%
+  Teacher unique tokens: mean=251.8 std=183.4 / 1024
+  Student unique tokens: mean=236.8 std=190.5 / 1024
+  Teacher top5 tokens: [50257, 198, 13, 262, 11] counts: [2179, 72, 68, 61, 58]
+  Student top5 tokens: [50257, 198, 13, 262, 11] counts: [2285, 68, 66, 59, 50]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4804  |  D(student) prob: 0.4805
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.2%
+  D seq logit gap: -0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.00/16
+  k=2: kl=0.0812(n=1) | k=7: kl=0.1483(n=1) | k=11: kl=0.2310(n=1) | k=16: kl=0.2751(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 200] 2026-02-24 22:15:12
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.269301  (min=0.2167 max=0.3539 std=0.0593)
+  Adv loss:   1.426525
+  Total loss: 0.411954
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2643  |  Student entropy:  0.4966  |  ratio: 1.8790
+  Teacher max_prob: 0.9687  |  Student max_prob: 0.9384
+  JS divergence:    0.028234
+  L2 distance:      0.077463
+
+  --- Token Diversity ---
+  Argmax agreement: 96.4%
+  Teacher unique tokens: mean=202.5 std=116.4 / 1024
+  Student unique tokens: mean=180.0 std=119.9 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 198] counts: [2762, 54, 43, 40, 28]
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [2908, 46, 39, 34, 25]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4804  |  D(student) prob: 0.4806
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.2%
+  D seq logit gap: -0.0005
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.25/16
+  k=9: kl=0.2613(n=1) | k=10: kl=0.2310(n=2) | k=16: kl=0.3539(n=1)
+================================================================================
+[TRAIN] step: 200, loss: 3.18656e-01, kl: 0.269301, adv: 1.426525, total: 0.411954, disc: 2.7742, d_tok: 1.3864, d_seq: 1.3878, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+[TRAIN] step: 250, loss: 3.02771e-01, kl: 0.112827, adv: 1.354558, total: 0.248283, disc: 2.7737, d_tok: 1.3866, d_seq: 1.3871, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.50, r1: 0.0000
+
+[ADV-DISC Step 300] 2026-02-24 22:16:40
+  Disc total loss:  2.772946
+  Disc token loss:  1.386072
+  Disc seq loss:    1.386875
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0565
+  D(fake) seq logit:  0.0561
+  Seq logit gap:      0.0004
+  Tok acc (real):     0.5083
+  Tok acc (fake):     0.4951
+  Disc grad norm:   56574.2491
+  Disc param norm:  77.7037
+
+[ADV-DISC Step 300] 2026-02-24 22:16:40
+  Disc total loss:  2.773510
+  Disc token loss:  1.386658
+  Disc seq loss:    1.386852
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0574
+  D(fake) seq logit:  0.0569
+  Seq logit gap:      0.0005
+  Tok acc (real):     0.4927
+  Tok acc (fake):     0.5029
+  Disc grad norm:   56574.2491
+  Disc param norm:  77.7037
+
+[ADV-DISC Step 300] 2026-02-24 22:16:40
+  Disc total loss:  2.773765
+  Disc token loss:  1.386643
+  Disc seq loss:    1.387122
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0567
+  D(fake) seq logit:  0.0568
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.5115
+  Tok acc (fake):     0.4893
+  Disc grad norm:   56574.2491
+  Disc param norm:  77.7037
+
+[ADV-DISC Step 300] 2026-02-24 22:16:40
+  Disc total loss:  2.773538
+  Disc token loss:  1.386460
+  Disc seq loss:    1.387078
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0569
+  D(fake) seq logit:  0.0569
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.5020
+  Tok acc (fake):     0.4985
+  Disc grad norm:   56574.2491
+  Disc param norm:  77.7037
+
+================================================================================
+[ADV-GEN Step 300] 2026-02-24 22:16:40
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.143947  (min=0.0237 max=0.3215 std=0.1262)
+  Adv loss:   1.414239
+  Total loss: 0.285370
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1426  |  Student entropy:  0.2626  |  ratio: 1.8420
+  Teacher max_prob: 0.9743  |  Student max_prob: 0.9507
+  JS divergence:    0.017734
+  L2 distance:      0.051817
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=363.2 std=163.7 / 1024
+  Student unique tokens: mean=352.2 std=170.6 / 1024
+  Teacher top5 tokens: [50257, 13, 198, 11, 262] counts: [1180, 123, 114, 110, 90]
+  Student top5 tokens: [50257, 13, 198, 11, 262] counts: [1269, 122, 113, 108, 85]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4863  |  D(student) prob: 0.4863
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.9%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.25/16
+  k=1: kl=0.0237(n=1) | k=3: kl=0.1153(n=2) | k=14: kl=0.3215(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 300] 2026-02-24 22:16:40
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.214589  (min=0.1776 max=0.2425 std=0.0280)
+  Adv loss:   1.414768
+  Total loss: 0.356066
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2419  |  Student entropy:  0.4549  |  ratio: 1.8808
+  Teacher max_prob: 0.9687  |  Student max_prob: 0.9377
+  JS divergence:    0.024840
+  L2 distance:      0.073018
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=227.0 std=95.8 / 1024
+  Student unique tokens: mean=212.2 std=95.2 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 290] counts: [2564, 61, 58, 39, 36]
+  Student top5 tokens: [50257, 262, 13, 11, 198] counts: [2695, 54, 52, 35, 33]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4862  |  D(student) prob: 0.4864
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.6%
+  D seq logit gap: -0.0008
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.50/16
+  k=7: kl=0.2100(n=1) | k=10: kl=0.1776(n=1) | k=11: kl=0.2282(n=1) | k=14: kl=0.2425(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 300] 2026-02-24 22:16:40
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.146564  (min=0.0984 max=0.2372 std=0.0620)
+  Adv loss:   1.414498
+  Total loss: 0.288014
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1801  |  Student entropy:  0.3290  |  ratio: 1.8268
+  Teacher max_prob: 0.9688  |  Student max_prob: 0.9386
+  JS divergence:    0.021522
+  L2 distance:      0.069436
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=224.5 std=139.3 / 1024
+  Student unique tokens: mean=215.0 std=138.1 / 1024
+  Teacher top5 tokens: [50257, 262, 198, 11, 13] counts: [1948, 82, 71, 58, 57]
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [2072, 80, 70, 55, 53]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4862  |  D(student) prob: 0.4862
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.2%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.00/16
+  k=3: kl=0.0984(n=1) | k=5: kl=0.1182(n=1) | k=10: kl=0.1324(n=1) | k=14: kl=0.2372(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 300] 2026-02-24 22:16:40
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.238504  (min=0.1105 max=0.3313 std=0.1005)
+  Adv loss:   1.414530
+  Total loss: 0.379957
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2512  |  Student entropy:  0.4723  |  ratio: 1.8802
+  Teacher max_prob: 0.9691  |  Student max_prob: 0.9389
+  JS divergence:    0.025523
+  L2 distance:      0.073018
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=175.2 std=152.3 / 1024
+  Student unique tokens: mean=155.8 std=158.0 / 1024
+  Teacher top5 tokens: [50257, 13, 198, 262, 11] counts: [2852, 60, 56, 52, 41]
+  Student top5 tokens: [50257, 13, 198, 262, 11] counts: [2984, 57, 52, 46, 36]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4863  |  D(student) prob: 0.4864
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.8%
+  D seq logit gap: -0.0005
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.75/16
+  k=5: kl=0.1105(n=1) | k=13: kl=0.2561(n=2) | k=16: kl=0.3313(n=1)
+================================================================================
+[TRAIN] step: 300, loss: 3.27352e-01, kl: 0.146564, adv: 1.414498, total: 0.288014, disc: 2.7729, d_tok: 1.3861, d_seq: 1.3869, d_gap: 0.000, tok_acc_r: 0.51, tok_acc_f: 0.50, r1: 0.0000
+[TRAIN] step: 350, loss: 3.35664e-01, kl: 0.140480, adv: 1.365401, total: 0.277020, disc: 2.7731, d_tok: 1.3864, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+
+[ADV-DISC Step 400] 2026-02-24 22:17:59
+  Disc total loss:  2.774859
+  Disc token loss:  1.388385
+  Disc seq loss:    1.386474
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0359
+  D(fake) seq logit:  -0.0362
+  Seq logit gap:      0.0003
+  Tok acc (real):     1.0000
+  Tok acc (fake):     0.0005
+  Disc grad norm:   53619.4355
+  Disc param norm:  77.8780
+
+[ADV-DISC Step 400] 2026-02-24 22:17:59
+  Disc total loss:  2.775975
+  Disc token loss:  1.389367
+  Disc seq loss:    1.386609
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0358
+  D(fake) seq logit:  -0.0359
+  Seq logit gap:      0.0000
+  Tok acc (real):     1.0000
+  Tok acc (fake):     0.0000
+  Disc grad norm:   53619.4355
+  Disc param norm:  77.8780
+
+[ADV-DISC Step 400] 2026-02-24 22:17:59
+  Disc total loss:  2.775841
+  Disc token loss:  1.389105
+  Disc seq loss:    1.386736
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0359
+  D(fake) seq logit:  -0.0357
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.9998
+  Tok acc (fake):     0.0002
+  Disc grad norm:   53619.4355
+  Disc param norm:  77.8780
+
+[ADV-DISC Step 400] 2026-02-24 22:17:59
+  Disc total loss:  2.776164
+  Disc token loss:  1.389478
+  Disc seq loss:    1.386686
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0357
+  D(fake) seq logit:  -0.0355
+  Seq logit gap:      -0.0001
+  Tok acc (real):     1.0000
+  Tok acc (fake):     0.0002
+  Disc grad norm:   53619.4355
+  Disc param norm:  77.8780
+
+================================================================================
+[ADV-GEN Step 400] 2026-02-24 22:17:59
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.105809  (min=0.0556 max=0.1687 std=0.0480)
+  Adv loss:   1.362479
+  Total loss: 0.242057
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1518  |  Student entropy:  0.2655  |  ratio: 1.7490
+  Teacher max_prob: 0.9694  |  Student max_prob: 0.9412
+  JS divergence:    0.017973
+  L2 distance:      0.060195
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=378.0 std=35.9 / 1024
+  Student unique tokens: mean=369.2 std=35.6 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 198] counts: [1084, 161, 140, 113, 99]
+  Student top5 tokens: [50257, 262, 11, 13, 198] counts: [1197, 156, 137, 112, 93]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5086  |  D(student) prob: 0.5087
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 30.4%
+  D seq logit gap: -0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 4.75/16
+  k=3: kl=0.0556(n=1) | k=4: kl=0.0860(n=1) | k=6: kl=0.1408(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 400] 2026-02-24 22:17:59
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.191363  (min=0.0710 max=0.2466 std=0.0819)
+  Adv loss:   1.362908
+  Total loss: 0.327654
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2469  |  Student entropy:  0.4536  |  ratio: 1.8372
+  Teacher max_prob: 0.9698  |  Student max_prob: 0.9416
+  JS divergence:    0.020608
+  L2 distance:      0.060917
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=199.0 std=146.8 / 1024
+  Student unique tokens: mean=187.2 std=151.9 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 447] counts: [2616, 55, 45, 43, 37]
+  Student top5 tokens: [50257, 11, 13, 262, 447] counts: [2718, 51, 41, 39, 35]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5086  |  D(student) prob: 0.5086
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 30.5%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.75/16
+  k=2: kl=0.0710(n=1) | k=13: kl=0.2086(n=1) | k=14: kl=0.2429(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 400] 2026-02-24 22:17:59
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.182814  (min=0.0763 max=0.2444 std=0.0751)
+  Adv loss:   1.362658
+  Total loss: 0.319080
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2464  |  Student entropy:  0.4487  |  ratio: 1.8210
+  Teacher max_prob: 0.9679  |  Student max_prob: 0.9385
+  JS divergence:    0.021256
+  L2 distance:      0.064152
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=196.2 std=147.8 / 1024
+  Student unique tokens: mean=183.2 std=150.8 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 198, 11] counts: [2669, 63, 57, 55, 43]
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [2779, 56, 52, 52, 38]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5085  |  D(student) prob: 0.5087
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 30.2%
+  D seq logit gap: -0.0007
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.75/16
+  k=3: kl=0.0763(n=1) | k=11: kl=0.1858(n=1) | k=14: kl=0.2248(n=1) | k=15: kl=0.2444(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 400] 2026-02-24 22:17:59
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.272614  (min=0.2022 max=0.3958 std=0.0904)
+  Adv loss:   1.363137
+  Total loss: 0.408928
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2856  |  Student entropy:  0.5366  |  ratio: 1.8788
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9394
+  JS divergence:    0.026596
+  L2 distance:      0.072031
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=149.5 std=106.3 / 1024
+  Student unique tokens: mean=129.2 std=114.1 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 13, 257] counts: [3134, 38, 36, 30, 23]
+  Student top5 tokens: [50257, 262, 11, 13, 284] counts: [3265, 34, 31, 27, 20]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5087  |  D(student) prob: 0.5087
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 30.4%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 12.75/16
+  k=8: kl=0.2077(n=1) | k=13: kl=0.2022(n=1) | k=14: kl=0.2848(n=1) | k=16: kl=0.3958(n=1)
+================================================================================
+[TRAIN] step: 400, loss: 3.24430e-01, kl: 0.272614, adv: 1.363137, total: 0.408928, disc: 2.7760, d_tok: 1.3894, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
+[TRAIN] step: 450, loss: 2.98132e-01, kl: 0.174805, adv: 1.403854, total: 0.315191, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+
+[ADV-DISC Step 500] 2026-02-24 22:19:27
+  Disc total loss:  2.772559
+  Disc token loss:  1.386284
+  Disc seq loss:    1.386275
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0292
+  D(fake) seq logit:  -0.0297
+  Seq logit gap:      0.0005
+  Tok acc (real):     0.5042
+  Tok acc (fake):     0.4949
+  Disc grad norm:   55580.0417
+  Disc param norm:  78.0579
+
+[ADV-DISC Step 500] 2026-02-24 22:19:27
+  Disc total loss:  2.772900
+  Disc token loss:  1.386547
+  Disc seq loss:    1.386353
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0289
+  D(fake) seq logit:  -0.0292
+  Seq logit gap:      0.0003
+  Tok acc (real):     0.4944
+  Tok acc (fake):     0.4929
+  Disc grad norm:   55580.0417
+  Disc param norm:  78.0579
+
+[ADV-DISC Step 500] 2026-02-24 22:19:27
+  Disc total loss:  2.772318
+  Disc token loss:  1.386037
+  Disc seq loss:    1.386281
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0292
+  D(fake) seq logit:  -0.0297
+  Seq logit gap:      0.0005
+  Tok acc (real):     0.5125
+  Tok acc (fake):     0.5093
+  Disc grad norm:   55580.0417
+  Disc param norm:  78.0579
+
+[ADV-DISC Step 500] 2026-02-24 22:19:27
+  Disc total loss:  2.773085
+  Disc token loss:  1.386606
+  Disc seq loss:    1.386478
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0290
+  D(fake) seq logit:  -0.0291
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.4839
+  Tok acc (fake):     0.5024
+  Disc grad norm:   55580.0417
+  Disc param norm:  78.0579
+
+================================================================================
+[ADV-GEN Step 500] 2026-02-24 22:19:27
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.069506  (min=0.0270 max=0.1506 std=0.0556)
+  Adv loss:   1.371190
+  Total loss: 0.206625
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.0902  |  Student entropy:  0.1597  |  ratio: 1.7699
+  Teacher max_prob: 0.9841  |  Student max_prob: 0.9709
+  JS divergence:    0.009483
+  L2 distance:      0.027322
+
+  --- Token Diversity ---
+  Argmax agreement: 98.5%
+  Teacher unique tokens: mean=396.2 std=111.8 / 1024
+  Student unique tokens: mean=391.5 std=117.2 / 1024
+  Teacher top5 tokens: [50257, 262, 198, 11, 13] counts: [610, 157, 121, 119, 118]
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [645, 156, 121, 119, 118]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5074  |  D(student) prob: 0.5074
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 50.4%
+  D seq logit gap: -0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 3.25/16
+  k=1: kl=0.0425(n=3) | k=10: kl=0.1506(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 500] 2026-02-24 22:19:27
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.212815  (min=0.1176 max=0.2855 std=0.0714)
+  Adv loss:   1.371967
+  Total loss: 0.350011
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2163  |  Student entropy:  0.4073  |  ratio: 1.8830
+  Teacher max_prob: 0.9691  |  Student max_prob: 0.9382
+  JS divergence:    0.025809
+  L2 distance:      0.074787
+
+  --- Token Diversity ---
+  Argmax agreement: 96.5%
+  Teacher unique tokens: mean=280.2 std=117.1 / 1024
+  Student unique tokens: mean=266.2 std=117.1 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 198, 13] counts: [2106, 85, 81, 62, 62]
+  Student top5 tokens: [50257, 262, 11, 13, 198] counts: [2243, 74, 74, 56, 55]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5074  |  D(student) prob: 0.5073
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.6%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.75/16
+  k=4: kl=0.1176(n=1) | k=9: kl=0.2457(n=2) | k=13: kl=0.2423(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 500] 2026-02-24 22:19:27
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.132062  (min=0.0537 max=0.1888 std=0.0573)
+  Adv loss:   1.371754
+  Total loss: 0.269238
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1763  |  Student entropy:  0.3273  |  ratio: 1.8563
+  Teacher max_prob: 0.9746  |  Student max_prob: 0.9494
+  JS divergence:    0.017359
+  L2 distance:      0.053121
+
+  --- Token Diversity ---
+  Argmax agreement: 97.8%
+  Teacher unique tokens: mean=299.2 std=159.6 / 1024
+  Student unique tokens: mean=291.0 std=162.7 / 1024
+  Teacher top5 tokens: [50257, 198, 13, 11, 262] counts: [1773, 90, 86, 85, 83]
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [1859, 83, 83, 82, 81]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5073  |  D(student) prob: 0.5073
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 50.7%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.50/16
+  k=1: kl=0.0537(n=1) | k=6: kl=0.1319(n=1) | k=10: kl=0.1538(n=1) | k=13: kl=0.1888(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 500] 2026-02-24 22:19:27
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.156414  (min=0.0455 max=0.2871 std=0.1059)
+  Adv loss:   1.371675
+  Total loss: 0.293582
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1436  |  Student entropy:  0.2763  |  ratio: 1.9238
+  Teacher max_prob: 0.9754  |  Student max_prob: 0.9505
+  JS divergence:    0.019427
+  L2 distance:      0.055745
+
+  --- Token Diversity ---
+  Argmax agreement: 96.5%
+  Teacher unique tokens: mean=356.0 std=148.3 / 1024
+  Student unique tokens: mean=345.2 std=157.0 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 13, 286] counts: [1380, 114, 113, 99, 74]
+  Student top5 tokens: [50257, 11, 262, 13, 286] counts: [1441, 115, 109, 97, 75]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5072  |  D(student) prob: 0.5073
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.8%
+  D seq logit gap: -0.0005
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.00/16
+  k=1: kl=0.1014(n=1) | k=2: kl=0.0455(n=1) | k=9: kl=0.1917(n=1) | k=12: kl=0.2871(n=1)
+================================================================================
+[TRAIN] step: 500, loss: 2.79864e-01, kl: 0.069506, adv: 1.371190, total: 0.206625, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+[TRAIN] step: 550, loss: 2.84237e-01, kl: 0.150590, adv: 1.402963, total: 0.290886, disc: 2.7730, d_tok: 1.3863, d_seq: 1.3867, d_gap: -0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+
+[ADV-DISC Step 600] 2026-02-24 22:20:45
+  Disc total loss:  2.773229
+  Disc token loss:  1.386661
+  Disc seq loss:    1.386568
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0289
+  D(fake) seq logit:  -0.0287
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.5005
+  Tok acc (fake):     0.4915
+  Disc grad norm:   55105.8253
+  Disc param norm:  78.2226
+
+[ADV-DISC Step 600] 2026-02-24 22:20:45
+  Disc total loss:  2.772437
+  Disc token loss:  1.386153
+  Disc seq loss:    1.386284
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0285
+  D(fake) seq logit:  -0.0289
+  Seq logit gap:      0.0004
+  Tok acc (real):     0.4929
+  Tok acc (fake):     0.5115
+  Disc grad norm:   55105.8253
+  Disc param norm:  78.2226
+
+[ADV-DISC Step 600] 2026-02-24 22:20:45
+  Disc total loss:  2.773114
+  Disc token loss:  1.386568
+  Disc seq loss:    1.386546
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0288
+  D(fake) seq logit:  -0.0287
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.5061
+  Tok acc (fake):     0.4910
+  Disc grad norm:   55105.8253
+  Disc param norm:  78.2226
+
+[ADV-DISC Step 600] 2026-02-24 22:20:45
+  Disc total loss:  2.773103
+  Disc token loss:  1.386689
+  Disc seq loss:    1.386415
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0285
+  D(fake) seq logit:  -0.0287
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.5034
+  Tok acc (fake):     0.4905
+  Disc grad norm:   55105.8253
+  Disc param norm:  78.2226
+
+================================================================================
+[ADV-GEN Step 600] 2026-02-24 22:20:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.117607  (min=0.0689 max=0.1931 std=0.0530)
+  Adv loss:   1.371917
+  Total loss: 0.254798
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1427  |  Student entropy:  0.2652  |  ratio: 1.8592
+  Teacher max_prob: 0.9718  |  Student max_prob: 0.9439
+  JS divergence:    0.018241
+  L2 distance:      0.057460
+
+  --- Token Diversity ---
+  Argmax agreement: 97.3%
+  Teacher unique tokens: mean=394.0 std=78.8 / 1024
+  Student unique tokens: mean=384.5 std=82.4 / 1024
+  Teacher top5 tokens: [50257, 13, 11, 198, 447] counts: [1046, 114, 103, 87, 82]
+  Student top5 tokens: [50257, 13, 11, 198, 447] counts: [1135, 110, 101, 85, 81]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5073  |  D(student) prob: 0.5074
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 48.4%
+  D seq logit gap: -0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 4.50/16
+  k=1: kl=0.0689(n=1) | k=4: kl=0.1047(n=1) | k=5: kl=0.1037(n=1) | k=8: kl=0.1931(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 600] 2026-02-24 22:20:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.221078  (min=0.1568 max=0.2853 std=0.0576)
+  Adv loss:   1.371441
+  Total loss: 0.358222
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2668  |  Student entropy:  0.5038  |  ratio: 1.8883
+  Teacher max_prob: 0.9685  |  Student max_prob: 0.9385
+  JS divergence:    0.024628
+  L2 distance:      0.070321
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=173.8 std=90.6 / 1024
+  Student unique tokens: mean=158.5 std=91.3 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 13, 262] counts: [2973, 62, 37, 28, 27]
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [3095, 51, 31, 25, 25]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5074  |  D(student) prob: 0.5074
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 50.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 12.00/16
+  k=9: kl=0.1920(n=1) | k=11: kl=0.2501(n=1) | k=13: kl=0.1568(n=1) | k=15: kl=0.2853(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 600] 2026-02-24 22:20:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.164290  (min=0.1193 max=0.2119 std=0.0472)
+  Adv loss:   1.371757
+  Total loss: 0.301466
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1756  |  Student entropy:  0.3244  |  ratio: 1.8475
+  Teacher max_prob: 0.9692  |  Student max_prob: 0.9389
+  JS divergence:    0.023607
+  L2 distance:      0.072553
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=341.5 std=36.6 / 1024
+  Student unique tokens: mean=328.0 std=39.5 / 1024
+  Teacher top5 tokens: [50257, 13, 11, 262, 198] counts: [1621, 106, 97, 73, 71]
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [1754, 102, 92, 70, 64]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5073  |  D(student) prob: 0.5073
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.6%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.75/16
+  k=6: kl=0.1532(n=3) | k=9: kl=0.1975(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 600] 2026-02-24 22:20:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.176424  (min=0.0903 max=0.2628 std=0.0789)
+  Adv loss:   1.371818
+  Total loss: 0.313606
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2197  |  Student entropy:  0.4242  |  ratio: 1.9313
+  Teacher max_prob: 0.9695  |  Student max_prob: 0.9389
+  JS divergence:    0.022221
+  L2 distance:      0.067222
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=201.8 std=178.7 / 1024
+  Student unique tokens: mean=188.5 std=180.9 / 1024
+  Teacher top5 tokens: [50257, 198, 13, 11, 262] counts: [2298, 82, 45, 45, 39]
+  Student top5 tokens: [50257, 198, 13, 11, 262] counts: [2417, 76, 44, 43, 36]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5074  |  D(student) prob: 0.5074
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.0%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.50/16
+  k=4: kl=0.1115(n=2) | k=15: kl=0.2414(n=2)
+================================================================================
+[TRAIN] step: 600, loss: 3.07023e-01, kl: 0.176424, adv: 1.371818, total: 0.313606, disc: 2.7724, d_tok: 1.3862, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+[TRAIN] step: 650, loss: 3.00409e-01, kl: 0.186874, adv: 1.404267, total: 0.327301, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+
+[ADV-DISC Step 700] 2026-02-24 22:22:14
+  Disc total loss:  2.772696
+  Disc token loss:  1.386545
+  Disc seq loss:    1.386151
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0223
+  D(fake) seq logit:  -0.0228
+  Seq logit gap:      0.0005
+  Tok acc (real):     0.4897
+  Tok acc (fake):     0.4932
+  Disc grad norm:   54713.1349
+  Disc param norm:  78.3969
+
+[ADV-DISC Step 700] 2026-02-24 22:22:14
+  Disc total loss:  2.772652
+  Disc token loss:  1.386358
+  Disc seq loss:    1.386294
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0225
+  D(fake) seq logit:  -0.0227
+  Seq logit gap:      0.0003
+  Tok acc (real):     0.4934
+  Tok acc (fake):     0.5112
+  Disc grad norm:   54713.1349
+  Disc param norm:  78.3969
+
+[ADV-DISC Step 700] 2026-02-24 22:22:14
+  Disc total loss:  2.773061
+  Disc token loss:  1.386558
+  Disc seq loss:    1.386503
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0222
+  D(fake) seq logit:  -0.0220
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.4863
+  Tok acc (fake):     0.5107
+  Disc grad norm:   54713.1349
+  Disc param norm:  78.3969
+
+[ADV-DISC Step 700] 2026-02-24 22:22:14
+  Disc total loss:  2.772782
+  Disc token loss:  1.386179
+  Disc seq loss:    1.386603
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0225
+  D(fake) seq logit:  -0.0221
+  Seq logit gap:      -0.0004
+  Tok acc (real):     0.4968
+  Tok acc (fake):     0.5044
+  Disc grad norm:   54713.1349
+  Disc param norm:  78.3969
+
+================================================================================
+[ADV-GEN Step 700] 2026-02-24 22:22:14
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.192030  (min=0.1478 max=0.2446 std=0.0474)
+  Adv loss:   1.375206
+  Total loss: 0.329550
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2246  |  Student entropy:  0.4217  |  ratio: 1.8775
+  Teacher max_prob: 0.9684  |  Student max_prob: 0.9374
+  JS divergence:    0.024973
+  L2 distance:      0.074586
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=213.0 std=54.9 / 1024
+  Student unique tokens: mean=199.2 std=54.6 / 1024
+  Teacher top5 tokens: [50257, 13, 198, 11, 262] counts: [2566, 84, 68, 62, 52]
+  Student top5 tokens: [50257, 13, 198, 11, 262] counts: [2698, 74, 63, 55, 47]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5058  |  D(student) prob: 0.5058
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.4%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.50/16
+  k=8: kl=0.1564(n=1) | k=9: kl=0.2193(n=1) | k=12: kl=0.1478(n=1) | k=13: kl=0.2446(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 700] 2026-02-24 22:22:14
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.144344  (min=0.0837 max=0.2525 std=0.0743)
+  Adv loss:   1.374974
+  Total loss: 0.281841
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1465  |  Student entropy:  0.2651  |  ratio: 1.8100
+  Teacher max_prob: 0.9695  |  Student max_prob: 0.9412
+  JS divergence:    0.022084
+  L2 distance:      0.068407
+
+  --- Token Diversity ---
+  Argmax agreement: 96.2%
+  Teacher unique tokens: mean=369.0 std=85.1 / 1024
+  Student unique tokens: mean=356.0 std=91.8 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 262, 13] counts: [1193, 127, 121, 116, 99]
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [1313, 128, 115, 107, 93]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5058  |  D(student) prob: 0.5058
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 51.0%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.25/16
+  k=2: kl=0.0837(n=1) | k=4: kl=0.1167(n=1) | k=6: kl=0.1245(n=1) | k=9: kl=0.2525(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 700] 2026-02-24 22:22:14
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.234963  (min=0.1310 max=0.3001 std=0.0787)
+  Adv loss:   1.374785
+  Total loss: 0.372441
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2297  |  Student entropy:  0.4346  |  ratio: 1.8919
+  Teacher max_prob: 0.9697  |  Student max_prob: 0.9403
+  JS divergence:    0.026914
+  L2 distance:      0.074978
+
+  --- Token Diversity ---
+  Argmax agreement: 96.6%
+  Teacher unique tokens: mean=232.0 std=78.5 / 1024
+  Student unique tokens: mean=213.0 std=84.8 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 198, 11] counts: [2541, 66, 49, 48, 48]
+  Student top5 tokens: [50257, 262, 13, 11, 198] counts: [2681, 57, 45, 45, 44]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5058  |  D(student) prob: 0.5057
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 49.9%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.75/16
+  k=8: kl=0.1310(n=1) | k=10: kl=0.2171(n=1) | k=11: kl=0.3001(n=1) | k=14: kl=0.2917(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 700] 2026-02-24 22:22:14
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.179301  (min=0.1156 max=0.2907 std=0.0768)
+  Adv loss:   1.374844
+  Total loss: 0.316786
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2017  |  Student entropy:  0.3679  |  ratio: 1.8238
+  Teacher max_prob: 0.9681  |  Student max_prob: 0.9382
+  JS divergence:    0.023277
+  L2 distance:      0.070824
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=290.8 std=89.6 / 1024
+  Student unique tokens: mean=278.8 std=92.2 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 286] counts: [1951, 107, 85, 70, 60]
+  Student top5 tokens: [50257, 262, 11, 13, 286] counts: [2078, 101, 77, 65, 57]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5058  |  D(student) prob: 0.5058
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 50.9%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.00/16
+  k=4: kl=0.1156(n=1) | k=8: kl=0.1487(n=1) | k=10: kl=0.2264(n=2)
+================================================================================
+[TRAIN] step: 700, loss: 3.25155e-01, kl: 0.144344, adv: 1.374974, total: 0.281841, disc: 2.7728, d_tok: 1.3862, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+[TRAIN] step: 750, loss: 3.23250e-01, kl: 0.204688, adv: 1.363778, total: 0.341066, disc: 2.7733, d_tok: 1.3864, d_seq: 1.3869, d_gap: -0.000, tok_acc_r: 0.51, tok_acc_f: 0.48, r1: 0.0000
+
+[ADV-DISC Step 800] 2026-02-24 22:23:32
+  Disc total loss:  2.774423
+  Disc token loss:  1.388180
+  Disc seq loss:    1.386243
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0053
+  D(fake) seq logit:  0.0051
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.9998
+  Tok acc (fake):     0.0000
+  Disc grad norm:   52149.4794
+  Disc param norm:  78.6316
+
+[ADV-DISC Step 800] 2026-02-24 22:23:32
+  Disc total loss:  2.774722
+  Disc token loss:  1.388295
+  Disc seq loss:    1.386426
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0049
+  D(fake) seq logit:  0.0052
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.9998
+  Tok acc (fake):     0.0000
+  Disc grad norm:   52149.4794
+  Disc param norm:  78.6316
+
+[ADV-DISC Step 800] 2026-02-24 22:23:32
+  Disc total loss:  2.774515
+  Disc token loss:  1.388230
+  Disc seq loss:    1.386284
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0051
+  D(fake) seq logit:  0.0051
+  Seq logit gap:      0.0000
+  Tok acc (real):     0.9998
+  Tok acc (fake):     0.0000
+  Disc grad norm:   52149.4794
+  Disc param norm:  78.6316
+
+[ADV-DISC Step 800] 2026-02-24 22:23:32
+  Disc total loss:  2.773606
+  Disc token loss:  1.387466
+  Disc seq loss:    1.386140
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0054
+  D(fake) seq logit:  0.0050
+  Seq logit gap:      0.0003
+  Tok acc (real):     1.0000
+  Tok acc (fake):     0.0002
+  Disc grad norm:   52149.4794
+  Disc param norm:  78.6316
+
+================================================================================
+[ADV-GEN Step 800] 2026-02-24 22:23:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.125671  (min=0.0607 max=0.2023 std=0.0583)
+  Adv loss:   1.381078
+  Total loss: 0.263779
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1716  |  Student entropy:  0.3143  |  ratio: 1.8312
+  Teacher max_prob: 0.9695  |  Student max_prob: 0.9398
+  JS divergence:    0.019088
+  L2 distance:      0.062663
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=282.5 std=120.4 / 1024
+  Student unique tokens: mean=274.5 std=121.3 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 198, 262] counts: [1604, 95, 81, 68, 67]
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [1703, 90, 76, 65, 65]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4991  |  D(student) prob: 0.4991
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 25.4%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.75/16
+  k=2: kl=0.0607(n=1) | k=5: kl=0.1228(n=1) | k=8: kl=0.1169(n=1) | k=12: kl=0.2023(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 800] 2026-02-24 22:23:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.187833  (min=0.0908 max=0.3466 std=0.1124)
+  Adv loss:   1.380911
+  Total loss: 0.325924
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1896  |  Student entropy:  0.3559  |  ratio: 1.8768
+  Teacher max_prob: 0.9699  |  Student max_prob: 0.9400
+  JS divergence:    0.023176
+  L2 distance:      0.070009
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=297.8 std=104.6 / 1024
+  Student unique tokens: mean=283.0 std=110.5 / 1024
+  Teacher top5 tokens: [50257, 198, 262, 13, 11] counts: [1872, 92, 90, 85, 63]
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [1998, 87, 84, 81, 61]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4990  |  D(student) prob: 0.4990
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 25.2%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.00/16
+  k=4: kl=0.0908(n=1) | k=6: kl=0.1307(n=1) | k=9: kl=0.1833(n=1) | k=13: kl=0.3466(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 800] 2026-02-24 22:23:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.197743  (min=0.1250 max=0.2794 std=0.0681)
+  Adv loss:   1.380651
+  Total loss: 0.335808
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2378  |  Student entropy:  0.4491  |  ratio: 1.8888
+  Teacher max_prob: 0.9688  |  Student max_prob: 0.9382
+  JS divergence:    0.023705
+  L2 distance:      0.069492
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=238.5 std=167.9 / 1024
+  Student unique tokens: mean=222.5 std=173.1 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 286] counts: [2323, 133, 60, 60, 57]
+  Student top5 tokens: [50257, 262, 13, 11, 286] counts: [2447, 124, 56, 54, 52]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4991  |  D(student) prob: 0.4991
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 25.9%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.50/16
+  k=4: kl=0.1250(n=1) | k=7: kl=0.1624(n=1) | k=11: kl=0.2243(n=1) | k=16: kl=0.2794(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 800] 2026-02-24 22:23:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.183405  (min=0.0546 max=0.2999 std=0.1004)
+  Adv loss:   1.380843
+  Total loss: 0.321490
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1858  |  Student entropy:  0.3467  |  ratio: 1.8653
+  Teacher max_prob: 0.9736  |  Student max_prob: 0.9484
+  JS divergence:    0.020613
+  L2 distance:      0.059912
+
+  --- Token Diversity ---
+  Argmax agreement: 97.3%
+  Teacher unique tokens: mean=272.5 std=116.9 / 1024
+  Student unique tokens: mean=259.8 std=123.1 / 1024
+  Teacher top5 tokens: [50257, 11, 198, 13, 262] counts: [1904, 111, 88, 82, 70]
+  Student top5 tokens: [50257, 11, 198, 13, 262] counts: [2005, 107, 85, 78, 71]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4991  |  D(student) prob: 0.4991
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 26.9%
+  D seq logit gap: -0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.00/16
+  k=1: kl=0.0546(n=1) | k=9: kl=0.1896(n=2) | k=13: kl=0.2999(n=1)
+================================================================================
+[TRAIN] step: 800, loss: 3.11750e-01, kl: 0.187833, adv: 1.380911, total: 0.325924, disc: 2.7744, d_tok: 1.3882, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
+[TRAIN] step: 850, loss: 3.11843e-01, kl: 0.230253, adv: 1.396400, total: 0.369893, disc: 2.7728, d_tok: 1.3863, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.46, tok_acc_f: 0.54, r1: 0.0000
+
+[ADV-DISC Step 900] 2026-02-24 22:25:00
+  Disc total loss:  2.772831
+  Disc token loss:  1.386561
+  Disc seq loss:    1.386270
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0115
+  D(fake) seq logit:  0.0114
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.4993
+  Tok acc (fake):     0.4971
+  Disc grad norm:   53981.3822
+  Disc param norm:  78.8547
+
+[ADV-DISC Step 900] 2026-02-24 22:25:00
+  Disc total loss:  2.772860
+  Disc token loss:  1.386338
+  Disc seq loss:    1.386521
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0111
+  D(fake) seq logit:  0.0115
+  Seq logit gap:      -0.0004
+  Tok acc (real):     0.4944
+  Tok acc (fake):     0.5015
+  Disc grad norm:   53981.3822
+  Disc param norm:  78.8547
+
+[ADV-DISC Step 900] 2026-02-24 22:25:00
+  Disc total loss:  2.772782
+  Disc token loss:  1.386532
+  Disc seq loss:    1.386250
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0118
+  D(fake) seq logit:  0.0117
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.4983
+  Tok acc (fake):     0.5000
+  Disc grad norm:   53981.3822
+  Disc param norm:  78.8547
+
+[ADV-DISC Step 900] 2026-02-24 22:25:00
+  Disc total loss:  2.772630
+  Disc token loss:  1.386173
+  Disc seq loss:    1.386457
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0114
+  D(fake) seq logit:  0.0117
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.4988
+  Tok acc (fake):     0.4995
+  Disc grad norm:   53981.3822
+  Disc param norm:  78.8547
+
+================================================================================
+[ADV-GEN Step 900] 2026-02-24 22:25:00
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.134026  (min=0.0417 max=0.2549 std=0.0947)
+  Adv loss:   1.391584
+  Total loss: 0.273184
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1450  |  Student entropy:  0.2613  |  ratio: 1.8022
+  Teacher max_prob: 0.9702  |  Student max_prob: 0.9449
+  JS divergence:    0.018795
+  L2 distance:      0.058464
+
+  --- Token Diversity ---
+  Argmax agreement: 96.2%
+  Teacher unique tokens: mean=365.5 std=72.7 / 1024
+  Student unique tokens: mean=357.5 std=82.2 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 13, 262] counts: [1177, 111, 109, 100, 99]
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [1237, 110, 108, 102, 101]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4973  |  D(student) prob: 0.4973
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.0%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.25/16
+  k=2: kl=0.0603(n=2) | k=8: kl=0.1605(n=1) | k=9: kl=0.2549(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 900] 2026-02-24 22:25:00
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.188651  (min=0.0757 max=0.3111 std=0.1160)
+  Adv loss:   1.391657
+  Total loss: 0.327817
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2134  |  Student entropy:  0.3895  |  ratio: 1.8252
+  Teacher max_prob: 0.9693  |  Student max_prob: 0.9422
+  JS divergence:    0.020881
+  L2 distance:      0.061483
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=285.5 std=190.1 / 1024
+  Student unique tokens: mean=271.2 std=195.7 / 1024
+  Teacher top5 tokens: [50257, 198, 262, 11, 13] counts: [2052, 91, 84, 84, 69]
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [2145, 87, 77, 77, 68]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4974  |  D(student) prob: 0.4975
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.3%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.50/16
+  k=2: kl=0.0757(n=1) | k=5: kl=0.1046(n=1) | k=13: kl=0.3111(n=1) | k=14: kl=0.2632(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 900] 2026-02-24 22:25:00
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.160359  (min=0.0489 max=0.3277 std=0.1209)
+  Adv loss:   1.391675
+  Total loss: 0.299526
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1751  |  Student entropy:  0.3249  |  ratio: 1.8553
+  Teacher max_prob: 0.9734  |  Student max_prob: 0.9498
+  JS divergence:    0.019185
+  L2 distance:      0.053622
+
+  --- Token Diversity ---
+  Argmax agreement: 97.5%
+  Teacher unique tokens: mean=328.2 std=147.5 / 1024
+  Student unique tokens: mean=315.2 std=155.0 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 198] counts: [1531, 123, 84, 79, 63]
+  Student top5 tokens: [50257, 262, 11, 13, 198] counts: [1627, 116, 82, 75, 62]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4973  |  D(student) prob: 0.4973
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.9%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.50/16
+  k=1: kl=0.0489(n=1) | k=3: kl=0.1021(n=1) | k=9: kl=0.1627(n=1) | k=13: kl=0.3277(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 900] 2026-02-24 22:25:00
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.225799  (min=0.1750 max=0.2724 std=0.0399)
+  Adv loss:   1.391496
+  Total loss: 0.364948
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2546  |  Student entropy:  0.4668  |  ratio: 1.8330
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9397
+  JS divergence:    0.025376
+  L2 distance:      0.072157
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=185.5 std=108.7 / 1024
+  Student unique tokens: mean=167.8 std=110.0 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 13, 262] counts: [2820, 75, 48, 44, 43]
+  Student top5 tokens: [50257, 198, 13, 262, 11] counts: [2953, 67, 42, 41, 41]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4974  |  D(student) prob: 0.4974
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.0%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.50/16
+  k=6: kl=0.1750(n=1) | k=12: kl=0.2309(n=1) | k=13: kl=0.2724(n=1) | k=15: kl=0.2250(n=1)
+================================================================================
+[TRAIN] step: 900, loss: 3.16369e-01, kl: 0.225799, adv: 1.391496, total: 0.364948, disc: 2.7728, d_tok: 1.3865, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+[TRAIN] step: 950, loss: 3.35287e-01, kl: 0.196742, adv: 1.395023, total: 0.336245, disc: 2.7735, d_tok: 1.3869, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+
+[ADV-DISC Step 1000] 2026-02-24 22:26:18
+  Disc total loss:  2.772735
+  Disc token loss:  1.386433
+  Disc seq loss:    1.386302
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0173
+  D(fake) seq logit:  0.0172
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.4995
+  Tok acc (fake):     0.4912
+  Disc grad norm:   53767.4575
+  Disc param norm:  78.9498
+
+[ADV-DISC Step 1000] 2026-02-24 22:26:18
+  Disc total loss:  2.772868
+  Disc token loss:  1.386445
+  Disc seq loss:    1.386423
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0171
+  D(fake) seq logit:  0.0172
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.4951
+  Tok acc (fake):     0.4897
+  Disc grad norm:   53767.4575
+  Disc param norm:  78.9498
+
+[ADV-DISC Step 1000] 2026-02-24 22:26:18
+  Disc total loss:  2.772726
+  Disc token loss:  1.386417
+  Disc seq loss:    1.386309
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0170
+  D(fake) seq logit:  0.0169
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.5042
+  Tok acc (fake):     0.4924
+  Disc grad norm:   53767.4575
+  Disc param norm:  78.9498
+
+[ADV-DISC Step 1000] 2026-02-24 22:26:18
+  Disc total loss:  2.772560
+  Disc token loss:  1.386027
+  Disc seq loss:    1.386533
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0170
+  D(fake) seq logit:  0.0173
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.5132
+  Tok acc (fake):     0.5051
+  Disc grad norm:   53767.4575
+  Disc param norm:  78.9498
+
+================================================================================
+[ADV-GEN Step 1000] 2026-02-24 22:26:18
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.236104  (min=0.1121 max=0.3863 std=0.1383)
+  Adv loss:   1.395043
+  Total loss: 0.375609
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2466  |  Student entropy:  0.4773  |  ratio: 1.9357
+  Teacher max_prob: 0.9692  |  Student max_prob: 0.9375
+  JS divergence:    0.024172
+  L2 distance:      0.070510
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=215.8 std=181.9 / 1024
+  Student unique tokens: mean=196.0 std=190.2 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 286] counts: [2538, 70, 63, 57, 40]
+  Student top5 tokens: [50257, 262, 11, 13, 286] counts: [2660, 68, 60, 55, 37]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4957  |  D(student) prob: 0.4957
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.5%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.50/16
+  k=5: kl=0.1121(n=1) | k=6: kl=0.1252(n=1) | k=15: kl=0.3207(n=1) | k=16: kl=0.3863(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1000] 2026-02-24 22:26:18
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.192603  (min=0.0904 max=0.4091 std=0.1462)
+  Adv loss:   1.394923
+  Total loss: 0.332096
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1872  |  Student entropy:  0.3562  |  ratio: 1.9032
+  Teacher max_prob: 0.9682  |  Student max_prob: 0.9379
+  JS divergence:    0.023323
+  L2 distance:      0.069827
+
+  --- Token Diversity ---
+  Argmax agreement: 95.8%
+  Teacher unique tokens: mean=301.5 std=205.8 / 1024
+  Student unique tokens: mean=286.2 std=215.5 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 198, 262] counts: [1658, 91, 89, 66, 54]
+  Student top5 tokens: [50257, 11, 13, 198, 262] counts: [1759, 88, 84, 69, 49]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4957  |  D(student) prob: 0.4957
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.9%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.00/16
+  k=2: kl=0.0904(n=1) | k=3: kl=0.1233(n=1) | k=7: kl=0.1476(n=1) | k=16: kl=0.4091(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1000] 2026-02-24 22:26:18
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.144106  (min=0.0593 max=0.2049 std=0.0664)
+  Adv loss:   1.395130
+  Total loss: 0.283619
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1526  |  Student entropy:  0.2930  |  ratio: 1.9196
+  Teacher max_prob: 0.9738  |  Student max_prob: 0.9463
+  JS divergence:    0.020086
+  L2 distance:      0.060699
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=347.0 std=89.1 / 1024
+  Student unique tokens: mean=336.5 std=93.9 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 198] counts: [1313, 130, 119, 88, 61]
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [1410, 124, 115, 85, 61]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4958  |  D(student) prob: 0.4957
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.4%
+  D seq logit gap: 0.0005
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.75/16
+  k=1: kl=0.0593(n=1) | k=5: kl=0.1241(n=1) | k=7: kl=0.1881(n=1) | k=10: kl=0.2049(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1000] 2026-02-24 22:26:18
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.211940  (min=0.1376 max=0.2773 std=0.0625)
+  Adv loss:   1.395327
+  Total loss: 0.351473
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2417  |  Student entropy:  0.4736  |  ratio: 1.9592
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9356
+  JS divergence:    0.026650
+  L2 distance:      0.077452
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=193.2 std=71.8 / 1024
+  Student unique tokens: mean=179.2 std=74.2 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 198, 11] counts: [2670, 60, 56, 49, 48]
+  Student top5 tokens: [50257, 262, 13, 198, 11] counts: [2806, 55, 52, 42, 41]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4957  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.9%
+  D seq logit gap: -0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.00/16
+  k=8: kl=0.1376(n=1) | k=9: kl=0.1858(n=1) | k=13: kl=0.2773(n=1) | k=14: kl=0.2470(n=1)
+================================================================================
+[TRAIN] step: 1000, loss: 3.35699e-01, kl: 0.211940, adv: 1.395327, total: 0.351473, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+[TRAIN] step: 1050, loss: 3.38579e-01, kl: 0.233040, adv: 1.397878, total: 0.372828, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.52, r1: 0.0000
+
+[ADV-DISC Step 1100] 2026-02-24 22:27:46
+  Disc total loss:  2.772944
+  Disc token loss:  1.386667
+  Disc seq loss:    1.386278
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0170
+  D(fake) seq logit:  0.0169
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.4944
+  Tok acc (fake):     0.5073
+  Disc grad norm:   53608.7525
+  Disc param norm:  78.9367
+
+[ADV-DISC Step 1100] 2026-02-24 22:27:46
+  Disc total loss:  2.772632
+  Disc token loss:  1.386266
+  Disc seq loss:    1.386367
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0172
+  D(fake) seq logit:  0.0172
+  Seq logit gap:      0.0000
+  Tok acc (real):     0.4927
+  Tok acc (fake):     0.5176
+  Disc grad norm:   53608.7525
+  Disc param norm:  78.9367
+
+[ADV-DISC Step 1100] 2026-02-24 22:27:46
+  Disc total loss:  2.772445
+  Disc token loss:  1.386071
+  Disc seq loss:    1.386374
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0171
+  D(fake) seq logit:  0.0171
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.4937
+  Tok acc (fake):     0.5120
+  Disc grad norm:   53608.7525
+  Disc param norm:  78.9367
+
+[ADV-DISC Step 1100] 2026-02-24 22:27:46
+  Disc total loss:  2.772452
+  Disc token loss:  1.386183
+  Disc seq loss:    1.386270
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0171
+  D(fake) seq logit:  0.0169
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.5005
+  Tok acc (fake):     0.5081
+  Disc grad norm:   53608.7525
+  Disc param norm:  78.9367
+
+================================================================================
+[ADV-GEN Step 1100] 2026-02-24 22:27:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.146328  (min=0.0740 max=0.2081 std=0.0553)
+  Adv loss:   1.394951
+  Total loss: 0.285823
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1693  |  Student entropy:  0.3111  |  ratio: 1.8382
+  Teacher max_prob: 0.9715  |  Student max_prob: 0.9459
+  JS divergence:    0.018792
+  L2 distance:      0.057092
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=258.5 std=130.1 / 1024
+  Student unique tokens: mean=246.2 std=129.2 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 198] counts: [1437, 113, 93, 55, 54]
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [1536, 111, 87, 54, 50]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4957  |  D(student) prob: 0.4957
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 48.2%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=2: kl=0.0740(n=1) | k=3: kl=0.1453(n=1) | k=6: kl=0.1578(n=1) | k=14: kl=0.2081(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1100] 2026-02-24 22:27:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.129142  (min=0.0439 max=0.3189 std=0.1294)
+  Adv loss:   1.395059
+  Total loss: 0.268648
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1422  |  Student entropy:  0.2660  |  ratio: 1.8713
+  Teacher max_prob: 0.9797  |  Student max_prob: 0.9606
+  JS divergence:    0.015906
+  L2 distance:      0.043611
+
+  --- Token Diversity ---
+  Argmax agreement: 97.7%
+  Teacher unique tokens: mean=325.8 std=208.5 / 1024
+  Student unique tokens: mean=315.5 std=219.5 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 198] counts: [1265, 132, 117, 114, 91]
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [1335, 133, 114, 111, 86]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4957  |  D(student) prob: 0.4956
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.2%
+  D seq logit gap: 0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.75/16
+  k=1: kl=0.0469(n=2) | k=5: kl=0.1039(n=1) | k=16: kl=0.3189(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1100] 2026-02-24 22:27:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.185597  (min=0.1142 max=0.2190 std=0.0492)
+  Adv loss:   1.395103
+  Total loss: 0.325108
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1827  |  Student entropy:  0.3383  |  ratio: 1.8518
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9392
+  JS divergence:    0.025140
+  L2 distance:      0.073060
+
+  --- Token Diversity ---
+  Argmax agreement: 96.4%
+  Teacher unique tokens: mean=331.5 std=90.1 / 1024
+  Student unique tokens: mean=316.5 std=91.0 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 198] counts: [1592, 109, 107, 70, 50]
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [1737, 105, 96, 67, 49]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4956  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.5%
+  D seq logit gap: -0.0006
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.75/16
+  k=4: kl=0.1659(n=2) | k=9: kl=0.2190(n=1) | k=10: kl=0.1916(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1100] 2026-02-24 22:27:46
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.144546  (min=0.0912 max=0.2183 std=0.0631)
+  Adv loss:   1.395122
+  Total loss: 0.284058
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1609  |  Student entropy:  0.2946  |  ratio: 1.8308
+  Teacher max_prob: 0.9701  |  Student max_prob: 0.9434
+  JS divergence:    0.020857
+  L2 distance:      0.062156
+
+  --- Token Diversity ---
+  Argmax agreement: 96.4%
+  Teacher unique tokens: mean=323.0 std=111.2 / 1024
+  Student unique tokens: mean=310.2 std=114.3 / 1024
+  Teacher top5 tokens: [50257, 198, 13, 262, 290] counts: [1395, 120, 115, 105, 68]
+  Student top5 tokens: [50257, 198, 13, 262, 290] counts: [1497, 116, 112, 102, 63]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4956  |  D(student) prob: 0.4957
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.1%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.00/16
+  k=2: kl=0.0927(n=1) | k=3: kl=0.0912(n=1) | k=8: kl=0.2183(n=1) | k=11: kl=0.1760(n=1)
+================================================================================
+[TRAIN] step: 1100, loss: 2.90909e-01, kl: 0.185597, adv: 1.395103, total: 0.325108, disc: 2.7729, d_tok: 1.3867, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+[TRAIN] step: 1150, loss: 3.09506e-01, kl: 0.207234, adv: 1.392585, total: 0.346493, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: 0.000, tok_acc_r: 0.39, tok_acc_f: 0.60, r1: 0.0000
+
+[ADV-DISC Step 1200] 2026-02-24 22:29:04
+  Disc total loss:  2.773172
+  Disc token loss:  1.386748
+  Disc seq loss:    1.386424
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0195
+  D(fake) seq logit:  0.0196
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.4978
+  Tok acc (fake):     0.4822
+  Disc grad norm:   53417.3407
+  Disc param norm:  79.0323
+
+[ADV-DISC Step 1200] 2026-02-24 22:29:04
+  Disc total loss:  2.772894
+  Disc token loss:  1.386388
+  Disc seq loss:    1.386506
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0194
+  D(fake) seq logit:  0.0197
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.5120
+  Tok acc (fake):     0.4885
+  Disc grad norm:   53417.3407
+  Disc param norm:  79.0323
+
+[ADV-DISC Step 1200] 2026-02-24 22:29:04
+  Disc total loss:  2.772624
+  Disc token loss:  1.386109
+  Disc seq loss:    1.386515
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0192
+  D(fake) seq logit:  0.0195
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.5122
+  Tok acc (fake):     0.4963
+  Disc grad norm:   53417.3407
+  Disc param norm:  79.0323
+
+[ADV-DISC Step 1200] 2026-02-24 22:29:04
+  Disc total loss:  2.772416
+  Disc token loss:  1.386144
+  Disc seq loss:    1.386273
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0194
+  D(fake) seq logit:  0.0192
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.5188
+  Tok acc (fake):     0.5002
+  Disc grad norm:   53417.3407
+  Disc param norm:  79.0323
+
+================================================================================
+[ADV-GEN Step 1200] 2026-02-24 22:29:05
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.189008  (min=0.1134 max=0.2571 std=0.0632)
+  Adv loss:   1.396152
+  Total loss: 0.328623
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2077  |  Student entropy:  0.4017  |  ratio: 1.9345
+  Teacher max_prob: 0.9695  |  Student max_prob: 0.9378
+  JS divergence:    0.024202
+  L2 distance:      0.072415
+
+  --- Token Diversity ---
+  Argmax agreement: 96.5%
+  Teacher unique tokens: mean=249.2 std=178.1 / 1024
+  Student unique tokens: mean=233.2 std=182.1 / 1024
+  Teacher top5 tokens: [50257, 13, 262, 11, 284] counts: [2166, 84, 81, 70, 46]
+  Student top5 tokens: [50257, 13, 262, 11, 284] counts: [2300, 81, 74, 63, 41]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4952  |  D(student) prob: 0.4951
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.0%
+  D seq logit gap: 0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.00/16
+  k=3: kl=0.1134(n=1) | k=6: kl=0.1643(n=1) | k=11: kl=0.2212(n=1) | k=16: kl=0.2571(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1200] 2026-02-24 22:29:05
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.134216  (min=0.0576 max=0.2473 std=0.0841)
+  Adv loss:   1.396163
+  Total loss: 0.273832
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1858  |  Student entropy:  0.3473  |  ratio: 1.8686
+  Teacher max_prob: 0.9701  |  Student max_prob: 0.9416
+  JS divergence:    0.017364
+  L2 distance:      0.058699
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=297.8 std=190.2 / 1024
+  Student unique tokens: mean=287.0 std=199.2 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 198, 11] counts: [1783, 90, 81, 77, 76]
+  Student top5 tokens: [50257, 262, 13, 198, 11] counts: [1855, 89, 77, 76, 74]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4952  |  D(student) prob: 0.4951
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 48.9%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.50/16
+  k=2: kl=0.0576(n=1) | k=4: kl=0.0851(n=1) | k=8: kl=0.1468(n=1) | k=16: kl=0.2473(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1200] 2026-02-24 22:29:05
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.172227  (min=0.0586 max=0.2589 std=0.0851)
+  Adv loss:   1.396176
+  Total loss: 0.311845
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1801  |  Student entropy:  0.3438  |  ratio: 1.9091
+  Teacher max_prob: 0.9744  |  Student max_prob: 0.9488
+  JS divergence:    0.020263
+  L2 distance:      0.058777
+
+  --- Token Diversity ---
+  Argmax agreement: 97.4%
+  Teacher unique tokens: mean=281.5 std=159.0 / 1024
+  Student unique tokens: mean=270.0 std=165.4 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 198, 262] counts: [1755, 111, 109, 75, 68]
+  Student top5 tokens: [50257, 11, 13, 198, 262] counts: [1854, 106, 104, 72, 67]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4952  |  D(student) prob: 0.4951
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 50.3%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.50/16
+  k=1: kl=0.0586(n=1) | k=6: kl=0.1640(n=1) | k=8: kl=0.2075(n=1) | k=15: kl=0.2589(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1200] 2026-02-24 22:29:05
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.152489  (min=0.0250 max=0.2549 std=0.1118)
+  Adv loss:   1.396431
+  Total loss: 0.292132
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1827  |  Student entropy:  0.3550  |  ratio: 1.9436
+  Teacher max_prob: 0.9743  |  Student max_prob: 0.9483
+  JS divergence:    0.018437
+  L2 distance:      0.054249
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=221.0 std=159.0 / 1024
+  Student unique tokens: mean=211.2 std=163.7 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 262, 13] counts: [1803, 103, 102, 78, 78]
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [1874, 103, 96, 77, 74]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4952  |  D(student) prob: 0.4951
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 49.7%
+  D seq logit gap: 0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.50/16
+  k=1: kl=0.0250(n=1) | k=2: kl=0.0928(n=1) | k=12: kl=0.2372(n=1) | k=15: kl=0.2549(n=1)
+================================================================================
+[TRAIN] step: 1200, loss: 3.01608e-01, kl: 0.134216, adv: 1.396163, total: 0.273832, disc: 2.7732, d_tok: 1.3867, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.48, r1: 0.0000
+[TRAIN] step: 1250, loss: 3.24741e-01, kl: 0.197462, adv: 1.385913, total: 0.336053, disc: 2.7726, d_tok: 1.3861, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.19, tok_acc_f: 0.82, r1: 0.0000
+
+[ADV-DISC Step 1300] 2026-02-24 22:30:32
+  Disc total loss:  2.773241
+  Disc token loss:  1.386742
+  Disc seq loss:    1.386499
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0144
+  D(fake) seq logit:  0.0147
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.0955
+  Tok acc (fake):     0.9038
+  Disc grad norm:   53961.7536
+  Disc param norm:  79.0924
+
+[ADV-DISC Step 1300] 2026-02-24 22:30:32
+  Disc total loss:  2.773005
+  Disc token loss:  1.386775
+  Disc seq loss:    1.386229
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0149
+  D(fake) seq logit:  0.0147
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.1003
+  Tok acc (fake):     0.8877
+  Disc grad norm:   53961.7536
+  Disc param norm:  79.0924
+
+[ADV-DISC Step 1300] 2026-02-24 22:30:32
+  Disc total loss:  2.773073
+  Disc token loss:  1.386763
+  Disc seq loss:    1.386310
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0149
+  D(fake) seq logit:  0.0148
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.1001
+  Tok acc (fake):     0.8931
+  Disc grad norm:   53961.7536
+  Disc param norm:  79.0924
+
+[ADV-DISC Step 1300] 2026-02-24 22:30:32
+  Disc total loss:  2.772937
+  Disc token loss:  1.386514
+  Disc seq loss:    1.386423
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0144
+  D(fake) seq logit:  0.0146
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.1030
+  Tok acc (fake):     0.9001
+  Disc grad norm:   53961.7536
+  Disc param norm:  79.0924
+
+================================================================================
+[ADV-GEN Step 1300] 2026-02-24 22:30:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.100671  (min=0.0410 max=0.1474 std=0.0449)
+  Adv loss:   1.381492
+  Total loss: 0.238820
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1332  |  Student entropy:  0.2344  |  ratio: 1.7604
+  Teacher max_prob: 0.9724  |  Student max_prob: 0.9463
+  JS divergence:    0.016895
+  L2 distance:      0.056399
+
+  --- Token Diversity ---
+  Argmax agreement: 97.3%
+  Teacher unique tokens: mean=349.5 std=65.3 / 1024
+  Student unique tokens: mean=344.2 std=67.7 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 286] counts: [892, 147, 113, 111, 78]
+  Student top5 tokens: [50257, 262, 13, 11, 286] counts: [985, 140, 111, 105, 75]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4965  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 14.5%
+  D seq logit gap: 0.0000
+
+  --- Per-Window Breakdown ---
+  Avg window k: 4.00/16
+  k=1: kl=0.0410(n=1) | k=4: kl=0.1180(n=1) | k=5: kl=0.0963(n=1) | k=6: kl=0.1474(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1300] 2026-02-24 22:30:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.121858  (min=0.0654 max=0.1913 std=0.0579)
+  Adv loss:   1.381801
+  Total loss: 0.260038
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1507  |  Student entropy:  0.2833  |  ratio: 1.8795
+  Teacher max_prob: 0.9779  |  Student max_prob: 0.9568
+  JS divergence:    0.016116
+  L2 distance:      0.044168
+
+  --- Token Diversity ---
+  Argmax agreement: 97.7%
+  Teacher unique tokens: mean=343.2 std=168.9 / 1024
+  Student unique tokens: mean=332.8 std=171.1 / 1024
+  Teacher top5 tokens: [50257, 262, 198, 11, 13] counts: [1377, 103, 103, 100, 90]
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [1443, 101, 101, 101, 90]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4965  |  D(student) prob: 0.4964
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 14.0%
+  D seq logit gap: 0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.00/16
+  k=1: kl=0.0747(n=2) | k=11: kl=0.1690(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1300] 2026-02-24 22:30:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.134783  (min=0.0490 max=0.1867 std=0.0599)
+  Adv loss:   1.381819
+  Total loss: 0.272965
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1608  |  Student entropy:  0.2914  |  ratio: 1.8120
+  Teacher max_prob: 0.9689  |  Student max_prob: 0.9392
+  JS divergence:    0.020380
+  L2 distance:      0.065944
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=362.2 std=74.1 / 1024
+  Student unique tokens: mean=350.8 std=75.8 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 198, 13] counts: [1345, 124, 109, 97, 88]
+  Student top5 tokens: [50257, 11, 262, 198, 13] counts: [1460, 121, 107, 93, 85]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4965  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 13.6%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 5.75/16
+  k=3: kl=0.0490(n=1) | k=5: kl=0.1428(n=1) | k=7: kl=0.1606(n=1) | k=8: kl=0.1867(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1300] 2026-02-24 22:30:33
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.203140  (min=0.1616 max=0.2588 std=0.0420)
+  Adv loss:   1.381826
+  Total loss: 0.341323
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2243  |  Student entropy:  0.4190  |  ratio: 1.8677
+  Teacher max_prob: 0.9688  |  Student max_prob: 0.9374
+  JS divergence:    0.025867
+  L2 distance:      0.075578
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=236.0 std=37.7 / 1024
+  Student unique tokens: mean=220.5 std=39.2 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 284] counts: [2305, 90, 69, 55, 44]
+  Student top5 tokens: [50257, 262, 11, 13, 284] counts: [2441, 85, 63, 50, 42]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4964  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 13.2%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.50/16
+  k=6: kl=0.1616(n=1) | k=9: kl=0.1823(n=1) | k=11: kl=0.2099(n=1) | k=12: kl=0.2588(n=1)
+================================================================================
+[TRAIN] step: 1300, loss: 2.78286e-01, kl: 0.203140, adv: 1.381826, total: 0.341323, disc: 2.7730, d_tok: 1.3868, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.10, tok_acc_f: 0.89, r1: 0.0000
+[TRAIN] step: 1350, loss: 2.99185e-01, kl: 0.183064, adv: 1.355602, total: 0.318624, disc: 2.7743, d_tok: 1.3881, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+
+[ADV-DISC Step 1400] 2026-02-24 22:31:51
+  Disc total loss:  2.775518
+  Disc token loss:  1.389146
+  Disc seq loss:    1.386372
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0017
+  D(fake) seq logit:  0.0018
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0000
+  Tok acc (fake):     1.0000
+  Disc grad norm:   55630.2566
+  Disc param norm:  79.1408
+
+[ADV-DISC Step 1400] 2026-02-24 22:31:51
+  Disc total loss:  2.775382
+  Disc token loss:  1.389005
+  Disc seq loss:    1.386376
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0015
+  D(fake) seq logit:  0.0017
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0000
+  Tok acc (fake):     1.0000
+  Disc grad norm:   55630.2566
+  Disc param norm:  79.1408
+
+[ADV-DISC Step 1400] 2026-02-24 22:31:51
+  Disc total loss:  2.775230
+  Disc token loss:  1.388852
+  Disc seq loss:    1.386378
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0017
+  D(fake) seq logit:  0.0019
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0000
+  Tok acc (fake):     1.0000
+  Disc grad norm:   55630.2566
+  Disc param norm:  79.1408
+
+[ADV-DISC Step 1400] 2026-02-24 22:31:51
+  Disc total loss:  2.775120
+  Disc token loss:  1.388845
+  Disc seq loss:    1.386275
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0017
+  D(fake) seq logit:  0.0016
+  Seq logit gap:      0.0000
+  Tok acc (real):     0.0000
+  Tok acc (fake):     1.0000
+  Disc grad norm:   55630.2566
+  Disc param norm:  79.1408
+
+================================================================================
+[ADV-GEN Step 1400] 2026-02-24 22:31:51
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.167154  (min=0.0499 max=0.2225 std=0.0802)
+  Adv loss:   1.340617
+  Total loss: 0.301216
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1856  |  Student entropy:  0.3352  |  ratio: 1.8065
+  Teacher max_prob: 0.9733  |  Student max_prob: 0.9504
+  JS divergence:    0.021115
+  L2 distance:      0.057753
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=312.5 std=155.7 / 1024
+  Student unique tokens: mean=300.8 std=156.9 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 286] counts: [1820, 93, 93, 73, 53]
+  Student top5 tokens: [50257, 11, 262, 13, 286] counts: [1928, 91, 87, 71, 52]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4999  |  D(student) prob: 0.4998
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.75/16
+  k=1: kl=0.0499(n=1) | k=8: kl=0.1810(n=1) | k=9: kl=0.2225(n=1) | k=13: kl=0.2153(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1400] 2026-02-24 22:31:51
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.121485  (min=0.0414 max=0.1949 std=0.0696)
+  Adv loss:   1.340066
+  Total loss: 0.255492
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1426  |  Student entropy:  0.2515  |  ratio: 1.7635
+  Teacher max_prob: 0.9731  |  Student max_prob: 0.9506
+  JS divergence:    0.017764
+  L2 distance:      0.056229
+
+  --- Token Diversity ---
+  Argmax agreement: 97.4%
+  Teacher unique tokens: mean=251.0 std=89.8 / 1024
+  Student unique tokens: mean=242.2 std=88.2 / 1024
+  Teacher top5 tokens: [50257, 11, 62, 5218, 685] counts: [1451, 114, 88, 78, 75]
+  Student top5 tokens: [50257, 11, 62, 685, 5218] counts: [1546, 110, 86, 72, 71]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4998  |  D(student) prob: 0.4998
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=1: kl=0.0414(n=1) | k=7: kl=0.0882(n=1) | k=8: kl=0.1949(n=1) | k=9: kl=0.1616(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1400] 2026-02-24 22:31:51
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.230317  (min=0.0847 max=0.3542 std=0.1265)
+  Adv loss:   1.340258
+  Total loss: 0.364343
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2526  |  Student entropy:  0.4610  |  ratio: 1.8248
+  Teacher max_prob: 0.9689  |  Student max_prob: 0.9423
+  JS divergence:    0.023121
+  L2 distance:      0.065002
+
+  --- Token Diversity ---
+  Argmax agreement: 96.4%
+  Teacher unique tokens: mean=197.8 std=213.0 / 1024
+  Student unique tokens: mean=178.0 std=222.9 / 1024
+  Teacher top5 tokens: [50257, 13, 198, 262, 11] counts: [2669, 58, 57, 48, 42]
+  Student top5 tokens: [50257, 13, 198, 262, 11] counts: [2758, 59, 55, 48, 37]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4999  |  D(student) prob: 0.4998
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.00/16
+  k=2: kl=0.0847(n=1) | k=10: kl=0.1662(n=1) | k=16: kl=0.3352(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1400] 2026-02-24 22:31:51
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.198670  (min=0.1458 max=0.2679 std=0.0579)
+  Adv loss:   1.340545
+  Total loss: 0.332725
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2224  |  Student entropy:  0.4021  |  ratio: 1.8082
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9405
+  JS divergence:    0.024098
+  L2 distance:      0.070393
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=214.5 std=101.2 / 1024
+  Student unique tokens: mean=199.8 std=101.1 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 198] counts: [2494, 91, 66, 60, 45]
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [2621, 85, 59, 56, 40]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4998  |  D(student) prob: 0.4998
+  D seq accuracy: 62.5% (real=25.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.25/16
+  k=6: kl=0.1458(n=1) | k=10: kl=0.1563(n=1) | k=11: kl=0.2247(n=1) | k=14: kl=0.2679(n=1)
+================================================================================
+[TRAIN] step: 1400, loss: 3.13444e-01, kl: 0.198670, adv: 1.340545, total: 0.332725, disc: 2.7755, d_tok: 1.3891, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+[TRAIN] step: 1450, loss: 3.46719e-01, kl: 0.255490, adv: 1.344828, total: 0.389973, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+
+[ADV-DISC Step 1500] 2026-02-24 22:33:20
+  Disc total loss:  2.773826
+  Disc token loss:  1.387473
+  Disc seq loss:    1.386353
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0051
+  D(fake) seq logit:  0.0052
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.0000
+  Tok acc (fake):     0.9998
+  Disc grad norm:   54710.6666
+  Disc param norm:  79.2547
+
+[ADV-DISC Step 1500] 2026-02-24 22:33:20
+  Disc total loss:  2.773977
+  Disc token loss:  1.387616
+  Disc seq loss:    1.386361
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0051
+  D(fake) seq logit:  0.0052
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.0005
+  Tok acc (fake):     0.9998
+  Disc grad norm:   54710.6666
+  Disc param norm:  79.2547
+
+[ADV-DISC Step 1500] 2026-02-24 22:33:20
+  Disc total loss:  2.773946
+  Disc token loss:  1.387547
+  Disc seq loss:    1.386399
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0052
+  D(fake) seq logit:  0.0054
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0002
+  Tok acc (fake):     1.0000
+  Disc grad norm:   54710.6666
+  Disc param norm:  79.2547
+
+[ADV-DISC Step 1500] 2026-02-24 22:33:20
+  Disc total loss:  2.773929
+  Disc token loss:  1.387599
+  Disc seq loss:    1.386330
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0052
+  D(fake) seq logit:  0.0053
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.0000
+  Tok acc (fake):     0.9998
+  Disc grad norm:   54710.6666
+  Disc param norm:  79.2547
+
+================================================================================
+[ADV-GEN Step 1500] 2026-02-24 22:33:20
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.211533  (min=0.1103 max=0.3369 std=0.1109)
+  Adv loss:   1.355005
+  Total loss: 0.347034
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2164  |  Student entropy:  0.4082  |  ratio: 1.8862
+  Teacher max_prob: 0.9692  |  Student max_prob: 0.9394
+  JS divergence:    0.025437
+  L2 distance:      0.073733
+
+  --- Token Diversity ---
+  Argmax agreement: 96.6%
+  Teacher unique tokens: mean=255.8 std=135.4 / 1024
+  Student unique tokens: mean=237.8 std=138.1 / 1024
+  Teacher top5 tokens: [50257, 262, 198, 11, 13] counts: [2283, 90, 75, 59, 53]
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [2421, 85, 67, 57, 50]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4986  |  D(student) prob: 0.4985
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.50/16
+  k=5: kl=0.1265(n=1) | k=6: kl=0.1103(n=1) | k=13: kl=0.3369(n=1) | k=14: kl=0.2724(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1500] 2026-02-24 22:33:20
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.154553  (min=0.0791 max=0.2520 std=0.0719)
+  Adv loss:   1.355327
+  Total loss: 0.290085
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1814  |  Student entropy:  0.3330  |  ratio: 1.8352
+  Teacher max_prob: 0.9680  |  Student max_prob: 0.9403
+  JS divergence:    0.019445
+  L2 distance:      0.058249
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=353.0 std=144.7 / 1024
+  Student unique tokens: mean=340.5 std=148.3 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 198, 13] counts: [1500, 97, 91, 80, 73]
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [1582, 97, 86, 79, 74]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4986  |  D(student) prob: 0.4987
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=2: kl=0.0791(n=1) | k=3: kl=0.1379(n=1) | k=7: kl=0.1492(n=1) | k=13: kl=0.2520(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1500] 2026-02-24 22:33:20
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.219635  (min=0.1543 max=0.3004 std=0.0611)
+  Adv loss:   1.355362
+  Total loss: 0.355171
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2329  |  Student entropy:  0.4424  |  ratio: 1.8998
+  Teacher max_prob: 0.9691  |  Student max_prob: 0.9394
+  JS divergence:    0.024393
+  L2 distance:      0.069336
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=236.8 std=147.1 / 1024
+  Student unique tokens: mean=219.0 std=147.0 / 1024
+  Teacher top5 tokens: [50257, 13, 262, 198, 11] counts: [2487, 70, 62, 57, 55]
+  Student top5 tokens: [50257, 13, 262, 198, 11] counts: [2614, 67, 59, 54, 52]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4986  |  D(student) prob: 0.4986
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.25/16
+  k=4: kl=0.1543(n=1) | k=11: kl=0.2240(n=1) | k=12: kl=0.1999(n=1) | k=14: kl=0.3004(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1500] 2026-02-24 22:33:20
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.205207  (min=0.1171 max=0.2905 std=0.0752)
+  Adv loss:   1.355098
+  Total loss: 0.340717
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2388  |  Student entropy:  0.4513  |  ratio: 1.8903
+  Teacher max_prob: 0.9697  |  Student max_prob: 0.9399
+  JS divergence:    0.023576
+  L2 distance:      0.068285
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=225.8 std=170.6 / 1024
+  Student unique tokens: mean=207.8 std=175.0 / 1024
+  Teacher top5 tokens: [50257, 13, 11, 198, 262] counts: [2425, 68, 65, 60, 59]
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [2549, 65, 63, 57, 56]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4986  |  D(student) prob: 0.4987
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.0%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.00/16
+  k=4: kl=0.1171(n=1) | k=7: kl=0.1756(n=1) | k=13: kl=0.2377(n=1) | k=16: kl=0.2905(n=1)
+================================================================================
+[TRAIN] step: 1500, loss: 3.33252e-01, kl: 0.211533, adv: 1.355005, total: 0.347034, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+[TRAIN] step: 1550, loss: 3.22634e-01, kl: 0.126955, adv: 1.359247, total: 0.262880, disc: 2.7735, d_tok: 1.3872, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+
+[ADV-DISC Step 1600] 2026-02-24 22:34:42
+  Disc total loss:  2.772904
+  Disc token loss:  1.386598
+  Disc seq loss:    1.386306
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0127
+  D(fake) seq logit:  0.0126
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0066
+  Tok acc (fake):     0.9924
+  Disc grad norm:   54057.2599
+  Disc param norm:  79.4105
+
+[ADV-DISC Step 1600] 2026-02-24 22:34:42
+  Disc total loss:  2.773201
+  Disc token loss:  1.386861
+  Disc seq loss:    1.386341
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0128
+  D(fake) seq logit:  0.0128
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.0056
+  Tok acc (fake):     0.9949
+  Disc grad norm:   54057.2599
+  Disc param norm:  79.4105
+
+[ADV-DISC Step 1600] 2026-02-24 22:34:42
+  Disc total loss:  2.773037
+  Disc token loss:  1.386814
+  Disc seq loss:    1.386223
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0126
+  D(fake) seq logit:  0.0124
+  Seq logit gap:      0.0002
+  Tok acc (real):     0.0071
+  Tok acc (fake):     0.9927
+  Disc grad norm:   54057.2599
+  Disc param norm:  79.4105
+
+[ADV-DISC Step 1600] 2026-02-24 22:34:42
+  Disc total loss:  2.773133
+  Disc token loss:  1.386758
+  Disc seq loss:    1.386375
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0128
+  D(fake) seq logit:  0.0128
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.0061
+  Tok acc (fake):     0.9956
+  Disc grad norm:   54057.2599
+  Disc param norm:  79.4105
+
+================================================================================
+[ADV-GEN Step 1600] 2026-02-24 22:34:42
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.075763  (min=0.0433 max=0.1113 std=0.0285)
+  Adv loss:   1.371584
+  Total loss: 0.212921
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.0876  |  Student entropy:  0.1605  |  ratio: 1.8325
+  Teacher max_prob: 0.9792  |  Student max_prob: 0.9602
+  JS divergence:    0.012361
+  L2 distance:      0.038393
+
+  --- Token Diversity ---
+  Argmax agreement: 97.9%
+  Teacher unique tokens: mean=411.8 std=62.5 / 1024
+  Student unique tokens: mean=406.0 std=64.3 / 1024
+  Teacher top5 tokens: [50257, 13, 262, 11, 198] counts: [448, 182, 152, 122, 110]
+  Student top5 tokens: [50257, 13, 262, 11, 198] counts: [511, 180, 150, 119, 107]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4966  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.8%
+  D seq logit gap: 0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 2.50/16
+  k=1: kl=0.0624(n=2) | k=4: kl=0.0892(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1600] 2026-02-24 22:34:42
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.158207  (min=0.0849 max=0.3084 std=0.1019)
+  Adv loss:   1.371552
+  Total loss: 0.295362
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1592  |  Student entropy:  0.3100  |  ratio: 1.9476
+  Teacher max_prob: 0.9737  |  Student max_prob: 0.9463
+  JS divergence:    0.020755
+  L2 distance:      0.059527
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=321.8 std=153.7 / 1024
+  Student unique tokens: mean=309.2 std=160.5 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 13, 262] counts: [1473, 113, 92, 89, 81]
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [1577, 109, 88, 86, 77]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4964  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.8%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=1: kl=0.0849(n=1) | k=3: kl=0.1082(n=1) | k=7: kl=0.1313(n=1) | k=14: kl=0.3084(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1600] 2026-02-24 22:34:42
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.215121  (min=0.1618 max=0.3010 std=0.0606)
+  Adv loss:   1.371693
+  Total loss: 0.352291
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2199  |  Student entropy:  0.4214  |  ratio: 1.9160
+  Teacher max_prob: 0.9683  |  Student max_prob: 0.9358
+  JS divergence:    0.026065
+  L2 distance:      0.075953
+
+  --- Token Diversity ---
+  Argmax agreement: 96.5%
+  Teacher unique tokens: mean=251.8 std=107.9 / 1024
+  Student unique tokens: mean=235.2 std=108.5 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 290] counts: [2189, 82, 77, 58, 50]
+  Student top5 tokens: [50257, 262, 13, 11, 290] counts: [2319, 78, 74, 53, 46]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4965  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 0.9%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.00/16
+  k=5: kl=0.1618(n=1) | k=6: kl=0.2106(n=1) | k=12: kl=0.1871(n=1) | k=13: kl=0.3010(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1600] 2026-02-24 22:34:42
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.219836  (min=0.1299 max=0.3585 std=0.0975)
+  Adv loss:   1.371247
+  Total loss: 0.356960
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2204  |  Student entropy:  0.4187  |  ratio: 1.8999
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9377
+  JS divergence:    0.025109
+  L2 distance:      0.073852
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=235.0 std=136.8 / 1024
+  Student unique tokens: mean=214.5 std=141.9 / 1024
+  Teacher top5 tokens: [50257, 198, 13, 262, 11] counts: [2253, 93, 67, 49, 49]
+  Student top5 tokens: [50257, 198, 13, 11, 262] counts: [2382, 86, 62, 45, 43]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4965  |  D(student) prob: 0.4965
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 1.0%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.25/16
+  k=6: kl=0.1299(n=1) | k=7: kl=0.1973(n=1) | k=8: kl=0.1936(n=1) | k=16: kl=0.3585(n=1)
+================================================================================
+[TRAIN] step: 1600, loss: 3.04383e-01, kl: 0.219836, adv: 1.371247, total: 0.356960, disc: 2.7729, d_tok: 1.3866, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
+[TRAIN] step: 1650, loss: 2.96322e-01, kl: 0.234687, adv: 1.348114, total: 0.369498, disc: 2.7735, d_tok: 1.3870, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+
+[ADV-DISC Step 1700] 2026-02-24 22:36:11
+  Disc total loss:  2.772999
+  Disc token loss:  1.386646
+  Disc seq loss:    1.386353
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0139
+  D(fake) seq logit:  -0.0139
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.0049
+  Tok acc (fake):     0.9971
+  Disc grad norm:   53982.0684
+  Disc param norm:  79.5321
+
+[ADV-DISC Step 1700] 2026-02-24 22:36:11
+  Disc total loss:  2.773490
+  Disc token loss:  1.387100
+  Disc seq loss:    1.386391
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0142
+  D(fake) seq logit:  -0.0141
+  Seq logit gap:      -0.0001
+  Tok acc (real):     0.0034
+  Tok acc (fake):     0.9968
+  Disc grad norm:   53982.0684
+  Disc param norm:  79.5321
+
+[ADV-DISC Step 1700] 2026-02-24 22:36:11
+  Disc total loss:  2.773032
+  Disc token loss:  1.386815
+  Disc seq loss:    1.386217
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0141
+  D(fake) seq logit:  -0.0144
+  Seq logit gap:      0.0003
+  Tok acc (real):     0.0020
+  Tok acc (fake):     0.9963
+  Disc grad norm:   53982.0684
+  Disc param norm:  79.5321
+
+[ADV-DISC Step 1700] 2026-02-24 22:36:11
+  Disc total loss:  2.773394
+  Disc token loss:  1.387037
+  Disc seq loss:    1.386357
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0140
+  D(fake) seq logit:  -0.0140
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.0034
+  Tok acc (fake):     0.9978
+  Disc grad norm:   53982.0684
+  Disc param norm:  79.5321
+
+================================================================================
+[ADV-GEN Step 1700] 2026-02-24 22:36:11
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.149793  (min=0.0686 max=0.2639 std=0.0853)
+  Adv loss:   1.357403
+  Total loss: 0.285533
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1663  |  Student entropy:  0.3130  |  ratio: 1.8817
+  Teacher max_prob: 0.9700  |  Student max_prob: 0.9425
+  JS divergence:    0.019585
+  L2 distance:      0.059688
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=327.5 std=129.7 / 1024
+  Student unique tokens: mean=317.2 std=133.7 / 1024
+  Teacher top5 tokens: [50257, 13, 198, 262, 11] counts: [1397, 109, 96, 92, 86]
+  Student top5 tokens: [50257, 13, 198, 262, 11] counts: [1489, 106, 90, 86, 84]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5031  |  D(student) prob: 0.5031
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 0.4%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.00/16
+  k=2: kl=0.0686(n=1) | k=3: kl=0.1046(n=1) | k=6: kl=0.1622(n=1) | k=13: kl=0.2639(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1700] 2026-02-24 22:36:11
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.135183  (min=0.0822 max=0.2117 std=0.0599)
+  Adv loss:   1.357226
+  Total loss: 0.270906
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1510  |  Student entropy:  0.2923  |  ratio: 1.9353
+  Teacher max_prob: 0.9738  |  Student max_prob: 0.9484
+  JS divergence:    0.018284
+  L2 distance:      0.055423
+
+  --- Token Diversity ---
+  Argmax agreement: 97.7%
+  Teacher unique tokens: mean=291.5 std=86.9 / 1024
+  Student unique tokens: mean=282.2 std=92.2 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 13, 290] counts: [1458, 116, 90, 68, 44]
+  Student top5 tokens: [50257, 11, 262, 13, 290] counts: [1538, 115, 85, 68, 45]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5031  |  D(student) prob: 0.5032
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 0.6%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.25/16
+  k=1: kl=0.0822(n=1) | k=5: kl=0.0932(n=1) | k=7: kl=0.1536(n=1) | k=12: kl=0.2117(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1700] 2026-02-24 22:36:11
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.205292  (min=0.1397 max=0.2579 std=0.0492)
+  Adv loss:   1.357676
+  Total loss: 0.341060
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2146  |  Student entropy:  0.4229  |  ratio: 1.9708
+  Teacher max_prob: 0.9685  |  Student max_prob: 0.9367
+  JS divergence:    0.026416
+  L2 distance:      0.075713
+
+  --- Token Diversity ---
+  Argmax agreement: 96.5%
+  Teacher unique tokens: mean=293.2 std=98.0 / 1024
+  Student unique tokens: mean=277.5 std=100.8 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 286] counts: [2051, 91, 78, 72, 58]
+  Student top5 tokens: [50257, 262, 11, 13, 286] counts: [2185, 86, 75, 70, 49]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5032  |  D(student) prob: 0.5031
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 0.6%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.50/16
+  k=4: kl=0.1397(n=1) | k=8: kl=0.2041(n=1) | k=10: kl=0.2195(n=1) | k=12: kl=0.2579(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1700] 2026-02-24 22:36:11
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.191824  (min=0.0793 max=0.2489 std=0.0787)
+  Adv loss:   1.357657
+  Total loss: 0.327590
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2188  |  Student entropy:  0.4204  |  ratio: 1.9209
+  Teacher max_prob: 0.9689  |  Student max_prob: 0.9379
+  JS divergence:    0.023379
+  L2 distance:      0.068698
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=273.8 std=125.1 / 1024
+  Student unique tokens: mean=259.0 std=128.1 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 13, 287] counts: [2122, 101, 95, 67, 53]
+  Student top5 tokens: [50257, 262, 11, 13, 287] counts: [2244, 97, 87, 63, 52]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5032  |  D(student) prob: 0.5031
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 0.6%
+  D seq logit gap: 0.0004
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.75/16
+  k=3: kl=0.0793(n=1) | k=10: kl=0.1959(n=1) | k=11: kl=0.2460(n=2)
+================================================================================
+[TRAIN] step: 1700, loss: 3.06272e-01, kl: 0.205292, adv: 1.357676, total: 0.341060, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+[TRAIN] step: 1750, loss: 3.20026e-01, kl: 0.209278, adv: 1.359970, total: 0.345275, disc: 2.7732, d_tok: 1.3869, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
+
+[ADV-DISC Step 1800] 2026-02-24 22:37:29
+  Disc total loss:  2.772695
+  Disc token loss:  1.386484
+  Disc seq loss:    1.386211
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0141
+  D(fake) seq logit:  -0.0144
+  Seq logit gap:      0.0003
+  Tok acc (real):     0.0237
+  Tok acc (fake):     0.9707
+  Disc grad norm:   53482.6677
+  Disc param norm:  79.6575
+
+[ADV-DISC Step 1800] 2026-02-24 22:37:29
+  Disc total loss:  2.772800
+  Disc token loss:  1.386510
+  Disc seq loss:    1.386290
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0141
+  D(fake) seq logit:  -0.0142
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0305
+  Tok acc (fake):     0.9709
+  Disc grad norm:   53482.6677
+  Disc param norm:  79.6575
+
+[ADV-DISC Step 1800] 2026-02-24 22:37:29
+  Disc total loss:  2.772961
+  Disc token loss:  1.386662
+  Disc seq loss:    1.386299
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0143
+  D(fake) seq logit:  -0.0144
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0276
+  Tok acc (fake):     0.9729
+  Disc grad norm:   53482.6677
+  Disc param norm:  79.6575
+
+[ADV-DISC Step 1800] 2026-02-24 22:37:29
+  Disc total loss:  2.773256
+  Disc token loss:  1.386939
+  Disc seq loss:    1.386317
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0143
+  D(fake) seq logit:  -0.0144
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0237
+  Tok acc (fake):     0.9717
+  Disc grad norm:   53482.6677
+  Disc param norm:  79.6575
+
+================================================================================
+[ADV-GEN Step 1800] 2026-02-24 22:37:29
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.170271  (min=0.0911 max=0.2661 std=0.0822)
+  Adv loss:   1.367520
+  Total loss: 0.307023
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1968  |  Student entropy:  0.3699  |  ratio: 1.8792
+  Teacher max_prob: 0.9690  |  Student max_prob: 0.9382
+  JS divergence:    0.022121
+  L2 distance:      0.068093
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=281.2 std=130.4 / 1024
+  Student unique tokens: mean=267.5 std=132.1 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 13, 198] counts: [1865, 101, 95, 73, 61]
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [1982, 94, 91, 71, 60]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5020  |  D(student) prob: 0.5020
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 3.5%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.75/16
+  k=4: kl=0.0911(n=1) | k=5: kl=0.1137(n=1) | k=8: kl=0.2102(n=1) | k=14: kl=0.2661(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1800] 2026-02-24 22:37:29
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.209496  (min=0.0909 max=0.3303 std=0.1306)
+  Adv loss:   1.367531
+  Total loss: 0.346249
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2232  |  Student entropy:  0.4149  |  ratio: 1.8585
+  Teacher max_prob: 0.9695  |  Student max_prob: 0.9402
+  JS divergence:    0.023470
+  L2 distance:      0.069023
+
+  --- Token Diversity ---
+  Argmax agreement: 96.8%
+  Teacher unique tokens: mean=265.2 std=172.4 / 1024
+  Student unique tokens: mean=247.5 std=179.8 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 198] counts: [2161, 83, 70, 70, 63]
+  Student top5 tokens: [50257, 262, 11, 13, 198] counts: [2284, 79, 64, 63, 58]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5020  |  D(student) prob: 0.5020
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 3.2%
+  D seq logit gap: 0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.00/16
+  k=4: kl=0.0909(n=1) | k=6: kl=0.1023(n=1) | k=10: kl=0.3303(n=1) | k=16: kl=0.3145(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1800] 2026-02-24 22:37:29
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.176428  (min=0.0872 max=0.2593 std=0.0885)
+  Adv loss:   1.367560
+  Total loss: 0.313184
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2252  |  Student entropy:  0.4242  |  ratio: 1.8834
+  Teacher max_prob: 0.9686  |  Student max_prob: 0.9390
+  JS divergence:    0.021486
+  L2 distance:      0.065032
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=223.0 std=146.9 / 1024
+  Student unique tokens: mean=210.5 std=152.3 / 1024
+  Teacher top5 tokens: [50257, 11, 198, 13, 262] counts: [2312, 83, 69, 66, 51]
+  Student top5 tokens: [50257, 11, 198, 13, 262] counts: [2423, 80, 67, 64, 48]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5020  |  D(student) prob: 0.5020
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 3.4%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 9.50/16
+  k=3: kl=0.0872(n=1) | k=7: kl=0.1138(n=1) | k=13: kl=0.2593(n=1) | k=15: kl=0.2454(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1800] 2026-02-24 22:37:29
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.220714  (min=0.1826 max=0.2491 std=0.0294)
+  Adv loss:   1.367589
+  Total loss: 0.357472
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2497  |  Student entropy:  0.4797  |  ratio: 1.9210
+  Teacher max_prob: 0.9691  |  Student max_prob: 0.9380
+  JS divergence:    0.024437
+  L2 distance:      0.070089
+
+  --- Token Diversity ---
+  Argmax agreement: 97.1%
+  Teacher unique tokens: mean=204.5 std=11.2 / 1024
+  Student unique tokens: mean=188.2 std=11.0 / 1024
+  Teacher top5 tokens: [50257, 262, 13, 11, 198] counts: [2716, 63, 48, 41, 36]
+  Student top5 tokens: [50257, 262, 13, 11, 290] counts: [2834, 58, 46, 40, 32]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5020  |  D(student) prob: 0.5020
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 3.3%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 11.25/16
+  k=11: kl=0.2230(n=3) | k=12: kl=0.2137(n=1)
+================================================================================
+[TRAIN] step: 1800, loss: 3.30982e-01, kl: 0.209496, adv: 1.367531, total: 0.346249, disc: 2.7727, d_tok: 1.3865, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.02, tok_acc_f: 0.97, r1: 0.0000
+[TRAIN] step: 1850, loss: 3.32727e-01, kl: 0.209323, adv: 1.377016, total: 0.347025, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.03, tok_acc_f: 0.97, r1: 0.0000
+
+[ADV-DISC Step 1900] 2026-02-24 22:38:57
+  Disc total loss:  2.773343
+  Disc token loss:  1.386857
+  Disc seq loss:    1.386486
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0176
+  D(fake) seq logit:  0.0178
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0239
+  Tok acc (fake):     0.9790
+  Disc grad norm:   53300.5743
+  Disc param norm:  79.8037
+
+[ADV-DISC Step 1900] 2026-02-24 22:38:57
+  Disc total loss:  2.772731
+  Disc token loss:  1.386342
+  Disc seq loss:    1.386388
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0177
+  D(fake) seq logit:  0.0178
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.0266
+  Tok acc (fake):     0.9768
+  Disc grad norm:   53300.5743
+  Disc param norm:  79.8037
+
+[ADV-DISC Step 1900] 2026-02-24 22:38:57
+  Disc total loss:  2.772918
+  Disc token loss:  1.386571
+  Disc seq loss:    1.386347
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0177
+  D(fake) seq logit:  0.0176
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0242
+  Tok acc (fake):     0.9775
+  Disc grad norm:   53300.5743
+  Disc param norm:  79.8037
+
+[ADV-DISC Step 1900] 2026-02-24 22:38:57
+  Disc total loss:  2.772988
+  Disc token loss:  1.386604
+  Disc seq loss:    1.386383
+  R1 penalty:       0.000000
+  D(real) seq logit:  0.0178
+  D(fake) seq logit:  0.0178
+  Seq logit gap:      -0.0000
+  Tok acc (real):     0.0232
+  Tok acc (fake):     0.9753
+  Disc grad norm:   53300.5743
+  Disc param norm:  79.8037
+
+================================================================================
+[ADV-GEN Step 1900] 2026-02-24 22:38:57
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.179033  (min=0.0982 max=0.2297 std=0.0569)
+  Adv loss:   1.379228
+  Total loss: 0.316956
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2359  |  Student entropy:  0.4399  |  ratio: 1.8650
+  Teacher max_prob: 0.9687  |  Student max_prob: 0.9387
+  JS divergence:    0.020693
+  L2 distance:      0.063473
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=230.5 std=158.3 / 1024
+  Student unique tokens: mean=216.2 std=160.0 / 1024
+  Teacher top5 tokens: [50257, 13, 262, 11, 198] counts: [2494, 55, 54, 48, 45]
+  Student top5 tokens: [50257, 13, 262, 11, 198] counts: [2598, 51, 50, 47, 41]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4958  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 2.4%
+  D seq logit gap: -0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.25/16
+  k=3: kl=0.0982(n=1) | k=10: kl=0.2028(n=1) | k=13: kl=0.1855(n=1) | k=15: kl=0.2297(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1900] 2026-02-24 22:38:57
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.161945  (min=0.0968 max=0.2201 std=0.0506)
+  Adv loss:   1.379229
+  Total loss: 0.299868
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2044  |  Student entropy:  0.3779  |  ratio: 1.8492
+  Teacher max_prob: 0.9683  |  Student max_prob: 0.9370
+  JS divergence:    0.022333
+  L2 distance:      0.070414
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=267.8 std=76.0 / 1024
+  Student unique tokens: mean=257.0 std=76.5 / 1024
+  Teacher top5 tokens: [50257, 11, 262, 198, 13] counts: [2077, 94, 72, 71, 58]
+  Student top5 tokens: [50257, 11, 262, 198, 13] counts: [2194, 87, 67, 63, 55]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4958  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 2.1%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 8.50/16
+  k=4: kl=0.0968(n=1) | k=9: kl=0.1621(n=1) | k=10: kl=0.2201(n=1) | k=11: kl=0.1688(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1900] 2026-02-24 22:38:57
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.288361  (min=0.1229 max=0.3712 std=0.1145)
+  Adv loss:   1.379363
+  Total loss: 0.426298
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2953  |  Student entropy:  0.5620  |  ratio: 1.9030
+  Teacher max_prob: 0.9691  |  Student max_prob: 0.9371
+  JS divergence:    0.026202
+  L2 distance:      0.073507
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=115.8 std=133.0 / 1024
+  Student unique tokens: mean=92.2 std=141.5 / 1024
+  Teacher top5 tokens: [50257, 13, 11, 198, 262] counts: [3135, 46, 39, 29, 28]
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [3272, 43, 36, 26, 25]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4958  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 2.3%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 12.75/16
+  k=4: kl=0.1229(n=1) | k=15: kl=0.3589(n=1) | k=16: kl=0.3358(n=2)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 1900] 2026-02-24 22:38:57
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.295674  (min=0.1749 max=0.4032 std=0.0978)
+  Adv loss:   1.379441
+  Total loss: 0.433618
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.3033  |  Student entropy:  0.5999  |  ratio: 1.9777
+  Teacher max_prob: 0.9692  |  Student max_prob: 0.9375
+  JS divergence:    0.027360
+  L2 distance:      0.072677
+
+  --- Token Diversity ---
+  Argmax agreement: 96.9%
+  Teacher unique tokens: mean=97.0 std=136.0 / 1024
+  Student unique tokens: mean=74.2 std=143.2 / 1024
+  Teacher top5 tokens: [50257, 262, 11, 284, 13] counts: [3402, 26, 24, 19, 19]
+  Student top5 tokens: [50257, 11, 262, 284, 13] counts: [3529, 22, 21, 17, 14]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.4958  |  D(student) prob: 0.4958
+  D seq accuracy: 50.0% (real=0.0%, fake=100.0%)
+  D tok accuracy (fake): 2.0%
+  D seq logit gap: 0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 13.75/16
+  k=7: kl=0.1749(n=1) | k=16: kl=0.3359(n=3)
+================================================================================
+[TRAIN] step: 1900, loss: 3.69185e-01, kl: 0.179033, adv: 1.379228, total: 0.316956, disc: 2.7733, d_tok: 1.3869, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
+[TRAIN] step: 1950, loss: 3.01899e-01, kl: 0.110931, adv: 1.377925, total: 0.248724, disc: 2.7728, d_tok: 1.3864, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
+
+[ADV-DISC Step 2000] 2026-02-24 22:40:15
+  Disc total loss:  2.772768
+  Disc token loss:  1.386401
+  Disc seq loss:    1.386367
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0172
+  D(fake) seq logit:  -0.0172
+  Seq logit gap:      0.0000
+  Tok acc (real):     0.0171
+  Tok acc (fake):     0.9827
+  Disc grad norm:   53214.0736
+  Disc param norm:  80.0097
+
+[ADV-DISC Step 2000] 2026-02-24 22:40:15
+  Disc total loss:  2.772963
+  Disc token loss:  1.386662
+  Disc seq loss:    1.386301
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0171
+  D(fake) seq logit:  -0.0172
+  Seq logit gap:      0.0001
+  Tok acc (real):     0.0188
+  Tok acc (fake):     0.9868
+  Disc grad norm:   53214.0736
+  Disc param norm:  80.0097
+
+[ADV-DISC Step 2000] 2026-02-24 22:40:15
+  Disc total loss:  2.773036
+  Disc token loss:  1.386588
+  Disc seq loss:    1.386448
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0173
+  D(fake) seq logit:  -0.0171
+  Seq logit gap:      -0.0002
+  Tok acc (real):     0.0186
+  Tok acc (fake):     0.9834
+  Disc grad norm:   53214.0736
+  Disc param norm:  80.0097
+
+[ADV-DISC Step 2000] 2026-02-24 22:40:15
+  Disc total loss:  2.773052
+  Disc token loss:  1.386516
+  Disc seq loss:    1.386536
+  R1 penalty:       0.000000
+  D(real) seq logit:  -0.0171
+  D(fake) seq logit:  -0.0168
+  Seq logit gap:      -0.0003
+  Tok acc (real):     0.0164
+  Tok acc (fake):     0.9866
+  Disc grad norm:   53214.0736
+  Disc param norm:  80.0097
+
+================================================================================
+[ADV-GEN Step 2000] 2026-02-24 22:40:16
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.235766  (min=0.1112 max=0.4100 std=0.1494)
+  Adv loss:   1.362372
+  Total loss: 0.372003
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2560  |  Student entropy:  0.4764  |  ratio: 1.8608
+  Teacher max_prob: 0.9686  |  Student max_prob: 0.9386
+  JS divergence:    0.023665
+  L2 distance:      0.069017
+
+  --- Token Diversity ---
+  Argmax agreement: 97.0%
+  Teacher unique tokens: mean=210.2 std=181.2 / 1024
+  Student unique tokens: mean=188.8 std=190.3 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 262, 286] counts: [2652, 58, 47, 39, 35]
+  Student top5 tokens: [50257, 11, 13, 262, 286] counts: [2774, 58, 40, 35, 33]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5042  |  D(student) prob: 0.5042
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 1.5%
+  D seq logit gap: 0.0002
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.75/16
+  k=5: kl=0.1112(n=1) | k=7: kl=0.1114(n=1) | k=15: kl=0.3105(n=1) | k=16: kl=0.4100(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 2000] 2026-02-24 22:40:16
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.176594  (min=0.0911 max=0.3447 std=0.1146)
+  Adv loss:   1.362002
+  Total loss: 0.312794
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1834  |  Student entropy:  0.3433  |  ratio: 1.8723
+  Teacher max_prob: 0.9697  |  Student max_prob: 0.9404
+  JS divergence:    0.022421
+  L2 distance:      0.066956
+
+  --- Token Diversity ---
+  Argmax agreement: 96.7%
+  Teacher unique tokens: mean=300.8 std=149.3 / 1024
+  Student unique tokens: mean=285.5 std=156.4 / 1024
+  Teacher top5 tokens: [50257, 198, 262, 13, 11] counts: [1595, 125, 96, 80, 76]
+  Student top5 tokens: [50257, 198, 262, 13, 11] counts: [1727, 115, 95, 77, 73]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5042  |  D(student) prob: 0.5042
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 1.2%
+  D seq logit gap: -0.0001
+
+  --- Per-Window Breakdown ---
+  Avg window k: 6.75/16
+  k=3: kl=0.0911(n=1) | k=4: kl=0.1501(n=1) | k=5: kl=0.1205(n=1) | k=15: kl=0.3447(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 2000] 2026-02-24 22:40:16
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.179769  (min=0.0453 max=0.2443 std=0.0914)
+  Adv loss:   1.362154
+  Total loss: 0.315984
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.2309  |  Student entropy:  0.4304  |  ratio: 1.8644
+  Teacher max_prob: 0.9728  |  Student max_prob: 0.9475
+  JS divergence:    0.019099
+  L2 distance:      0.054280
+
+  --- Token Diversity ---
+  Argmax agreement: 97.5%
+  Teacher unique tokens: mean=233.5 std=185.8 / 1024
+  Student unique tokens: mean=220.5 std=189.9 / 1024
+  Teacher top5 tokens: [50257, 198, 11, 262, 13] counts: [2410, 66, 63, 59, 59]
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [2499, 66, 62, 57, 55]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5041  |  D(student) prob: 0.5042
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 1.2%
+  D seq logit gap: -0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 10.00/16
+  k=1: kl=0.0453(n=1) | k=12: kl=0.2229(n=2) | k=15: kl=0.2279(n=1)
+================================================================================
+
+================================================================================
+[ADV-GEN Step 2000] 2026-02-24 22:40:16
+================================================================================
+  Config: Adversarial D-PeRFlow | 1-step student | 2-step teacher
+  Lambda_adv: 0.1
+
+  --- Loss Breakdown ---
+  KL loss:    0.151463  (min=0.0557 max=0.2444 std=0.0780)
+  Adv loss:   1.362166
+  Total loss: 0.287679
+
+  --- Distribution Quality ---
+  Teacher entropy:  0.1853  |  Student entropy:  0.3435  |  ratio: 1.8538
+  Teacher max_prob: 0.9742  |  Student max_prob: 0.9491
+  JS divergence:    0.019173
+  L2 distance:      0.056126
+
+  --- Token Diversity ---
+  Argmax agreement: 97.2%
+  Teacher unique tokens: mean=287.5 std=188.3 / 1024
+  Student unique tokens: mean=275.5 std=194.3 / 1024
+  Teacher top5 tokens: [50257, 11, 13, 290, 198] counts: [1630, 122, 78, 72, 67]
+  Student top5 tokens: [50257, 11, 13, 290, 198] counts: [1730, 122, 75, 69, 64]
+
+  --- Discriminator Status ---
+  D(teacher) prob: 0.5042  |  D(student) prob: 0.5041
+  D seq accuracy: 50.0% (real=100.0%, fake=0.0%)
+  D tok accuracy (fake): 1.6%
+  D seq logit gap: 0.0003
+
+  --- Per-Window Breakdown ---
+  Avg window k: 7.00/16
+  k=1: kl=0.0557(n=1) | k=4: kl=0.1379(n=1) | k=7: kl=0.1679(n=1) | k=16: kl=0.2444(n=1)
+================================================================================
+[TRAIN] step: 2000, loss: 3.22115e-01, kl: 0.176594, adv: 1.362002, total: 0.312794, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
