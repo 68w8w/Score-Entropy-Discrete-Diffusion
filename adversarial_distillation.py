@@ -393,13 +393,21 @@ class GPT2ProjectedDiscriminator(nn.Module):
         Returns:
             features: Concatenated multi-layer GPT-2 features [B, L, D_feat]
         """
-        # Gumbel-Softmax: sample quasi-discrete tokens
-        log_probs = (token_probs + 1e-10).log()
+        # Handle vocab size mismatch: SEDD uses V=50258 (50257 GPT-2 tokens
+        # + 1 absorb state), but GPT-2's wte is [50257, D]. Slice off the
+        # absorb token's probability and renormalize over real tokens only.
+        wte = self._gpt2.wte.weight  # [V_gpt2, D_gpt2]
+        v_gpt2 = wte.shape[0]
+        probs_real = token_probs[..., :v_gpt2]  # [B, L, V_gpt2]
+        # Renormalize so probabilities sum to 1 over real tokens
+        probs_real = probs_real / (probs_real.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # Gumbel-Softmax: sample quasi-discrete tokens over real vocab
+        log_probs = (probs_real + 1e-10).log()
         gumbel_onehot = gumbel_softmax_sample(log_probs, tau=self.gumbel_tau)
 
         # Soft embedding lookup: one_hot @ embedding_weight
         # This is differentiable through the Gumbel-Softmax straight-through
-        wte = self._gpt2.wte.weight  # [V, D_gpt2]
         inputs_embeds = torch.matmul(gumbel_onehot, wte)  # [B, L, D_gpt2]
 
         # Run GPT-2 preserving gradient through inputs_embeds only.
@@ -438,8 +446,11 @@ class GPT2ProjectedDiscriminator(nn.Module):
         feat = self.feat_proj(gpt2_feat)  # [B, L, hidden]
 
         # 2. Condition: embed the noisy input tokens via GPT-2 embedding
+        # Clamp absorb token (50257) to last valid GPT-2 token to avoid index OOB
+        v_gpt2 = self._gpt2.wte.weight.shape[0]
+        x_t_clamped = x_t.clamp(max=v_gpt2 - 1)
         with torch.no_grad():
-            cond = self._gpt2.wte(x_t)  # [B, L, D_gpt2]
+            cond = self._gpt2.wte(x_t_clamped)  # [B, L, D_gpt2]
         cond = self.cond_proj(cond)  # [B, L, hidden]
 
         # 3. Fuse features and condition
