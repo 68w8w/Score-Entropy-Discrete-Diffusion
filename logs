@@ -1,19 +1,21 @@
-2026-02-24 22:11:29,756 - /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224
-2026-02-24 22:11:29,756 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'r1_gamma': 10.0, 'r1_interval': 16, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 1, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224'}
-2026-02-24 22:11:29,757 - Found 4 CUDA devices.
-2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 22:11:29,757 - Found 128 total number of CPUs.
-2026-02-24 22:11:30,137 - Loading teacher model...
-2026-02-24 22:11:31,652 - Teacher model loaded successfully.
-2026-02-24 22:11:31,652 - Initializing student model from teacher weights...
-2026-02-24 22:11:32,684 - Student initialized from teacher weights.
-2026-02-24 22:11:32,717 - Number of parameters in student model: 169627218
-2026-02-24 22:11:32,725 - Teacher embedding shape: torch.Size([50258, 768])
-2026-02-24 22:11:32,824 - Discriminator parameters: 4140546
-2026-02-24 22:11:32,825 - Discriminator optimizer: AdamW (
+2026-02-25 18:56:14,816 - /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2
+2026-02-25 18:56:14,817 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'lambda_rev_kl': 0.5, 'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'enable_gpt2_disc': True, 'gpt2_model_name': 'gpt2', 'gpt2_disc_hidden_size': 256, 'gpt2_disc_n_heads': 4, 'gpt2_disc_n_blocks': 2, 'gumbel_tau': 0.5, 'gpt2_feature_layers': [-1, -3], 'lambda_gpt2_adv': 0.1, 'r1_gamma': 10.0, 'r1_interval': 16, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2'}
+2026-02-25 18:56:14,818 - Found 4 CUDA devices.
+2026-02-25 18:56:14,818 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 18:56:14,818 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 18:56:14,818 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 18:56:14,818 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 18:56:14,818 - Found 128 total number of CPUs.
+2026-02-25 18:56:15,206 - Loading teacher model...
+2026-02-25 18:56:17,065 - Teacher model loaded successfully.
+2026-02-25 18:56:17,066 - Initializing student model from teacher weights...
+2026-02-25 18:56:18,315 - Student initialized from teacher weights.
+2026-02-25 18:56:18,356 - Number of parameters in student model: 169627218
+2026-02-25 18:56:18,364 - Teacher embedding shape: torch.Size([50258, 768])
+2026-02-25 18:56:18,465 - Projected discriminator parameters: 4140546
+2026-02-25 18:56:18,465 - Creating GPT-2 projected discriminator...
+2026-02-25 18:57:08,069 - GPT-2 discriminator trainable parameters: 2759682
+2026-02-25 18:57:08,073 - Discriminator optimizer: AdamW (
 Parameter Group 0
     amsgrad: False
     betas: (0.0, 0.99)
@@ -26,7 +28,7 @@ Parameter Group 0
     maximize: False
     weight_decay: 0.01
 )
-2026-02-24 22:11:32,826 - Student optimizer: AdamW (
+2026-02-25 18:57:08,074 - Student optimizer: AdamW (
 Parameter Group 0
     amsgrad: False
     betas: (0.9, 0.999)
@@ -39,92 +41,148 @@ Parameter Group 0
     maximize: False
     weight_decay: 0
 )
-2026-02-24 22:11:32,826 - No checkpoint found at /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/checkpoints-meta/checkpoint.pth. Returned the same state as input
-2026-02-24 22:12:16,333 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/debug_log.txt
-2026-02-24 22:12:16,335 - Starting Adversarial D-PeRFlow training at step 0.
-2026-02-24 22:12:16,335 - Number of time windows: 16
-2026-02-24 22:12:16,335 - Adversarial weight (lambda_adv): 0.1
-2026-02-24 22:12:16,335 - Discriminator steps per generator step: 1
-2026-02-24 22:12:16,335 - R1 gradient penalty: 10.0 (lazy interval=16)
-2026-02-24 22:12:30,091 - step: 0, loss: 4.51061e-01, kl: 0.194944, adv: 2.621185, total: 0.457063, disc: 2.8111, d_tok: 1.3896, d_seq: 1.4215, d_gap: -0.000, tok_acc_r: 0.57, tok_acc_f: 0.42, r1: 0.0000
-2026-02-24 22:12:36,635 - step: 0, evaluation_loss: 4.47261e-01
-2026-02-24 22:13:15,534 - step: 50, loss: 2.90294e-01, kl: 0.145189, adv: 1.351705, total: 0.280360, disc: 2.7746, d_tok: 1.3867, d_seq: 1.3878, d_gap: 0.000, tok_acc_r: 0.44, tok_acc_f: 0.55, r1: 0.0000
-2026-02-24 22:13:54,662 - step: 100, loss: 2.96526e-01, kl: 0.211211, adv: 1.419687, total: 0.353180, disc: 2.7737, d_tok: 1.3862, d_seq: 1.3875, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:13:54,897 - step: 100, evaluation_loss: 3.11783e-01
-2026-02-24 22:14:33,826 - step: 150, loss: 3.27883e-01, kl: 0.171208, adv: 1.356924, total: 0.306900, disc: 2.7737, d_tok: 1.3865, d_seq: 1.3873, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:15:12,942 - step: 200, loss: 3.18656e-01, kl: 0.269301, adv: 1.426525, total: 0.411954, disc: 2.7742, d_tok: 1.3864, d_seq: 1.3878, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:15:16,739 - step: 200, evaluation_loss: 3.06975e-01
-2026-02-24 22:15:19,984 - Generating text at step: 200 with 16-step sampling
-2026-02-24 22:15:22,939 - Generative Perplexity at step: 200. Perplexity: 246.917. (Using 16-step sampling)
-2026-02-24 22:16:02,046 - step: 250, loss: 3.02771e-01, kl: 0.112827, adv: 1.354558, total: 0.248283, disc: 2.7737, d_tok: 1.3866, d_seq: 1.3871, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:16:41,202 - step: 300, loss: 3.27352e-01, kl: 0.146564, adv: 1.414498, total: 0.288014, disc: 2.7729, d_tok: 1.3861, d_seq: 1.3869, d_gap: 0.000, tok_acc_r: 0.51, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:16:41,443 - step: 300, evaluation_loss: 3.39575e-01
-2026-02-24 22:17:20,470 - step: 350, loss: 3.35664e-01, kl: 0.140480, adv: 1.365401, total: 0.277020, disc: 2.7731, d_tok: 1.3864, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
-2026-02-24 22:17:59,630 - step: 400, loss: 3.24430e-01, kl: 0.272614, adv: 1.363137, total: 0.408928, disc: 2.7760, d_tok: 1.3894, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
-2026-02-24 22:18:03,431 - step: 400, evaluation_loss: 3.31874e-01
-2026-02-24 22:18:06,664 - Generating text at step: 400 with 16-step sampling
-2026-02-24 22:18:10,026 - Generative Perplexity at step: 400. Perplexity: 244.735. (Using 16-step sampling)
-2026-02-24 22:18:49,122 - step: 450, loss: 2.98132e-01, kl: 0.174805, adv: 1.403854, total: 0.315191, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:19:28,163 - step: 500, loss: 2.79864e-01, kl: 0.069506, adv: 1.371190, total: 0.206625, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
-2026-02-24 22:19:28,406 - step: 500, evaluation_loss: 3.65365e-01
-2026-02-24 22:20:07,410 - step: 550, loss: 2.84237e-01, kl: 0.150590, adv: 1.402963, total: 0.290886, disc: 2.7730, d_tok: 1.3863, d_seq: 1.3867, d_gap: -0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:20:46,383 - step: 600, loss: 3.07023e-01, kl: 0.176424, adv: 1.371818, total: 0.313606, disc: 2.7724, d_tok: 1.3862, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:20:50,218 - step: 600, evaluation_loss: 3.28626e-01
-2026-02-24 22:20:53,410 - Generating text at step: 600 with 16-step sampling
-2026-02-24 22:20:56,780 - Generative Perplexity at step: 600. Perplexity: 237.019. (Using 16-step sampling)
-2026-02-24 22:21:35,852 - step: 650, loss: 3.00409e-01, kl: 0.186874, adv: 1.404267, total: 0.327301, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:22:14,971 - step: 700, loss: 3.25155e-01, kl: 0.144344, adv: 1.374974, total: 0.281841, disc: 2.7728, d_tok: 1.3862, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:22:15,216 - step: 700, evaluation_loss: 3.48466e-01
-2026-02-24 22:22:54,243 - step: 750, loss: 3.23250e-01, kl: 0.204688, adv: 1.363778, total: 0.341066, disc: 2.7733, d_tok: 1.3864, d_seq: 1.3869, d_gap: -0.000, tok_acc_r: 0.51, tok_acc_f: 0.48, r1: 0.0000
-2026-02-24 22:23:33,478 - step: 800, loss: 3.11750e-01, kl: 0.187833, adv: 1.380911, total: 0.325924, disc: 2.7744, d_tok: 1.3882, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
-2026-02-24 22:23:36,898 - step: 800, evaluation_loss: 3.37999e-01
-2026-02-24 22:23:39,573 - Generating text at step: 800 with 16-step sampling
-2026-02-24 22:23:42,632 - Generative Perplexity at step: 800. Perplexity: 214.873. (Using 16-step sampling)
-2026-02-24 22:24:21,665 - step: 850, loss: 3.11843e-01, kl: 0.230253, adv: 1.396400, total: 0.369893, disc: 2.7728, d_tok: 1.3863, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.46, tok_acc_f: 0.54, r1: 0.0000
-2026-02-24 22:25:00,700 - step: 900, loss: 3.16369e-01, kl: 0.225799, adv: 1.391496, total: 0.364948, disc: 2.7728, d_tok: 1.3865, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:25:00,941 - step: 900, evaluation_loss: 3.40826e-01
-2026-02-24 22:25:39,892 - step: 950, loss: 3.35287e-01, kl: 0.196742, adv: 1.395023, total: 0.336245, disc: 2.7735, d_tok: 1.3869, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
-2026-02-24 22:26:18,979 - step: 1000, loss: 3.35699e-01, kl: 0.211940, adv: 1.395327, total: 0.351473, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
-2026-02-24 22:26:22,363 - step: 1000, evaluation_loss: 3.25295e-01
-2026-02-24 22:26:25,459 - Generating text at step: 1000 with 16-step sampling
-2026-02-24 22:26:28,817 - Generative Perplexity at step: 1000. Perplexity: 225.548. (Using 16-step sampling)
-2026-02-24 22:27:07,899 - step: 1050, loss: 3.38579e-01, kl: 0.233040, adv: 1.397878, total: 0.372828, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.52, r1: 0.0000
-2026-02-24 22:27:47,013 - step: 1100, loss: 2.90909e-01, kl: 0.185597, adv: 1.395103, total: 0.325108, disc: 2.7729, d_tok: 1.3867, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
-2026-02-24 22:27:47,249 - step: 1100, evaluation_loss: 3.01438e-01
-2026-02-24 22:28:26,316 - step: 1150, loss: 3.09506e-01, kl: 0.207234, adv: 1.392585, total: 0.346493, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: 0.000, tok_acc_r: 0.39, tok_acc_f: 0.60, r1: 0.0000
-2026-02-24 22:29:05,473 - step: 1200, loss: 3.01608e-01, kl: 0.134216, adv: 1.396163, total: 0.273832, disc: 2.7732, d_tok: 1.3867, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.48, r1: 0.0000
-2026-02-24 22:29:08,817 - step: 1200, evaluation_loss: 3.29195e-01
-2026-02-24 22:29:12,190 - Generating text at step: 1200 with 16-step sampling
-2026-02-24 22:29:15,399 - Generative Perplexity at step: 1200. Perplexity: 230.362. (Using 16-step sampling)
-2026-02-24 22:29:54,499 - step: 1250, loss: 3.24741e-01, kl: 0.197462, adv: 1.385913, total: 0.336053, disc: 2.7726, d_tok: 1.3861, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.19, tok_acc_f: 0.82, r1: 0.0000
-2026-02-24 22:30:33,536 - step: 1300, loss: 2.78286e-01, kl: 0.203140, adv: 1.381826, total: 0.341323, disc: 2.7730, d_tok: 1.3868, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.10, tok_acc_f: 0.89, r1: 0.0000
-2026-02-24 22:30:33,778 - step: 1300, evaluation_loss: 3.54813e-01
-2026-02-24 22:31:12,770 - step: 1350, loss: 2.99185e-01, kl: 0.183064, adv: 1.355602, total: 0.318624, disc: 2.7743, d_tok: 1.3881, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:31:51,803 - step: 1400, loss: 3.13444e-01, kl: 0.198670, adv: 1.340545, total: 0.332725, disc: 2.7755, d_tok: 1.3891, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:31:55,287 - step: 1400, evaluation_loss: 2.81587e-01
-2026-02-24 22:31:58,694 - Generating text at step: 1400 with 16-step sampling
-2026-02-24 22:32:02,797 - Generative Perplexity at step: 1400. Perplexity: 233.172. (Using 16-step sampling)
-2026-02-24 22:32:41,865 - step: 1450, loss: 3.46719e-01, kl: 0.255490, adv: 1.344828, total: 0.389973, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:33:21,049 - step: 1500, loss: 3.33252e-01, kl: 0.211533, adv: 1.355005, total: 0.347034, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:33:25,108 - step: 1500, evaluation_loss: 3.06845e-01
-2026-02-24 22:34:04,133 - step: 1550, loss: 3.22634e-01, kl: 0.126955, adv: 1.359247, total: 0.262880, disc: 2.7735, d_tok: 1.3872, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:34:43,301 - step: 1600, loss: 3.04383e-01, kl: 0.219836, adv: 1.371247, total: 0.356960, disc: 2.7729, d_tok: 1.3866, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
-2026-02-24 22:34:47,227 - step: 1600, evaluation_loss: 3.39921e-01
-2026-02-24 22:34:49,933 - Generating text at step: 1600 with 16-step sampling
-2026-02-24 22:34:53,495 - Generative Perplexity at step: 1600. Perplexity: 218.288. (Using 16-step sampling)
-2026-02-24 22:35:32,625 - step: 1650, loss: 2.96322e-01, kl: 0.234687, adv: 1.348114, total: 0.369498, disc: 2.7735, d_tok: 1.3870, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:36:11,708 - step: 1700, loss: 3.06272e-01, kl: 0.205292, adv: 1.357676, total: 0.341060, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
-2026-02-24 22:36:11,943 - step: 1700, evaluation_loss: 3.22084e-01
-2026-02-24 22:36:50,979 - step: 1750, loss: 3.20026e-01, kl: 0.209278, adv: 1.359970, total: 0.345275, disc: 2.7732, d_tok: 1.3869, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
-2026-02-24 22:37:30,013 - step: 1800, loss: 3.30982e-01, kl: 0.209496, adv: 1.367531, total: 0.346249, disc: 2.7727, d_tok: 1.3865, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.02, tok_acc_f: 0.97, r1: 0.0000
-2026-02-24 22:37:33,984 - step: 1800, evaluation_loss: 3.32602e-01
-2026-02-24 22:37:36,596 - Generating text at step: 1800 with 16-step sampling
-2026-02-24 22:37:39,777 - Generative Perplexity at step: 1800. Perplexity: 220.554. (Using 16-step sampling)
-2026-02-24 22:38:18,875 - step: 1850, loss: 3.32727e-01, kl: 0.209323, adv: 1.377016, total: 0.347025, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.03, tok_acc_f: 0.97, r1: 0.0000
-2026-02-24 22:38:58,020 - step: 1900, loss: 3.69185e-01, kl: 0.179033, adv: 1.379228, total: 0.316956, disc: 2.7733, d_tok: 1.3869, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
-2026-02-24 22:38:58,258 - step: 1900, evaluation_loss: 3.36249e-01
-2026-02-24 22:39:37,250 - step: 1950, loss: 3.01899e-01, kl: 0.110931, adv: 1.377925, total: 0.248724, disc: 2.7728, d_tok: 1.3864, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
-2026-02-24 22:40:16,422 - step: 2000, loss: 3.22115e-01, kl: 0.176594, adv: 1.362002, total: 0.312794, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
-2026-02-24 22:40:20,520 - step: 2000, evaluation_loss: 3.43200e-01
-2026-02-24 22:40:23,051 - Generating text at step: 2000 with 16-step sampling
-2026-02-24 22:40:26,290 - Generative Perplexity at step: 2000. Perplexity: 215.842. (Using 16-step sampling)
+2026-02-25 18:57:08,074 - No checkpoint found at /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2/checkpoints-meta/checkpoint.pth. Returned the same state as input
+2026-02-25 18:57:24,178 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2/debug_log.txt
+2026-02-25 18:57:24,180 - Starting Adversarial D-PeRFlow training at step 0.
+2026-02-25 18:57:24,180 - Number of time windows: 16
+2026-02-25 18:57:24,181 - Adversarial weight (lambda_adv): 0.1
+2026-02-25 18:57:24,181 - GPT-2 adversarial weight (lambda_gpt2_adv): 0.1
+2026-02-25 18:57:24,181 - Reverse KL weight (lambda_rev_kl): 0.5
+2026-02-25 18:57:24,181 - GPT-2 discriminator enabled: True
+2026-02-25 18:57:24,181 - Discriminator steps per generator step: 1
+2026-02-25 18:57:24,182 - R1 gradient penalty: 10.0 (lazy interval=16)
+2026-02-25 19:02:41,344 - /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2
+2026-02-25 19:02:41,344 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'lambda_rev_kl': 0.5, 'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'enable_gpt2_disc': True, 'gpt2_model_name': 'gpt2', 'gpt2_disc_hidden_size': 256, 'gpt2_disc_n_heads': 4, 'gpt2_disc_n_blocks': 2, 'gumbel_tau': 0.5, 'gpt2_feature_layers': [-1, -3], 'lambda_gpt2_adv': 0.1, 'r1_gamma': 10.0, 'r1_interval': 16, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2'}
+2026-02-25 19:02:41,345 - Found 4 CUDA devices.
+2026-02-25 19:02:41,345 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 19:02:41,345 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 19:02:41,345 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 19:02:41,345 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-25 19:02:41,345 - Found 128 total number of CPUs.
+2026-02-25 19:02:41,793 - Loading teacher model...
+2026-02-25 19:02:43,606 - Teacher model loaded successfully.
+2026-02-25 19:02:43,607 - Initializing student model from teacher weights...
+2026-02-25 19:02:44,899 - Student initialized from teacher weights.
+2026-02-25 19:02:44,999 - Number of parameters in student model: 169627218
+2026-02-25 19:02:45,006 - Teacher embedding shape: torch.Size([50258, 768])
+2026-02-25 19:02:45,111 - Projected discriminator parameters: 4140546
+2026-02-25 19:02:45,111 - Creating GPT-2 projected discriminator...
+2026-02-25 19:02:47,381 - GPT-2 discriminator trainable parameters: 2759682
+2026-02-25 19:02:47,384 - Discriminator optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.0, 0.99)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.0002
+    maximize: False
+    weight_decay: 0.01
+)
+2026-02-25 19:02:47,384 - Student optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    weight_decay: 0
+)
+2026-02-25 19:02:47,385 - No checkpoint found at /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2/checkpoints-meta/checkpoint.pth. Returned the same state as input
+2026-02-25 19:03:02,330 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0225/Score-Entropy-Discrete-Diffusion/win16_eu2/debug_log.txt
+2026-02-25 19:03:02,331 - Starting Adversarial D-PeRFlow training at step 0.
+2026-02-25 19:03:02,331 - Number of time windows: 16
+2026-02-25 19:03:02,331 - Adversarial weight (lambda_adv): 0.1
+2026-02-25 19:03:02,331 - GPT-2 adversarial weight (lambda_gpt2_adv): 0.1
+2026-02-25 19:03:02,331 - Reverse KL weight (lambda_rev_kl): 0.5
+2026-02-25 19:03:02,331 - GPT-2 discriminator enabled: True
+2026-02-25 19:03:02,331 - Discriminator steps per generator step: 1
+2026-02-25 19:03:02,331 - R1 gradient penalty: 10.0 (lazy interval=16)
+2026-02-25 19:03:10,698 - step: 0, loss: 7.95264e-01, fwd_kl: 0.071253, rev_kl: 0.531729, proj_adv: 1.122741, gpt2_adv: 1.062671, total: 0.555658, disc: 4.0684, d_tok: 2.6743, d_seq: 1.3940, d_gap: -0.001, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 3.1507, g2_gap: -0.001, g2_tok_r: 0.01, g2_tok_f: 0.99
+2026-02-25 19:03:17,582 - step: 0, evaluation_loss: 7.76254e-01
+2026-02-25 19:05:32,271 - step: 50, loss: 6.65035e-01, fwd_kl: 0.154295, rev_kl: 0.756296, proj_adv: 1.377223, gpt2_adv: 1.262975, total: 0.796463, disc: 2.7732, d_tok: 1.3867, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000, g2_disc: 2.7791, g2_gap: 0.007, g2_tok_r: 1.00, g2_tok_f: 0.00
+2026-02-25 19:07:48,221 - step: 100, loss: 7.65906e-01, fwd_kl: 0.158957, rev_kl: 0.716654, proj_adv: 1.396612, gpt2_adv: 1.362504, total: 0.793195, disc: 2.7726, d_tok: 1.3861, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000, g2_disc: 2.7581, g2_gap: 0.030, g2_tok_r: 0.02, g2_tok_f: 0.98
+2026-02-25 19:07:48,441 - step: 100, evaluation_loss: 6.37875e-01
+2026-02-25 19:10:03,436 - step: 150, loss: 7.51641e-01, fwd_kl: 0.191727, rev_kl: 0.673236, proj_adv: 1.404016, gpt2_adv: 1.337496, total: 0.802496, disc: 2.7722, d_tok: 1.3856, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.52, tok_acc_f: 0.51, r1: 0.0000, g2_disc: 2.3752, g2_gap: 0.535, g2_tok_r: 1.00, g2_tok_f: 0.31
+2026-02-25 19:12:18,867 - step: 200, loss: 7.91021e-01, fwd_kl: 0.247776, rev_kl: 0.635858, proj_adv: 1.385473, gpt2_adv: 1.291861, total: 0.833439, disc: 2.7733, d_tok: 1.3866, d_seq: 1.3867, d_gap: -0.001, tok_acc_r: 0.51, tok_acc_f: 0.48, r1: 0.0000, g2_disc: 2.7185, g2_gap: 0.085, g2_tok_r: 0.97, g2_tok_f: 0.15
+2026-02-25 19:12:23,068 - step: 200, evaluation_loss: 8.03721e-01
+2026-02-25 19:12:27,476 - Generating text at step: 200 with 16-step sampling
+2026-02-25 19:12:31,097 - Generative Perplexity at step: 200. Perplexity: 211.326. (Using 16-step sampling)
+2026-02-25 19:14:46,498 - step: 250, loss: 8.15434e-01, fwd_kl: 0.131285, rev_kl: 0.710850, proj_adv: 1.367472, gpt2_adv: 2.111306, total: 0.834588, disc: 2.7731, d_tok: 1.3859, d_seq: 1.3872, d_gap: -0.001, tok_acc_r: 0.51, tok_acc_f: 0.52, r1: 0.0000, g2_disc: 2.3279, g2_gap: 0.761, g2_tok_r: 1.00, g2_tok_f: 0.24
+2026-02-25 19:17:02,999 - step: 300, loss: 1.00855e+00, fwd_kl: 0.134839, rev_kl: 0.619809, proj_adv: 1.365735, gpt2_adv: 7.426889, total: 1.324006, disc: 2.7740, d_tok: 1.3873, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.18, tok_acc_f: 0.79, r1: 0.0000, g2_disc: 0.0863, g2_gap: 8.864, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:17:03,156 - step: 300, evaluation_loss: 1.01631e+00
+2026-02-25 19:19:20,263 - step: 350, loss: 1.69176e+00, fwd_kl: 0.165229, rev_kl: 0.773678, proj_adv: 1.382484, gpt2_adv: 7.212474, total: 1.411564, disc: 2.7721, d_tok: 1.3860, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.27, tok_acc_f: 0.72, r1: 0.0000, g2_disc: 0.9622, g2_gap: 2.627, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:21:37,023 - step: 400, loss: 1.41650e+00, fwd_kl: 0.105008, rev_kl: 0.448337, proj_adv: 1.368485, gpt2_adv: 4.704482, total: 0.936474, disc: 2.7727, d_tok: 1.3865, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.08, tok_acc_f: 0.92, r1: 0.0000, g2_disc: 3.6145, g2_gap: 3.966, g2_tok_r: 1.00, g2_tok_f: 0.03
+2026-02-25 19:21:41,308 - step: 400, evaluation_loss: 1.76905e+00
+2026-02-25 19:21:46,013 - Generating text at step: 400 with 16-step sampling
+2026-02-25 19:21:48,910 - Generative Perplexity at step: 400. Perplexity: 1376.769. (Using 16-step sampling)
+2026-02-25 19:24:05,599 - step: 450, loss: 1.43612e+00, fwd_kl: 0.179743, rev_kl: 0.690759, proj_adv: 1.389447, gpt2_adv: 0.024112, total: 0.666478, disc: 2.7726, d_tok: 1.3864, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.52, tok_acc_f: 0.49, r1: 0.0000, g2_disc: 0.0086, g2_gap: 13.632, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:26:22,821 - step: 500, loss: 1.95339e+00, fwd_kl: 0.149263, rev_kl: 0.437442, proj_adv: 1.409293, gpt2_adv: 14.123745, total: 1.921288, disc: 2.7732, d_tok: 1.3869, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0055, g2_gap: 13.965, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:26:23,006 - step: 500, evaluation_loss: 1.62098e+00
+2026-02-25 19:28:39,146 - step: 550, loss: 1.73014e+00, fwd_kl: 0.174011, rev_kl: 0.733699, proj_adv: 1.406294, gpt2_adv: 13.140722, total: 1.995562, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.99, tok_acc_f: 0.01, r1: 0.0000, g2_disc: 0.5373, g2_gap: 4.269, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:30:55,719 - step: 600, loss: 1.94915e+00, fwd_kl: 0.521510, rev_kl: 1.194027, proj_adv: 1.420371, gpt2_adv: 14.623758, total: 2.722936, disc: 2.7738, d_tok: 1.3874, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0134, g2_gap: 12.982, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:30:59,848 - step: 600, evaluation_loss: 2.09119e+00
+2026-02-25 19:31:04,453 - Generating text at step: 600 with 16-step sampling
+2026-02-25 19:31:09,034 - Generative Perplexity at step: 600. Perplexity: 426.388. (Using 16-step sampling)
+2026-02-25 19:33:26,443 - step: 650, loss: 1.66206e+00, fwd_kl: 0.286625, rev_kl: 0.832463, proj_adv: 1.407566, gpt2_adv: 13.351889, total: 2.178802, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0037, g2_gap: 16.234, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:35:43,311 - step: 700, loss: 2.11831e+00, fwd_kl: 0.101340, rev_kl: 0.465703, proj_adv: 1.394984, gpt2_adv: 15.000571, total: 1.973747, disc: 2.7729, d_tok: 1.3864, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.98, tok_acc_f: 0.02, r1: 0.0000, g2_disc: 1.9240, g2_gap: 1.220, g2_tok_r: 1.00, g2_tok_f: 0.43
+2026-02-25 19:35:43,524 - step: 700, evaluation_loss: 2.09361e+00
+2026-02-25 19:37:59,946 - step: 750, loss: 1.84512e+00, fwd_kl: 0.316556, rev_kl: 0.808122, proj_adv: 1.402057, gpt2_adv: 15.470160, total: 2.407838, disc: 2.7731, d_tok: 1.3866, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.8996, g2_gap: 5.343, g2_tok_r: 0.87, g2_tok_f: 1.00
+2026-02-25 19:40:15,966 - step: 800, loss: 2.05907e+00, fwd_kl: 0.088613, rev_kl: 0.418277, proj_adv: 1.403697, gpt2_adv: 11.324649, total: 1.570586, disc: 2.7724, d_tok: 1.3862, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.99, tok_acc_f: 0.01, r1: 0.0000, g2_disc: 0.0168, g2_gap: 11.039, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:40:20,229 - step: 800, evaluation_loss: 2.07710e+00
+2026-02-25 19:40:24,708 - Generating text at step: 800 with 16-step sampling
+2026-02-25 19:40:27,645 - Generative Perplexity at step: 800. Perplexity: 528.216. (Using 16-step sampling)
+2026-02-25 19:42:45,239 - step: 850, loss: 2.04876e+00, fwd_kl: 0.175042, rev_kl: 0.549862, proj_adv: 1.380690, gpt2_adv: 13.339838, total: 1.922026, disc: 2.7725, d_tok: 1.3863, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.46, tok_acc_f: 0.55, r1: 0.0000, g2_disc: 0.0309, g2_gap: 10.381, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:45:01,979 - step: 900, loss: 1.66130e+00, fwd_kl: 0.158545, rev_kl: 0.601730, proj_adv: 1.396639, gpt2_adv: 12.608129, total: 1.859886, disc: 2.7734, d_tok: 1.3867, d_seq: 1.3867, d_gap: -0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 3.0554, g2_gap: 0.083, g2_tok_r: 1.00, g2_tok_f: 0.00
+2026-02-25 19:45:02,200 - step: 900, evaluation_loss: 1.20444e+00
+2026-02-25 19:47:19,121 - step: 950, loss: 1.68624e+00, fwd_kl: 0.316144, rev_kl: 0.734509, proj_adv: 1.394689, gpt2_adv: 15.519560, total: 2.374823, disc: 2.7723, d_tok: 1.3862, d_seq: 1.3861, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0049, g2_gap: 14.481, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:49:35,941 - step: 1000, loss: 1.93788e+00, fwd_kl: 0.233346, rev_kl: 0.623043, proj_adv: 1.398360, gpt2_adv: 13.410276, total: 2.025731, disc: 2.7734, d_tok: 1.3868, d_seq: 1.3866, d_gap: -0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 6.6306, g2_gap: 0.110, g2_tok_r: 0.00, g2_tok_f: 1.00
+2026-02-25 19:49:40,307 - step: 1000, evaluation_loss: 1.18639e+00
+2026-02-25 19:49:44,387 - Generating text at step: 1000 with 16-step sampling
+2026-02-25 19:49:47,464 - Generative Perplexity at step: 1000. Perplexity: 217.744. (Using 16-step sampling)
+2026-02-25 19:52:04,522 - step: 1050, loss: 1.50311e+00, fwd_kl: 0.239145, rev_kl: 0.953760, proj_adv: 1.404956, gpt2_adv: 0.058386, total: 0.862360, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0104, g2_gap: 14.560, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:54:22,054 - step: 1100, loss: 1.62428e+00, fwd_kl: 0.144211, rev_kl: 0.517480, proj_adv: 1.392267, gpt2_adv: 10.311314, total: 1.573310, disc: 2.7725, d_tok: 1.3862, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.97, tok_acc_f: 0.03, r1: 0.0000, g2_disc: 0.0032, g2_gap: 19.575, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:54:22,264 - step: 1100, evaluation_loss: 1.45913e+00
+2026-02-25 19:56:39,392 - step: 1150, loss: 1.35675e+00, fwd_kl: 0.333104, rev_kl: 0.688998, proj_adv: 1.392179, gpt2_adv: 14.181561, total: 2.234977, disc: 2.7723, d_tok: 1.3863, d_seq: 1.3860, d_gap: 0.001, tok_acc_r: 0.99, tok_acc_f: 0.02, r1: 0.0000, g2_disc: 2.3009, g2_gap: 0.574, g2_tok_r: 0.34, g2_tok_f: 1.00
+2026-02-25 19:58:56,882 - step: 1200, loss: 1.50016e+00, fwd_kl: 0.121466, rev_kl: 0.210989, proj_adv: 1.388296, gpt2_adv: 0.647456, total: 0.430536, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: -0.000, tok_acc_r: 0.87, tok_acc_f: 0.12, r1: 0.0000, g2_disc: 0.1191, g2_gap: 7.176, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 19:59:01,017 - step: 1200, evaluation_loss: 2.02036e+00
+2026-02-25 19:59:05,509 - Generating text at step: 1200 with 16-step sampling
+2026-02-25 19:59:08,489 - Generative Perplexity at step: 1200. Perplexity: 268.236. (Using 16-step sampling)
+2026-02-25 20:01:25,599 - step: 1250, loss: 2.12104e+00, fwd_kl: 0.215774, rev_kl: 0.670303, proj_adv: 1.396584, gpt2_adv: 17.234739, total: 2.414058, disc: 2.7723, d_tok: 1.3863, d_seq: 1.3860, d_gap: 0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0209, g2_gap: 12.212, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:03:42,518 - step: 1300, loss: 2.03471e+00, fwd_kl: 0.180244, rev_kl: 0.985263, proj_adv: 1.389755, gpt2_adv: 14.532943, total: 2.265145, disc: 2.7728, d_tok: 1.3864, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0009, g2_gap: 21.042, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:03:42,712 - step: 1300, evaluation_loss: 2.03459e+00
+2026-02-25 20:06:00,072 - step: 1350, loss: 2.04983e+00, fwd_kl: 0.199835, rev_kl: 0.702346, proj_adv: 1.390999, gpt2_adv: 14.762005, total: 2.166308, disc: 2.7724, d_tok: 1.3863, d_seq: 1.3861, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0029, g2_gap: 15.510, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:08:16,965 - step: 1400, loss: 1.80683e+00, fwd_kl: 0.242075, rev_kl: 0.626424, proj_adv: 1.394152, gpt2_adv: 16.190353, total: 2.313737, disc: 2.7730, d_tok: 1.3864, d_seq: 1.3866, d_gap: -0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 2.1902, g2_gap: 2.019, g2_tok_r: 1.00, g2_tok_f: 0.04
+2026-02-25 20:08:21,314 - step: 1400, evaluation_loss: 1.80955e+00
+2026-02-25 20:08:26,145 - Generating text at step: 1400 with 16-step sampling
+2026-02-25 20:08:29,778 - Generative Perplexity at step: 1400. Perplexity: 297.640. (Using 16-step sampling)
+2026-02-25 20:10:47,219 - step: 1450, loss: 2.29149e+00, fwd_kl: 0.167777, rev_kl: 0.637510, proj_adv: 1.390504, gpt2_adv: 15.937942, total: 2.219376, disc: 2.7728, d_tok: 1.3864, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0008, g2_gap: 21.101, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:12:54,736 - step: 1500, loss: 2.10804e+00, fwd_kl: 0.223799, rev_kl: 0.787861, proj_adv: 1.395763, gpt2_adv: 18.191574, total: 2.576464, disc: 2.7723, d_tok: 1.3863, d_seq: 1.3860, d_gap: 0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0020, g2_gap: 17.457, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:12:54,895 - step: 1500, evaluation_loss: 1.74180e+00
+2026-02-25 20:14:58,632 - step: 1550, loss: 2.30297e+00, fwd_kl: 0.223729, rev_kl: 0.913736, proj_adv: 1.385331, gpt2_adv: 17.293974, total: 2.548527, disc: 2.7726, d_tok: 1.3864, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0069, g2_gap: 17.544, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:17:02,616 - step: 1600, loss: 2.40057e+00, fwd_kl: 0.123056, rev_kl: 0.488982, proj_adv: 1.386264, gpt2_adv: 18.296238, total: 2.335798, disc: 2.7729, d_tok: 1.3864, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.61, tok_acc_f: 0.38, r1: 0.0000, g2_disc: 0.0016, g2_gap: 17.590, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:17:06,657 - step: 1600, evaluation_loss: 2.04793e+00
+2026-02-25 20:17:10,368 - Generating text at step: 1600 with 16-step sampling
+2026-02-25 20:17:13,027 - Generative Perplexity at step: 1600. Perplexity: 272.804. (Using 16-step sampling)
+2026-02-25 20:19:17,070 - step: 1650, loss: 2.38996e+00, fwd_kl: 0.383025, rev_kl: 1.046155, proj_adv: 1.396623, gpt2_adv: 17.923584, total: 2.838124, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.99, tok_acc_f: 0.01, r1: 0.0000, g2_disc: 0.0127, g2_gap: 14.469, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:21:20,994 - step: 1700, loss: 2.12796e+00, fwd_kl: 0.222278, rev_kl: 0.771391, proj_adv: 1.373804, gpt2_adv: 17.755711, total: 2.520925, disc: 2.7729, d_tok: 1.3864, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0010, g2_gap: 18.420, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:21:21,157 - step: 1700, evaluation_loss: 2.51083e+00
+2026-02-25 20:23:24,826 - step: 1750, loss: 2.22181e+00, fwd_kl: 0.091698, rev_kl: 0.295573, proj_adv: 1.376615, gpt2_adv: 11.715705, total: 1.548717, disc: 2.7728, d_tok: 1.3863, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0207, g2_gap: 11.933, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:25:28,858 - step: 1800, loss: 2.17162e+00, fwd_kl: 0.138274, rev_kl: 0.656504, proj_adv: 1.384333, gpt2_adv: 16.992592, total: 2.304219, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3866, d_gap: -0.001, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0076, g2_gap: 13.223, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:25:32,962 - step: 1800, evaluation_loss: 2.09744e+00
+2026-02-25 20:25:36,806 - Generating text at step: 1800 with 16-step sampling
+2026-02-25 20:25:39,406 - Generative Perplexity at step: 1800. Perplexity: 183.093. (Using 16-step sampling)
+2026-02-25 20:27:42,932 - step: 1850, loss: 2.35858e+00, fwd_kl: 0.121375, rev_kl: 0.494227, proj_adv: 1.376868, gpt2_adv: 16.187626, total: 2.124938, disc: 2.7721, d_tok: 1.3862, d_seq: 1.3859, d_gap: 0.001, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0008, g2_gap: 19.277, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:29:46,693 - step: 1900, loss: 2.34062e+00, fwd_kl: 0.167455, rev_kl: 0.709998, proj_adv: 1.393228, gpt2_adv: 17.014854, total: 2.363262, disc: 2.7723, d_tok: 1.3864, d_seq: 1.3859, d_gap: 0.001, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000, g2_disc: 0.0025, g2_gap: 18.293, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:29:46,860 - step: 1900, evaluation_loss: 2.38143e+00
+2026-02-25 20:31:50,820 - step: 1950, loss: 2.39020e+00, fwd_kl: 0.380745, rev_kl: 0.828801, proj_adv: 1.374447, gpt2_adv: 18.970978, total: 2.829688, disc: 2.7724, d_tok: 1.3864, d_seq: 1.3861, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000, g2_disc: 0.0010, g2_gap: 17.965, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:33:54,744 - step: 2000, loss: 2.42084e+00, fwd_kl: 0.257018, rev_kl: 0.910318, proj_adv: 1.387597, gpt2_adv: 19.034790, total: 2.754416, disc: 2.7725, d_tok: 1.3863, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000, g2_disc: 0.0005, g2_gap: 19.163, g2_tok_r: 1.00, g2_tok_f: 1.00
+2026-02-25 20:33:58,840 - step: 2000, evaluation_loss: 2.30138e+00
+2026-02-25 20:34:02,750 - Generating text at step: 2000 with 16-step sampling
+2026-02-25 20:34:05,728 - Generative Perplexity at step: 2000. Perplexity: 185.576. (Using 16-step sampling)
