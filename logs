@@ -1,18 +1,19 @@
-2026-02-24 00:18:58,005 - /data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224
-2026-02-24 00:18:58,005 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'r1_gamma': 10.0, 'label_smoothing': 0.1, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224'}
-2026-02-24 00:18:58,006 - Found 4 CUDA devices.
-2026-02-24 00:18:58,006 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 00:18:58,006 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 00:18:58,006 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 00:18:58,006 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 00:18:58,006 - Found 128 total number of CPUs.
-2026-02-24 00:18:58,438 - Loading teacher model...
-2026-02-24 00:19:00,336 - Teacher model loaded successfully.
-2026-02-24 00:19:00,336 - Initializing student model from teacher weights...
-2026-02-24 00:19:01,786 - Student initialized from teacher weights.
-2026-02-24 00:19:01,936 - Number of parameters in student model: 169627218
-2026-02-24 00:19:02,112 - Discriminator parameters: 16481537
-2026-02-24 00:19:02,113 - Discriminator optimizer: AdamW (
+2026-02-24 22:11:29,756 - /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224
+2026-02-24 22:11:29,756 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'r1_gamma': 10.0, 'r1_interval': 16, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 1, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224'}
+2026-02-24 22:11:29,757 - Found 4 CUDA devices.
+2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-24 22:11:29,757 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-24 22:11:29,757 - Found 128 total number of CPUs.
+2026-02-24 22:11:30,137 - Loading teacher model...
+2026-02-24 22:11:31,652 - Teacher model loaded successfully.
+2026-02-24 22:11:31,652 - Initializing student model from teacher weights...
+2026-02-24 22:11:32,684 - Student initialized from teacher weights.
+2026-02-24 22:11:32,717 - Number of parameters in student model: 169627218
+2026-02-24 22:11:32,725 - Teacher embedding shape: torch.Size([50258, 768])
+2026-02-24 22:11:32,824 - Discriminator parameters: 4140546
+2026-02-24 22:11:32,825 - Discriminator optimizer: AdamW (
 Parameter Group 0
     amsgrad: False
     betas: (0.0, 0.99)
@@ -25,7 +26,7 @@ Parameter Group 0
     maximize: False
     weight_decay: 0.01
 )
-2026-02-24 00:19:02,114 - Student optimizer: AdamW (
+2026-02-24 22:11:32,826 - Student optimizer: AdamW (
 Parameter Group 0
     amsgrad: False
     betas: (0.9, 0.999)
@@ -38,85 +39,92 @@ Parameter Group 0
     maximize: False
     weight_decay: 0
 )
-2026-02-24 00:19:02,114 - No checkpoint found at /data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/checkpoints-meta/checkpoint.pth. Returned the same state as input
-2026-02-24 00:19:25,823 - '(ReadTimeoutError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Read timed out. (read timeout=10)"), '(Request ID: 0436a415-699e-40f9-aec7-5cf446c834e8)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:19:25,824 - Retrying in 1s [Retry 1/5].
-2026-02-24 00:19:36,995 - '(ReadTimeoutError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Read timed out. (read timeout=10)"), '(Request ID: a9279fdd-1837-4825-aa3e-17519966b1b5)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:19:36,995 - Retrying in 2s [Retry 2/5].
-2026-02-24 00:19:49,161 - '(ReadTimeoutError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Read timed out. (read timeout=10)"), '(Request ID: a70a3b83-c857-4162-921e-eff631582aa1)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:19:49,161 - Retrying in 4s [Retry 3/5].
-2026-02-24 00:20:03,331 - '(ReadTimeoutError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Read timed out. (read timeout=10)"), '(Request ID: f8e24aee-5e0c-4c66-8912-2c40df2a871c)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:20:03,331 - Retrying in 8s [Retry 4/5].
-2026-02-24 00:20:11,496 - '(MaxRetryError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Max retries exceeded with url: /datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f32ab6de310>: Failed to establish a new connection: [Errno 111] Connection refused'))"), '(Request ID: 36a3cb08-a9c0-4766-9eea-e8e1ddd920b6)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:20:11,499 - Retrying in 8s [Retry 5/5].
-2026-02-24 00:20:19,667 - '(MaxRetryError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Max retries exceeded with url: /datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f3188068dc0>: Failed to establish a new connection: [Errno 111] Connection refused'))"), '(Request ID: 2121d42a-f1b0-4c2b-b143-4e1644a1f3c7)')' thrown while requesting HEAD https://hf-mirror.com/datasets/wikitext/resolve/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_infos.json
-2026-02-24 00:20:19,873 - '(MaxRetryError("HTTPSConnectionPool(host='hf-mirror.com', port=443): Max retries exceeded with url: /gpt2/resolve/main/tokenizer_config.json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f3188068e50>: Failed to establish a new connection: [Errno 111] Connection refused'))"), '(Request ID: 0d37a38a-2d34-429f-8cec-0667d5490de7)')' thrown while requesting HEAD https://hf-mirror.com/gpt2/resolve/main/tokenizer_config.json
-2026-02-24 00:20:19,873 - Retrying in 1s [Retry 1/5].
-2026-02-24 00:20:21,616 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/debug_log.txt
-2026-02-24 00:20:21,617 - Starting Adversarial D-PeRFlow training at step 0.
-2026-02-24 00:20:21,618 - Number of time windows: 16
-2026-02-24 00:20:21,618 - Adversarial weight (lambda_adv): 0.1
-2026-02-24 00:20:21,618 - Discriminator steps per generator step: 1
-2026-02-24 00:20:21,618 - R1 gradient penalty: 10.0
-2026-02-24 00:20:30,044 - step: 0, loss: 2.53564e-01, kl: 0.163882, adv: 0.558037, total: 0.219686, disc: 1.4209, d_real: -0.372, d_fake: -0.372, d_gap: -0.000, r1: 0.0000
-2026-02-24 00:20:36,954 - step: 0, evaluation_loss: 2.57939e-01
-2026-02-24 00:22:50,230 - step: 50, loss: 2.27020e-01, kl: 0.033519, adv: 0.695267, total: 0.103045, disc: 1.3862, d_real: 0.004, d_fake: 0.003, d_gap: 0.000, r1: 0.0000
-2026-02-24 00:25:03,063 - step: 100, loss: 2.46710e-01, kl: 0.181980, adv: 0.698584, total: 0.251839, disc: 1.3863, d_real: 0.009, d_fake: 0.009, d_gap: 0.000, r1: 0.0000
-2026-02-24 00:25:03,257 - step: 100, evaluation_loss: 3.22145e-01
-2026-02-24 00:27:16,519 - step: 150, loss: 2.14180e-01, kl: 0.062719, adv: 0.697522, total: 0.132471, disc: 1.3863, d_real: 0.009, d_fake: 0.009, d_gap: 0.000, r1: 0.0000
-2026-02-24 00:29:29,020 - step: 200, loss: 2.10626e-01, kl: 0.159467, adv: 0.693319, total: 0.228798, disc: 1.3863, d_real: -0.000, d_fake: -0.000, d_gap: -0.000, r1: 0.0000
-2026-02-24 00:29:34,240 - step: 200, evaluation_loss: 2.94903e-01
-2026-02-24 01:06:53,090 - /data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224
-2026-02-24 01:06:53,090 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 2, 'train_temperature': 1.0}, 'adversarial': {'disc_hidden_size': 256, 'disc_n_heads': 4, 'disc_n_blocks': 4, 'disc_dropout': 0.1, 'lambda_adv': 0.1, 'r1_gamma': 10.0, 'label_smoothing': 0.1, 'disc_steps_per_gen': 1, 'disc_lr': 0.0002, 'disc_beta1': 0.0, 'disc_beta2': 0.99, 'disc_weight_decay': 0.01}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224'}
-2026-02-24 01:06:53,091 - Found 4 CUDA devices.
-2026-02-24 01:06:53,091 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 01:06:53,091 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 01:06:53,091 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 01:06:53,091 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
-2026-02-24 01:06:53,091 - Found 128 total number of CPUs.
-2026-02-24 01:06:53,517 - Loading teacher model...
-2026-02-24 01:06:55,156 - Teacher model loaded successfully.
-2026-02-24 01:06:55,156 - Initializing student model from teacher weights...
-2026-02-24 01:06:56,203 - Student initialized from teacher weights.
-2026-02-24 01:06:56,212 - Number of parameters in student model: 169627218
-2026-02-24 01:06:56,327 - Discriminator parameters: 16481537
-2026-02-24 01:06:56,329 - Discriminator optimizer: AdamW (
-Parameter Group 0
-    amsgrad: False
-    betas: (0.0, 0.99)
-    capturable: False
-    differentiable: False
-    eps: 1e-08
-    foreach: None
-    fused: None
-    lr: 0.0002
-    maximize: False
-    weight_decay: 0.01
-)
-2026-02-24 01:06:56,329 - Student optimizer: AdamW (
-Parameter Group 0
-    amsgrad: False
-    betas: (0.9, 0.999)
-    capturable: False
-    differentiable: False
-    eps: 1e-08
-    foreach: None
-    fused: None
-    lr: 0.0001
-    maximize: False
-    weight_decay: 0
-)
-2026-02-24 01:07:09,667 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0224/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/debug_log.txt
-2026-02-24 01:07:09,668 - Starting Adversarial D-PeRFlow training at step 201.
-2026-02-24 01:07:09,668 - Number of time windows: 16
-2026-02-24 01:07:09,668 - Adversarial weight (lambda_adv): 0.1
-2026-02-24 01:07:09,668 - Discriminator steps per generator step: 1
-2026-02-24 01:07:09,668 - R1 gradient penalty: 10.0
-2026-02-24 01:09:04,021 - step: 250, loss: 2.45615e-01, kl: 0.137098, adv: 0.679145, total: 0.205012, disc: 1.3865, d_real: -0.026, d_fake: -0.026, d_gap: -0.000, r1: 0.0000
-2026-02-24 01:10:53,211 - step: 300, loss: 2.83797e-01, kl: 0.319141, adv: 0.663551, total: 0.385496, disc: 1.3865, d_real: -0.035, d_fake: -0.036, d_gap: 0.000, r1: 0.0000
-2026-02-24 01:10:56,433 - step: 300, evaluation_loss: 2.64761e-01
-2026-02-24 01:12:45,946 - step: 350, loss: 2.53691e-01, kl: 0.166190, adv: 0.693963, total: 0.235587, disc: 1.3864, d_real: 0.001, d_fake: 0.002, d_gap: -0.000, r1: 0.0000
-2026-02-24 01:14:35,403 - step: 400, loss: 2.51930e-01, kl: 0.210735, adv: 0.684806, total: 0.279215, disc: 1.3864, d_real: -0.019, d_fake: -0.018, d_gap: -0.000, r1: 0.0000
-2026-02-24 01:14:39,856 - step: 400, evaluation_loss: 2.53264e-01
-2026-02-24 01:14:43,688 - Generating text at step: 400 with 16-step sampling
-2026-02-24 01:14:46,393 - Generative Perplexity at step: 400. Perplexity: 225.820. (Using 16-step sampling)
+2026-02-24 22:11:32,826 - No checkpoint found at /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/checkpoints-meta/checkpoint.pth. Returned the same state as input
+2026-02-24 22:12:16,333 - Debug log will be saved to: /data1/wulingdan/data/diffusion/dk0224fix/Score-Entropy-Discrete-Diffusion/win16_eu2_0224/debug_log.txt
+2026-02-24 22:12:16,335 - Starting Adversarial D-PeRFlow training at step 0.
+2026-02-24 22:12:16,335 - Number of time windows: 16
+2026-02-24 22:12:16,335 - Adversarial weight (lambda_adv): 0.1
+2026-02-24 22:12:16,335 - Discriminator steps per generator step: 1
+2026-02-24 22:12:16,335 - R1 gradient penalty: 10.0 (lazy interval=16)
+2026-02-24 22:12:30,091 - step: 0, loss: 4.51061e-01, kl: 0.194944, adv: 2.621185, total: 0.457063, disc: 2.8111, d_tok: 1.3896, d_seq: 1.4215, d_gap: -0.000, tok_acc_r: 0.57, tok_acc_f: 0.42, r1: 0.0000
+2026-02-24 22:12:36,635 - step: 0, evaluation_loss: 4.47261e-01
+2026-02-24 22:13:15,534 - step: 50, loss: 2.90294e-01, kl: 0.145189, adv: 1.351705, total: 0.280360, disc: 2.7746, d_tok: 1.3867, d_seq: 1.3878, d_gap: 0.000, tok_acc_r: 0.44, tok_acc_f: 0.55, r1: 0.0000
+2026-02-24 22:13:54,662 - step: 100, loss: 2.96526e-01, kl: 0.211211, adv: 1.419687, total: 0.353180, disc: 2.7737, d_tok: 1.3862, d_seq: 1.3875, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:13:54,897 - step: 100, evaluation_loss: 3.11783e-01
+2026-02-24 22:14:33,826 - step: 150, loss: 3.27883e-01, kl: 0.171208, adv: 1.356924, total: 0.306900, disc: 2.7737, d_tok: 1.3865, d_seq: 1.3873, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:15:12,942 - step: 200, loss: 3.18656e-01, kl: 0.269301, adv: 1.426525, total: 0.411954, disc: 2.7742, d_tok: 1.3864, d_seq: 1.3878, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:15:16,739 - step: 200, evaluation_loss: 3.06975e-01
+2026-02-24 22:15:19,984 - Generating text at step: 200 with 16-step sampling
+2026-02-24 22:15:22,939 - Generative Perplexity at step: 200. Perplexity: 246.917. (Using 16-step sampling)
+2026-02-24 22:16:02,046 - step: 250, loss: 3.02771e-01, kl: 0.112827, adv: 1.354558, total: 0.248283, disc: 2.7737, d_tok: 1.3866, d_seq: 1.3871, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:16:41,202 - step: 300, loss: 3.27352e-01, kl: 0.146564, adv: 1.414498, total: 0.288014, disc: 2.7729, d_tok: 1.3861, d_seq: 1.3869, d_gap: 0.000, tok_acc_r: 0.51, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:16:41,443 - step: 300, evaluation_loss: 3.39575e-01
+2026-02-24 22:17:20,470 - step: 350, loss: 3.35664e-01, kl: 0.140480, adv: 1.365401, total: 0.277020, disc: 2.7731, d_tok: 1.3864, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+2026-02-24 22:17:59,630 - step: 400, loss: 3.24430e-01, kl: 0.272614, adv: 1.363137, total: 0.408928, disc: 2.7760, d_tok: 1.3894, d_seq: 1.3866, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
+2026-02-24 22:18:03,431 - step: 400, evaluation_loss: 3.31874e-01
+2026-02-24 22:18:06,664 - Generating text at step: 400 with 16-step sampling
+2026-02-24 22:18:10,026 - Generative Perplexity at step: 400. Perplexity: 244.735. (Using 16-step sampling)
+2026-02-24 22:18:49,122 - step: 450, loss: 2.98132e-01, kl: 0.174805, adv: 1.403854, total: 0.315191, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:19:28,163 - step: 500, loss: 2.79864e-01, kl: 0.069506, adv: 1.371190, total: 0.206625, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+2026-02-24 22:19:28,406 - step: 500, evaluation_loss: 3.65365e-01
+2026-02-24 22:20:07,410 - step: 550, loss: 2.84237e-01, kl: 0.150590, adv: 1.402963, total: 0.290886, disc: 2.7730, d_tok: 1.3863, d_seq: 1.3867, d_gap: -0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:20:46,383 - step: 600, loss: 3.07023e-01, kl: 0.176424, adv: 1.371818, total: 0.313606, disc: 2.7724, d_tok: 1.3862, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:20:50,218 - step: 600, evaluation_loss: 3.28626e-01
+2026-02-24 22:20:53,410 - Generating text at step: 600 with 16-step sampling
+2026-02-24 22:20:56,780 - Generative Perplexity at step: 600. Perplexity: 237.019. (Using 16-step sampling)
+2026-02-24 22:21:35,852 - step: 650, loss: 3.00409e-01, kl: 0.186874, adv: 1.404267, total: 0.327301, disc: 2.7730, d_tok: 1.3865, d_seq: 1.3865, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:22:14,971 - step: 700, loss: 3.25155e-01, kl: 0.144344, adv: 1.374974, total: 0.281841, disc: 2.7728, d_tok: 1.3862, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:22:15,216 - step: 700, evaluation_loss: 3.48466e-01
+2026-02-24 22:22:54,243 - step: 750, loss: 3.23250e-01, kl: 0.204688, adv: 1.363778, total: 0.341066, disc: 2.7733, d_tok: 1.3864, d_seq: 1.3869, d_gap: -0.000, tok_acc_r: 0.51, tok_acc_f: 0.48, r1: 0.0000
+2026-02-24 22:23:33,478 - step: 800, loss: 3.11750e-01, kl: 0.187833, adv: 1.380911, total: 0.325924, disc: 2.7744, d_tok: 1.3882, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 1.00, tok_acc_f: 0.00, r1: 0.0000
+2026-02-24 22:23:36,898 - step: 800, evaluation_loss: 3.37999e-01
+2026-02-24 22:23:39,573 - Generating text at step: 800 with 16-step sampling
+2026-02-24 22:23:42,632 - Generative Perplexity at step: 800. Perplexity: 214.873. (Using 16-step sampling)
+2026-02-24 22:24:21,665 - step: 850, loss: 3.11843e-01, kl: 0.230253, adv: 1.396400, total: 0.369893, disc: 2.7728, d_tok: 1.3863, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.46, tok_acc_f: 0.54, r1: 0.0000
+2026-02-24 22:25:00,700 - step: 900, loss: 3.16369e-01, kl: 0.225799, adv: 1.391496, total: 0.364948, disc: 2.7728, d_tok: 1.3865, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:25:00,941 - step: 900, evaluation_loss: 3.40826e-01
+2026-02-24 22:25:39,892 - step: 950, loss: 3.35287e-01, kl: 0.196742, adv: 1.395023, total: 0.336245, disc: 2.7735, d_tok: 1.3869, d_seq: 1.3866, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.50, r1: 0.0000
+2026-02-24 22:26:18,979 - step: 1000, loss: 3.35699e-01, kl: 0.211940, adv: 1.395327, total: 0.351473, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.50, tok_acc_f: 0.49, r1: 0.0000
+2026-02-24 22:26:22,363 - step: 1000, evaluation_loss: 3.25295e-01
+2026-02-24 22:26:25,459 - Generating text at step: 1000 with 16-step sampling
+2026-02-24 22:26:28,817 - Generative Perplexity at step: 1000. Perplexity: 225.548. (Using 16-step sampling)
+2026-02-24 22:27:07,899 - step: 1050, loss: 3.38579e-01, kl: 0.233040, adv: 1.397878, total: 0.372828, disc: 2.7726, d_tok: 1.3863, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.52, r1: 0.0000
+2026-02-24 22:27:47,013 - step: 1100, loss: 2.90909e-01, kl: 0.185597, adv: 1.395103, total: 0.325108, disc: 2.7729, d_tok: 1.3867, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.49, tok_acc_f: 0.51, r1: 0.0000
+2026-02-24 22:27:47,249 - step: 1100, evaluation_loss: 3.01438e-01
+2026-02-24 22:28:26,316 - step: 1150, loss: 3.09506e-01, kl: 0.207234, adv: 1.392585, total: 0.346493, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: 0.000, tok_acc_r: 0.39, tok_acc_f: 0.60, r1: 0.0000
+2026-02-24 22:29:05,473 - step: 1200, loss: 3.01608e-01, kl: 0.134216, adv: 1.396163, total: 0.273832, disc: 2.7732, d_tok: 1.3867, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.50, tok_acc_f: 0.48, r1: 0.0000
+2026-02-24 22:29:08,817 - step: 1200, evaluation_loss: 3.29195e-01
+2026-02-24 22:29:12,190 - Generating text at step: 1200 with 16-step sampling
+2026-02-24 22:29:15,399 - Generative Perplexity at step: 1200. Perplexity: 230.362. (Using 16-step sampling)
+2026-02-24 22:29:54,499 - step: 1250, loss: 3.24741e-01, kl: 0.197462, adv: 1.385913, total: 0.336053, disc: 2.7726, d_tok: 1.3861, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.19, tok_acc_f: 0.82, r1: 0.0000
+2026-02-24 22:30:33,536 - step: 1300, loss: 2.78286e-01, kl: 0.203140, adv: 1.381826, total: 0.341323, disc: 2.7730, d_tok: 1.3868, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.10, tok_acc_f: 0.89, r1: 0.0000
+2026-02-24 22:30:33,778 - step: 1300, evaluation_loss: 3.54813e-01
+2026-02-24 22:31:12,770 - step: 1350, loss: 2.99185e-01, kl: 0.183064, adv: 1.355602, total: 0.318624, disc: 2.7743, d_tok: 1.3881, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:31:51,803 - step: 1400, loss: 3.13444e-01, kl: 0.198670, adv: 1.340545, total: 0.332725, disc: 2.7755, d_tok: 1.3891, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:31:55,287 - step: 1400, evaluation_loss: 2.81587e-01
+2026-02-24 22:31:58,694 - Generating text at step: 1400 with 16-step sampling
+2026-02-24 22:32:02,797 - Generative Perplexity at step: 1400. Perplexity: 233.172. (Using 16-step sampling)
+2026-02-24 22:32:41,865 - step: 1450, loss: 3.46719e-01, kl: 0.255490, adv: 1.344828, total: 0.389973, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:33:21,049 - step: 1500, loss: 3.33252e-01, kl: 0.211533, adv: 1.355005, total: 0.347034, disc: 2.7738, d_tok: 1.3875, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:33:25,108 - step: 1500, evaluation_loss: 3.06845e-01
+2026-02-24 22:34:04,133 - step: 1550, loss: 3.22634e-01, kl: 0.126955, adv: 1.359247, total: 0.262880, disc: 2.7735, d_tok: 1.3872, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:34:43,301 - step: 1600, loss: 3.04383e-01, kl: 0.219836, adv: 1.371247, total: 0.356960, disc: 2.7729, d_tok: 1.3866, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
+2026-02-24 22:34:47,227 - step: 1600, evaluation_loss: 3.39921e-01
+2026-02-24 22:34:49,933 - Generating text at step: 1600 with 16-step sampling
+2026-02-24 22:34:53,495 - Generative Perplexity at step: 1600. Perplexity: 218.288. (Using 16-step sampling)
+2026-02-24 22:35:32,625 - step: 1650, loss: 2.96322e-01, kl: 0.234687, adv: 1.348114, total: 0.369498, disc: 2.7735, d_tok: 1.3870, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:36:11,708 - step: 1700, loss: 3.06272e-01, kl: 0.205292, adv: 1.357676, total: 0.341060, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.00, tok_acc_f: 1.00, r1: 0.0000
+2026-02-24 22:36:11,943 - step: 1700, evaluation_loss: 3.22084e-01
+2026-02-24 22:36:50,979 - step: 1750, loss: 3.20026e-01, kl: 0.209278, adv: 1.359970, total: 0.345275, disc: 2.7732, d_tok: 1.3869, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.01, tok_acc_f: 0.99, r1: 0.0000
+2026-02-24 22:37:30,013 - step: 1800, loss: 3.30982e-01, kl: 0.209496, adv: 1.367531, total: 0.346249, disc: 2.7727, d_tok: 1.3865, d_seq: 1.3862, d_gap: 0.000, tok_acc_r: 0.02, tok_acc_f: 0.97, r1: 0.0000
+2026-02-24 22:37:33,984 - step: 1800, evaluation_loss: 3.32602e-01
+2026-02-24 22:37:36,596 - Generating text at step: 1800 with 16-step sampling
+2026-02-24 22:37:39,777 - Generative Perplexity at step: 1800. Perplexity: 220.554. (Using 16-step sampling)
+2026-02-24 22:38:18,875 - step: 1850, loss: 3.32727e-01, kl: 0.209323, adv: 1.377016, total: 0.347025, disc: 2.7727, d_tok: 1.3864, d_seq: 1.3863, d_gap: 0.000, tok_acc_r: 0.03, tok_acc_f: 0.97, r1: 0.0000
+2026-02-24 22:38:58,020 - step: 1900, loss: 3.69185e-01, kl: 0.179033, adv: 1.379228, total: 0.316956, disc: 2.7733, d_tok: 1.3869, d_seq: 1.3865, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
+2026-02-24 22:38:58,258 - step: 1900, evaluation_loss: 3.36249e-01
+2026-02-24 22:39:37,250 - step: 1950, loss: 3.01899e-01, kl: 0.110931, adv: 1.377925, total: 0.248724, disc: 2.7728, d_tok: 1.3864, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
+2026-02-24 22:40:16,422 - step: 2000, loss: 3.22115e-01, kl: 0.176594, adv: 1.362002, total: 0.312794, disc: 2.7730, d_tok: 1.3866, d_seq: 1.3864, d_gap: -0.000, tok_acc_r: 0.02, tok_acc_f: 0.98, r1: 0.0000
+2026-02-24 22:40:20,520 - step: 2000, evaluation_loss: 3.43200e-01
+2026-02-24 22:40:23,051 - Generating text at step: 2000 with 16-step sampling
+2026-02-24 22:40:26,290 - Generative Perplexity at step: 2000. Perplexity: 215.842. (Using 16-step sampling)
