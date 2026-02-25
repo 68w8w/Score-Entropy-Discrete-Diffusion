@@ -841,13 +841,14 @@ def get_adversarial_d_perflow_loss_fn(
     euler_steps: int = 1,
     train: bool = True,
     debug_log_file: str = None,
+    lambda_rev_kl: float = 0.0,
 ):
     """
     Create D-PeRFlow loss function with adversarial distillation.
 
     Returns two loss functions:
-    - generator_loss_fn: For updating the student model (KL + adversarial)
-    - discriminator_loss_fn: For updating the discriminator
+    - generator_loss_fn: For updating the student model (KL + rev_KL + adversarial)
+    - discriminator_loss_fn: For updating the discriminator(s)
 
     Args:
         noise: Noise schedule module
@@ -860,6 +861,7 @@ def get_adversarial_d_perflow_loss_fn(
         euler_steps: Number of Euler steps per window
         train: Whether in training mode
         debug_log_file: Path to save debug logs
+        lambda_rev_kl: Weight for reverse KL loss (mode-seeking signal)
 
     Returns:
         generator_loss_fn: Loss function for student updates
@@ -925,7 +927,8 @@ def get_adversarial_d_perflow_loss_fn(
 
     def generator_loss_fn(model, batch):
         """
-        Compute combined KL + adversarial loss for the student model.
+        Compute combined loss for the student model:
+            L = L_fwd_KL + lambda_rev_kl * L_rev_KL + lambda_adv * L_adv + lambda_gpt2 * L_gpt2
 
         Args:
             model: Student model
@@ -937,11 +940,19 @@ def get_adversarial_d_perflow_loss_fn(
         """
         P_teacher, P_student, x_t_k, t, k = _compute_distributions(model, batch)
 
-        # KL divergence loss
+        # Forward KL divergence loss (mode-covering)
         kl_loss = trainer.compute_kl_loss_probs(P_teacher, P_student)
 
-        # Combined KL + adversarial loss (pass x_t_k for conditional discrimination)
-        total_loss, metrics = adv_loss_module.combined_loss(kl_loss, P_student, x_t_k, t)
+        # Reverse KL divergence loss (mode-seeking, sharpens student)
+        rev_kl_loss = None
+        if lambda_rev_kl > 0:
+            rev_kl_loss = trainer.compute_reverse_kl_loss_probs(P_teacher, P_student)
+
+        # Combined loss: fwd_KL + rev_KL + proj_adv + gpt2_adv
+        total_loss, metrics = adv_loss_module.combined_loss(
+            kl_loss, P_student, x_t_k, t,
+            rev_kl_loss=rev_kl_loss, lambda_rev_kl=lambda_rev_kl,
+        )
 
         # Comprehensive debug logging every 100 steps
         if hasattr(generator_loss_fn, 'debug_step'):
@@ -1012,15 +1023,25 @@ def get_adversarial_d_perflow_loss_fn(
                             w_kl = kl_per_sample[mask].mean()
                             window_strs.append(f"k={w}: kl={w_kl:.4f}(n={mask.sum()})")
 
+                    # Reverse KL info for debug
+                    rev_kl_str = ""
+                    if 'gen_rev_kl_loss' in metrics:
+                        rev_kl_str = f"  Rev KL:     {metrics['gen_rev_kl_loss']:.6f}  (lambda={metrics.get('lambda_rev_kl', 0):.3f})\n"
+                    gpt2_adv_str = ""
+                    if metrics.get('gen_gpt2_adv_loss', 0) > 0:
+                        gpt2_adv_str = f"  GPT2 Adv:   {metrics['gen_gpt2_adv_loss']:.6f}  (lambda={metrics.get('lambda_gpt2_adv', 0):.3f})\n"
+
                     debug_msg = (
                         f"\n{'='*80}\n"
                         f"[ADV-GEN Step {generator_loss_fn.debug_step}] {timestamp}\n"
                         f"{'='*80}\n"
                         f"  Config: Adversarial D-PeRFlow | 1-step student | {euler_steps}-step teacher\n"
-                        f"  Lambda_adv: {metrics['lambda_adv']}\n"
+                        f"  Lambda_adv: {metrics['lambda_adv']} | Lambda_gpt2: {metrics.get('lambda_gpt2_adv', 0)} | Lambda_rev_kl: {metrics.get('lambda_rev_kl', 0)}\n"
                         f"\n  --- Loss Breakdown ---\n"
-                        f"  KL loss:    {metrics['gen_kl_loss']:.6f}  (min={kl_min:.4f} max={kl_max:.4f} std={kl_std:.4f})\n"
-                        f"  Adv loss:   {metrics['gen_adv_loss']:.6f}\n"
+                        f"  Fwd KL:     {metrics['gen_fwd_kl_loss']:.6f}  (min={kl_min:.4f} max={kl_max:.4f} std={kl_std:.4f})\n"
+                        f"{rev_kl_str}"
+                        f"  Proj Adv:   {metrics['gen_proj_adv_loss']:.6f}\n"
+                        f"{gpt2_adv_str}"
                         f"  Total loss: {metrics['gen_total_loss']:.6f}\n"
                         f"\n  --- Distribution Quality ---\n"
                         f"  Teacher entropy:  {teacher_entropy:.4f}  |  Student entropy:  {student_entropy:.4f}  |  ratio: {student_entropy/(teacher_entropy+1e-10):.4f}\n"
@@ -1051,20 +1072,28 @@ def get_adversarial_d_perflow_loss_fn(
 
     def discriminator_loss_fn(model, batch):
         """
-        Compute discriminator loss with detailed debug logging.
+        Compute discriminator loss for both projected and GPT-2 discriminators.
 
         Args:
             model: Student model (used to generate student distribution)
             batch: Input batch [B, L]
 
         Returns:
-            loss: Discriminator loss scalar
-            metrics: Dict with loss components
+            loss: Total discriminator loss scalar
+            metrics: Dict with loss components from both discriminators
         """
         with torch.no_grad():
             P_teacher, P_student, x_t_k, t, k = _compute_distributions(model, batch)
 
         disc_loss, metrics = adv_loss_module.discriminator_loss(P_teacher, P_student, x_t_k, t)
+
+        # GPT-2 discriminator loss (if enabled)
+        if adv_loss_module.gpt2_discriminator is not None:
+            gpt2_disc_loss, gpt2_metrics = adv_loss_module.gpt2_discriminator_loss(
+                P_teacher, P_student, x_t_k, t
+            )
+            disc_loss = disc_loss + gpt2_disc_loss
+            metrics.update(gpt2_metrics)
 
         # Discriminator-specific debug logging every 100 steps
         if hasattr(discriminator_loss_fn, 'debug_step'):
@@ -1123,13 +1152,14 @@ def get_adversarial_d_perflow_step_fn(
     accum: int = 1,
     disc_steps_per_gen: int = 1,
     debug_log_file: str = None,
+    lambda_rev_kl: float = 0.0,
 ):
     """
     Create D-PeRFlow training step with adversarial distillation.
 
     Alternates between discriminator and generator (student) updates:
     - disc_steps_per_gen discriminator updates per generator update
-    - Generator update uses combined KL + adversarial loss
+    - Generator update uses combined KL + reverse KL + adversarial loss
 
     Args:
         noise: Noise schedule module
@@ -1146,6 +1176,7 @@ def get_adversarial_d_perflow_step_fn(
         accum: Gradient accumulation steps
         disc_steps_per_gen: Number of discriminator updates per generator update
         debug_log_file: Path to save debug logs
+        lambda_rev_kl: Weight for reverse KL loss (mode-seeking)
 
     Returns:
         step_fn: Training step function
@@ -1161,6 +1192,7 @@ def get_adversarial_d_perflow_step_fn(
         euler_steps=euler_steps,
         train=train,
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     accum_iter = 0
@@ -1186,9 +1218,15 @@ def get_adversarial_d_perflow_step_fn(
 
                 disc_optimizer.zero_grad()
                 disc_loss.backward()
+                # Clip gradients for projected discriminator
                 torch.nn.utils.clip_grad_norm_(
                     adv_loss_module.discriminator.parameters(), max_norm=10.0
                 )
+                # Clip gradients for GPT-2 discriminator head (if enabled)
+                if adv_loss_module.gpt2_discriminator is not None:
+                    torch.nn.utils.clip_grad_norm_(
+                        adv_loss_module.gpt2_discriminator.parameters(), max_norm=10.0
+                    )
                 disc_optimizer.step()
 
                 state['disc_metrics'] = disc_metrics

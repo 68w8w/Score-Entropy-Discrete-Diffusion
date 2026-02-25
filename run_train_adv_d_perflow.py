@@ -35,6 +35,7 @@ import utils
 import d_perflow
 from adversarial_distillation import (
     create_discriminator,
+    create_gpt2_discriminator,
     AdversarialDistillationLoss,
 )
 from model import SEDD
@@ -189,7 +190,36 @@ def _run(rank, world_size, cfg):
                             broadcast_buffers=False)
 
     disc_params = sum(p.numel() for p in discriminator.parameters())
-    mprint(f"Discriminator parameters: {disc_params}")
+    mprint(f"Projected discriminator parameters: {disc_params}")
+
+    # =========================================================================
+    # Create GPT-2 projected discriminator (Direction 1: feature-space adversarial)
+    # =========================================================================
+    gpt2_discriminator = None
+    if getattr(adv_cfg, 'enable_gpt2_disc', False):
+        mprint("Creating GPT-2 projected discriminator...")
+        gpt2_discriminator = create_gpt2_discriminator(
+            gpt2_model_name=getattr(adv_cfg, 'gpt2_model_name', 'gpt2'),
+            hidden_size=getattr(adv_cfg, 'gpt2_disc_hidden_size', 256),
+            n_heads=getattr(adv_cfg, 'gpt2_disc_n_heads', 4),
+            n_blocks=getattr(adv_cfg, 'gpt2_disc_n_blocks', 2),
+            dropout=adv_cfg.disc_dropout,
+            max_seq_len=cfg.model.length,
+            gumbel_tau=getattr(adv_cfg, 'gumbel_tau', 0.5),
+            feature_layers=list(getattr(adv_cfg, 'gpt2_feature_layers', [-1, -3])),
+        ).to(device)
+
+        if distributed:
+            gpt2_discriminator = DDP(
+                gpt2_discriminator, device_ids=[rank],
+                find_unused_parameters=True,
+                broadcast_buffers=False,
+            )
+
+        gpt2_disc_params = sum(
+            p.numel() for p in gpt2_discriminator.parameters() if p.requires_grad
+        )
+        mprint(f"GPT-2 discriminator trainable parameters: {gpt2_disc_params}")
 
     # Wrap in adversarial loss module
     adv_loss_module = AdversarialDistillationLoss(
@@ -197,11 +227,18 @@ def _run(rank, world_size, cfg):
         lambda_adv=adv_cfg.lambda_adv,
         r1_gamma=adv_cfg.r1_gamma,
         r1_interval=adv_cfg.r1_interval,
+        gpt2_discriminator=gpt2_discriminator,
+        lambda_gpt2_adv=getattr(adv_cfg, 'lambda_gpt2_adv', 0.1),
     ).to(device)
 
-    # Discriminator optimizer
+    # Discriminator optimizer: include both discriminator heads
+    disc_param_groups = list(discriminator.parameters())
+    if gpt2_discriminator is not None:
+        # Only add trainable params (GPT-2 backbone is frozen)
+        disc_param_groups += [p for p in gpt2_discriminator.parameters() if p.requires_grad]
+
     disc_optimizer = torch.optim.AdamW(
-        discriminator.parameters(),
+        disc_param_groups,
         lr=adv_cfg.disc_lr,
         betas=(adv_cfg.disc_beta1, adv_cfg.disc_beta2),
         weight_decay=adv_cfg.disc_weight_decay,
@@ -248,6 +285,8 @@ def _run(rank, world_size, cfg):
     # =========================================================================
     # Create adversarial training step function
     # =========================================================================
+    lambda_rev_kl = getattr(adv_cfg, 'lambda_rev_kl', 0.0)
+
     train_step_fn = d_perflow.get_adversarial_d_perflow_step_fn(
         noise=noise,
         graph=graph,
@@ -263,6 +302,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         disc_steps_per_gen=adv_cfg.disc_steps_per_gen,
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     eval_step_fn = d_perflow.get_adversarial_d_perflow_step_fn(
@@ -280,6 +320,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         disc_steps_per_gen=adv_cfg.disc_steps_per_gen,
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     # D-PeRFlow sampler for snapshot sampling
@@ -299,6 +340,9 @@ def _run(rank, world_size, cfg):
     mprint(f"Starting Adversarial D-PeRFlow training at step {initial_step}.")
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
     mprint(f"Adversarial weight (lambda_adv): {adv_cfg.lambda_adv}")
+    mprint(f"GPT-2 adversarial weight (lambda_gpt2_adv): {getattr(adv_cfg, 'lambda_gpt2_adv', 0)}")
+    mprint(f"Reverse KL weight (lambda_rev_kl): {lambda_rev_kl}")
+    mprint(f"GPT-2 discriminator enabled: {getattr(adv_cfg, 'enable_gpt2_disc', False)}")
     mprint(f"Discriminator steps per generator step: {adv_cfg.disc_steps_per_gen}")
     mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma} (lazy interval={adv_cfg.r1_interval})")
 
@@ -328,10 +372,16 @@ def _run(rank, world_size, cfg):
                 log_msg = "step: %d, loss: %.5e" % (step, loss.item())
                 if gen_metrics:
                     log_msg += (
-                        f", kl: {gen_metrics.get('gen_kl_loss', 0):.6f}"
-                        f", adv: {gen_metrics.get('gen_adv_loss', 0):.6f}"
-                        f", total: {gen_metrics.get('gen_total_loss', 0):.6f}"
+                        f", fwd_kl: {gen_metrics.get('gen_fwd_kl_loss', gen_metrics.get('gen_kl_loss', 0)):.6f}"
                     )
+                    if 'gen_rev_kl_loss' in gen_metrics:
+                        log_msg += f", rev_kl: {gen_metrics['gen_rev_kl_loss']:.6f}"
+                    log_msg += (
+                        f", proj_adv: {gen_metrics.get('gen_proj_adv_loss', gen_metrics.get('gen_adv_loss', 0)):.6f}"
+                    )
+                    if gen_metrics.get('gen_gpt2_adv_loss', 0) > 0:
+                        log_msg += f", gpt2_adv: {gen_metrics['gen_gpt2_adv_loss']:.6f}"
+                    log_msg += f", total: {gen_metrics.get('gen_total_loss', 0):.6f}"
                 if disc_metrics:
                     d_real = disc_metrics.get('disc_real_logit_mean', 0)
                     d_fake = disc_metrics.get('disc_fake_logit_mean', 0)
@@ -344,6 +394,16 @@ def _run(rank, world_size, cfg):
                         f", tok_acc_f: {disc_metrics.get('disc_fake_tok_acc', 0):.2f}"
                         f", r1: {disc_metrics.get('disc_r1_penalty', 0):.4f}"
                     )
+                    # GPT-2 discriminator metrics
+                    if 'gpt2_disc_loss' in disc_metrics:
+                        g_real = disc_metrics.get('gpt2_disc_real_logit_mean', 0)
+                        g_fake = disc_metrics.get('gpt2_disc_fake_logit_mean', 0)
+                        log_msg += (
+                            f", g2_disc: {disc_metrics['gpt2_disc_loss']:.4f}"
+                            f", g2_gap: {g_real - g_fake:.3f}"
+                            f", g2_tok_r: {disc_metrics.get('gpt2_disc_real_tok_acc', 0):.2f}"
+                            f", g2_tok_f: {disc_metrics.get('gpt2_disc_fake_tok_acc', 0):.2f}"
+                        )
                 mprint(log_msg)
 
                 # Also write to debug log file for persistent tracking
@@ -381,6 +441,8 @@ def _run(rank, world_size, cfg):
                         'disc_optimizer': disc_optimizer.state_dict(),
                         'step': step,
                     }
+                    if gpt2_discriminator is not None:
+                        disc_state['gpt2_discriminator'] = gpt2_discriminator.state_dict()
                     torch.save(
                         disc_state,
                         os.path.join(checkpoint_dir, f'disc_checkpoint_{save_step}.pth'),
