@@ -948,10 +948,23 @@ def get_adversarial_d_perflow_loss_fn(
         if lambda_rev_kl > 0:
             rev_kl_loss = trainer.compute_reverse_kl_loss_probs(P_teacher, P_student)
 
-        # Combined loss: fwd_KL + rev_KL + proj_adv + gpt2_adv
+        # Get last layer param for adaptive lambda (VQGAN-style)
+        # Uses the student model's final projection layer (DDitFinalLayer.linear)
+        last_layer_param = None
+        if adv_loss_module.adaptive_lambda:
+            raw_model = model.module if hasattr(model, 'module') else model
+            if hasattr(raw_model, 'output_layer') and hasattr(raw_model.output_layer, 'linear'):
+                last_layer_param = raw_model.output_layer.linear.weight
+            elif hasattr(raw_model, 'output') and hasattr(raw_model.output, 'weight'):
+                last_layer_param = raw_model.output.weight
+            elif hasattr(raw_model, 'lm_head') and hasattr(raw_model.lm_head, 'weight'):
+                last_layer_param = raw_model.lm_head.weight
+
+        # Combined loss: fwd_KL + rev_KL + proj_adv + gpt2_adv + feature_matching
         total_loss, metrics = adv_loss_module.combined_loss(
-            kl_loss, P_student, x_t_k, t,
+            kl_loss, P_student, P_teacher, x_t_k, t,
             rev_kl_loss=rev_kl_loss, lambda_rev_kl=lambda_rev_kl,
+            last_layer_param=last_layer_param,
         )
 
         # Comprehensive debug logging every 100 steps
@@ -1220,12 +1233,12 @@ def get_adversarial_d_perflow_step_fn(
                 disc_loss.backward()
                 # Clip gradients for projected discriminator
                 torch.nn.utils.clip_grad_norm_(
-                    adv_loss_module.discriminator.parameters(), max_norm=10.0
+                    adv_loss_module.discriminator.parameters(), max_norm=100.0
                 )
                 # Clip gradients for GPT-2 discriminator head (if enabled)
                 if adv_loss_module.gpt2_discriminator is not None:
                     torch.nn.utils.clip_grad_norm_(
-                        adv_loss_module.gpt2_discriminator.parameters(), max_norm=10.0
+                        adv_loss_module.gpt2_discriminator.parameters(), max_norm=100.0
                     )
                 disc_optimizer.step()
 

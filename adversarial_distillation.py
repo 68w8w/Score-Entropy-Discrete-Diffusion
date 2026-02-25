@@ -1,38 +1,72 @@
 """
-Adversarial Distillation for Discrete Diffusion Models
+Adversarial Distillation for Discrete Diffusion Models — v3 (Balanced)
 
-Two discriminator designs for adversarial distillation in the D-PeRFlow framework:
+SOTA techniques for stable adversarial distillation:
 
-A. ProjectedDiscriminator (teacher-embedding projection):
-   Uses pre-trained teacher token embeddings to project probability distributions
-   from V=50258 to D_model=768. Operates on continuous probability vectors.
+1. Spectral Normalization (SNGAN, Miyato et al. 2018)
+   All discriminator linear layers are spectrally normalized to constrain
+   per-layer Lipschitz constant ≤ 1, preventing gradient explosion at the
+   source (not band-aided by global gradient clipping).
 
-B. GPT2ProjectedDiscriminator (GPT-2 feature-space projection):
-   Uses Straight-Through Gumbel-Softmax to sample quasi-discrete tokens from
-   probability distributions, then extracts features from a frozen GPT-2 model.
-   A lightweight discriminator head classifies GPT-2 hidden states as real/fake.
-   This mirrors image ADD's use of DINO features for projected discrimination.
+2. Hinge Loss (SAGAN, Zhang et al. 2019; BigGAN, Brock et al. 2019)
+   D: max(0,1-D(real)) + max(0,1+D(fake))   G: -D(fake)
+   Once the discriminator achieves margin ≥ 1, gradients vanish for those
+   samples → natural regularization that prevents the discriminator from
+   becoming overconfident (fixes g2_gap → 19 catastrophe).
 
-Both support:
-- Conditional discrimination on noisy input x_t
-- Per-token + sequence-level dual heads for dense training signal
-- Lazy R1 gradient penalty (StyleGAN2)
+3. Adaptive Lambda (VQGAN, Esser et al. 2021)
+   λ_adv = λ_base × (‖∇_θ L_distill‖ / ‖∇_θ L_adv‖ + δ)
+   Dynamically balances distillation vs adversarial gradient magnitudes
+   so the adversarial loss can never dominate the distillation objective.
+
+4. LeCam Regularization (Tseng et al. ICLR 2022)
+   Penalizes the discriminator when its predictions on real data are below
+   the EMA of its predictions on fake data (and vice versa). Much simpler
+   and more stable than R1 gradient penalty.
+
+5. Feature Matching Auxiliary (Salimans et al. 2016)
+   ‖E[f_D(real)] - E[f_D(fake)]‖² as an auxiliary loss for the generator.
+   Provides smooth, informative gradients even when the discriminator is
+   too strong or too weak for pure adversarial training.
 
 References:
+- Spectral Normalization for GANs, Miyato et al. ICLR 2018
 - Projected GAN Converges Faster, Sauer et al. NeurIPS 2021
 - Adversarial Diffusion Distillation, Sauer et al. ECCV 2024
-- Consistency Training with GAN loss, Kim et al. 2023
+- Taming Transformers (VQGAN), Esser et al. CVPR 2021
+- Regularizing GANs via LeCam, Tseng et al. ICLR 2022
 """
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from transformers import GPT2Model, GPT2Config
+from transformers import GPT2Model
 
 
+# ---------------------------------------------------------------------------
+# Utility: apply spectral normalization to all Linear layers in a module
+# ---------------------------------------------------------------------------
+def apply_spectral_norm(module):
+    """Apply spectral normalization to all Linear layers (recursively).
+    Skips layers that are already spectrally normalized."""
+    for name, child in module.named_children():
+        if isinstance(child, nn.Linear):
+            try:
+                nn.utils.parametrizations.spectral_norm(child)
+            except Exception:
+                # Already normalized or not applicable
+                pass
+        else:
+            apply_spectral_norm(child)
+
+
+# ---------------------------------------------------------------------------
+# Discriminator Block (Transformer)
+# ---------------------------------------------------------------------------
 class DiscriminatorBlock(nn.Module):
-    """A single transformer block for the discriminator."""
+    """Transformer block for discriminator. All Linear layers will receive
+    spectral normalization from the parent module's __init__."""
 
     def __init__(self, hidden_size, n_heads, mlp_ratio=4, dropout=0.1):
         super().__init__()
@@ -80,29 +114,16 @@ class DiscriminatorBlock(nn.Module):
         return x
 
 
+# ---------------------------------------------------------------------------
+# Projected Discriminator (teacher-embedding)
+# ---------------------------------------------------------------------------
 class ProjectedDiscriminator(nn.Module):
     """
-    Projected discriminator for adversarial distillation of discrete diffusion.
+    Projected discriminator using teacher embeddings as a frozen projection.
 
-    Instead of projecting raw V-dim probability vectors through a learned
-    Linear(V, D), this discriminator uses the teacher model's pre-trained
-    token embeddings as a frozen projection:
-
-        feat = probs @ teacher_embed   # [B, L, V] @ [V, D_model] -> [B, L, D_model]
-
-    This "soft embedding lookup" has three key advantages:
-    1. The projection is semantically organized (similar tokens are close)
-    2. No need to learn a V-dimensional projection from scratch
-    3. Clean gradient flow: d(feat)/d(probs) = embed^T (no log, no clamp)
-
-    The discriminator is also conditioned on x_t (noisy input tokens), which
-    provides the context "what was the model asked to denoise?". This converts
-    the task from unconditional distribution classification (very hard) to
-    conditional output verification (much easier).
-
-    Dual output heads provide dense training signal:
-    - Per-token head: classifies each position independently (L signals/sample)
-    - Sequence head: captures global coherence (1 signal/sample)
+    v3 changes:
+    - Spectral normalization on all learned Linear layers
+    - Returns intermediate features for feature matching
     """
 
     def __init__(
@@ -115,72 +136,47 @@ class ProjectedDiscriminator(nn.Module):
         dropout=0.1,
         max_seq_len=1024,
     ):
-        """
-        Args:
-            teacher_embed_weight: Pre-trained teacher embedding [V, D_model]
-            hidden_size: Discriminator hidden dimension
-            n_heads: Number of attention heads
-            n_blocks: Number of transformer blocks
-            mlp_ratio: MLP expansion ratio
-            dropout: Dropout rate
-            max_seq_len: Maximum sequence length
-        """
         super().__init__()
 
         vocab_size, d_model = teacher_embed_weight.shape
 
-        # Store as a plain tensor, NOT a registered buffer. This is critical
-        # because DDP modifies registered buffers in-place (broadcasting,
-        # version tracking) which breaks autograd.grad() in the R1 penalty.
-        # By keeping it outside Module's buffer system, DDP cannot touch it.
-        # The tensor is frozen and identical across all ranks (cloned from the
-        # same teacher checkpoint), so no cross-rank sync is needed.
+        # Frozen teacher embedding (plain tensor, not a buffer — see v1 notes)
         self._frozen_embed = teacher_embed_weight.detach().clone()
 
-        # Project from teacher embedding dim to discriminator hidden dim
         self.feat_proj = nn.Linear(d_model, hidden_size)
-
-        # Condition projection: noisy input tokens -> hidden
-        # Uses the same frozen embedding, then a learned projection
         self.cond_proj = nn.Linear(d_model, hidden_size)
 
-        # Fuse distribution features with noisy-input condition
         self.fusion = nn.Sequential(
             nn.Linear(2 * hidden_size, hidden_size),
             nn.GELU(),
         )
 
-        # Timestep conditioning
         self.time_embed = nn.Sequential(
             nn.Linear(256, hidden_size),
             nn.SiLU(),
             nn.Linear(hidden_size, hidden_size),
         )
 
-        # Positional embedding
         self.pos_embed = nn.Parameter(torch.zeros(1, max_seq_len, hidden_size))
         nn.init.normal_(self.pos_embed, std=0.02)
 
-        # Transformer blocks
         self.blocks = nn.ModuleList([
             DiscriminatorBlock(hidden_size, n_heads, mlp_ratio, dropout)
             for _ in range(n_blocks)
         ])
-
         self.norm = nn.LayerNorm(hidden_size)
 
-        # Per-token head: dense supervision signal
         self.token_head = nn.Linear(hidden_size, 1)
-
-        # Sequence-level head: global coherence
         self.seq_head = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.GELU(),
             nn.Linear(hidden_size, 1),
         )
 
+        # Apply spectral normalization to all Linear layers
+        apply_spectral_norm(self)
+
     def _apply(self, fn, recurse=True):
-        """Override to handle device/dtype transfer for _frozen_embed."""
         result = super()._apply(fn, recurse)
         self._frozen_embed = fn(self._frozen_embed)
         return result
@@ -195,94 +191,68 @@ class ProjectedDiscriminator(nn.Module):
         args = t[:, None].float() * freqs[None]
         return torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
 
-    def forward(self, probs, x_t, t):
+    def forward(self, probs, x_t, t, return_features=False):
         """
         Args:
-            probs: Token probability distributions [B, L, V]
-            x_t: Noisy input token IDs [B, L] (conditioning context)
-            t: Timestep [B]
+            probs: [B, L, V]
+            x_t: [B, L]
+            t: [B]
+            return_features: if True, also return last-layer features
 
         Returns:
-            token_logits: Per-token real/fake logits [B, L, 1]
-            seq_logit: Sequence-level real/fake logit [B, 1]
+            token_logits: [B, L, 1]
+            seq_logit: [B, 1]
+            (optional) features: [B, L, hidden]
         """
         B, L, V = probs.shape
-
-        # Use the frozen embed directly — it's a plain tensor outside Module's
-        # buffer system, so DDP cannot modify it in-place.
         embed_w = self._frozen_embed
 
-        # 1. Soft embedding: project V-dim probs to D_model via teacher embedding
-        #    This is differentiable: d(feat)/d(probs) = embed_weight^T
         feat = torch.matmul(probs, embed_w)  # [B, L, D_model]
-        feat = self.feat_proj(feat)  # [B, L, hidden]
+        feat = self.feat_proj(feat)
 
-        # 2. Condition: embed the noisy input tokens
-        cond = embed_w[x_t]  # [B, L, D_model]  (index into frozen embed)
-        cond = self.cond_proj(cond)  # [B, L, hidden]
+        cond = embed_w[x_t]
+        cond = self.cond_proj(cond)
 
-        # 3. Fuse features and condition
-        h = self.fusion(torch.cat([feat, cond], dim=-1))  # [B, L, hidden]
+        h = self.fusion(torch.cat([feat, cond], dim=-1))
 
-        # 4. Add position and time embeddings
         h = h + self.pos_embed[:, :L, :]
-        t_emb = self.time_embed(self.timestep_embedding(t))  # [B, hidden]
+        t_emb = self.time_embed(self.timestep_embedding(t))
         h = h + t_emb.unsqueeze(1)
 
-        # 5. Transformer blocks
         for block in self.blocks:
             h = block(h)
         h = self.norm(h)
 
-        # 6. Dual heads
-        token_logits = self.token_head(h)  # [B, L, 1]
-        seq_logit = self.seq_head(h.mean(dim=1))  # [B, 1]
+        token_logits = self.token_head(h)
+        seq_logit = self.seq_head(h.mean(dim=1))
 
+        if return_features:
+            return token_logits, seq_logit, h
         return token_logits, seq_logit
 
 
+# ---------------------------------------------------------------------------
+# Gumbel-Softmax
+# ---------------------------------------------------------------------------
 def gumbel_softmax_sample(logits, tau=0.5):
-    """
-    Straight-Through Gumbel-Softmax: discrete forward, continuous backward.
-
-    Forward pass returns one-hot vectors (hard samples).
-    Backward pass uses the continuous softmax gradient (straight-through estimator).
-
-    Args:
-        logits: Unnormalized log-probabilities [B, L, V]
-        tau: Temperature (lower = harder, higher = softer). Default 0.5.
-
-    Returns:
-        y: One-hot samples with straight-through gradient [B, L, V]
-    """
+    """Straight-Through Gumbel-Softmax."""
     gumbels = -torch.log(-torch.log(torch.rand_like(logits) + 1e-20) + 1e-20)
     y_soft = F.softmax((logits + gumbels) / tau, dim=-1)
-    # Straight-through: hard forward, soft backward
     index = y_soft.argmax(dim=-1)
     y_hard = F.one_hot(index, logits.size(-1)).float()
     return (y_hard - y_soft).detach() + y_soft
 
 
+# ---------------------------------------------------------------------------
+# GPT-2 Projected Discriminator
+# ---------------------------------------------------------------------------
 class GPT2ProjectedDiscriminator(nn.Module):
     """
-    GPT-2 feature-space projected discriminator for discrete diffusion distillation.
+    GPT-2 feature-space projected discriminator.
 
-    Instead of discriminating on continuous probability distributions (which are
-    too easy to distinguish by their smoothness alone), this discriminator:
-
-    1. Samples discrete tokens from probability distributions via Gumbel-Softmax
-    2. Feeds the (quasi-discrete) token embeddings through a frozen GPT-2 model
-    3. Classifies the GPT-2 hidden states as real (teacher) vs fake (student)
-
-    This mirrors image ADD's use of frozen DINO features: the pre-trained GPT-2
-    provides a rich, semantically meaningful feature space where real text and
-    generated text differ in ways that correlate with actual quality.
-
-    Key design decisions:
-    - GPT-2 is completely frozen (no gradients, no fine-tuning)
-    - Gumbel-Softmax provides gradient flow: student → sample → GPT-2 → disc → loss
-    - Multi-layer feature extraction (like Projected GAN's multi-scale features)
-    - Lightweight discriminator heads on top of GPT-2 features
+    v3 changes:
+    - Spectral normalization on all discriminator head Linear layers
+    - Returns intermediate features for feature matching
     """
 
     def __init__(
@@ -296,17 +266,6 @@ class GPT2ProjectedDiscriminator(nn.Module):
         gumbel_tau=0.5,
         feature_layers=(-1, -3),
     ):
-        """
-        Args:
-            gpt2_model_name: HuggingFace GPT-2 model name (e.g., "gpt2", "gpt2-medium")
-            hidden_size: Discriminator head hidden dimension
-            n_heads: Number of attention heads in discriminator blocks
-            n_blocks: Number of transformer blocks in discriminator head
-            dropout: Dropout rate
-            max_seq_len: Maximum sequence length
-            gumbel_tau: Gumbel-Softmax temperature
-            feature_layers: Which GPT-2 layers to extract features from (negative indexing)
-        """
         super().__init__()
 
         self.gumbel_tau = gumbel_tau
@@ -318,55 +277,54 @@ class GPT2ProjectedDiscriminator(nn.Module):
         for param in self._gpt2.parameters():
             param.requires_grad = False
 
-        gpt2_hidden = self._gpt2.config.n_embd  # 768 for gpt2
+        gpt2_hidden = self._gpt2.config.n_embd
         n_gpt2_layers = self._gpt2.config.n_layer
 
-        # Resolve negative layer indices
         self._layer_indices = [
             idx if idx >= 0 else n_gpt2_layers + idx
             for idx in feature_layers
         ]
 
-        # Feature projection: project concatenated multi-layer GPT-2 features
         total_feat_dim = gpt2_hidden * len(feature_layers)
         self.feat_proj = nn.Linear(total_feat_dim, hidden_size)
-
-        # Condition projection: noisy input tokens via GPT-2 embedding
         self.cond_proj = nn.Linear(gpt2_hidden, hidden_size)
 
-        # Fuse features with condition
         self.fusion = nn.Sequential(
             nn.Linear(2 * hidden_size, hidden_size),
             nn.GELU(),
         )
 
-        # Timestep conditioning
         self.time_embed = nn.Sequential(
             nn.Linear(256, hidden_size),
             nn.SiLU(),
             nn.Linear(hidden_size, hidden_size),
         )
 
-        # Positional embedding
         self.pos_embed = nn.Parameter(torch.zeros(1, max_seq_len, hidden_size))
         nn.init.normal_(self.pos_embed, std=0.02)
 
-        # Discriminator transformer blocks (lightweight)
         self.blocks = nn.ModuleList([
             DiscriminatorBlock(hidden_size, n_heads, 4, dropout)
             for _ in range(n_blocks)
         ])
         self.norm = nn.LayerNorm(hidden_size)
 
-        # Per-token head
         self.token_head = nn.Linear(hidden_size, 1)
-
-        # Sequence-level head
         self.seq_head = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.GELU(),
             nn.Linear(hidden_size, 1),
         )
+
+        # Apply spectral norm to all learned Linear layers (NOT frozen GPT-2)
+        # We only normalize the discriminator head, not the frozen backbone
+        for module_name in ['feat_proj', 'cond_proj', 'fusion', 'time_embed',
+                            'blocks', 'norm', 'token_head', 'seq_head']:
+            submod = getattr(self, module_name)
+            if isinstance(submod, nn.Linear):
+                nn.utils.parametrizations.spectral_norm(submod)
+            else:
+                apply_spectral_norm(submod)
 
     @staticmethod
     def timestep_embedding(t, dim=256, max_period=10000):
@@ -379,224 +337,187 @@ class GPT2ProjectedDiscriminator(nn.Module):
         return torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
 
     def _extract_gpt2_features(self, token_probs):
-        """
-        Extract GPT-2 hidden states from Gumbel-Softmax sampled tokens.
-
-        Uses straight-through Gumbel-Softmax: forward pass samples discrete
-        tokens (one-hot), backward pass uses continuous softmax gradient.
-        The one-hot vectors are multiplied by GPT-2's embedding matrix to get
-        "quasi-discrete" embeddings that GPT-2 can process.
-
-        Args:
-            token_probs: Probability distributions [B, L, V]
-
-        Returns:
-            features: Concatenated multi-layer GPT-2 features [B, L, D_feat]
-        """
-        # Handle vocab size mismatch: SEDD uses V=50258 (50257 GPT-2 tokens
-        # + 1 absorb state), but GPT-2's wte is [50257, D]. Slice off the
-        # absorb token's probability and renormalize over real tokens only.
-        wte = self._gpt2.wte.weight  # [V_gpt2, D_gpt2]
+        """Extract GPT-2 hidden states from Gumbel-Softmax sampled tokens."""
+        wte = self._gpt2.wte.weight
         v_gpt2 = wte.shape[0]
-        probs_real = token_probs[..., :v_gpt2]  # [B, L, V_gpt2]
-        # Renormalize so probabilities sum to 1 over real tokens
+        probs_real = token_probs[..., :v_gpt2]
         probs_real = probs_real / (probs_real.sum(dim=-1, keepdim=True) + 1e-10)
 
-        # Gumbel-Softmax: sample quasi-discrete tokens over real vocab
         log_probs = (probs_real + 1e-10).log()
         gumbel_onehot = gumbel_softmax_sample(log_probs, tau=self.gumbel_tau)
+        inputs_embeds = torch.matmul(gumbel_onehot, wte)
 
-        # Soft embedding lookup: one_hot @ embedding_weight
-        # This is differentiable through the Gumbel-Softmax straight-through
-        inputs_embeds = torch.matmul(gumbel_onehot, wte)  # [B, L, D_gpt2]
-
-        # Run GPT-2 preserving gradient through inputs_embeds only.
-        # GPT-2's own parameters are frozen (requires_grad=False), so no
-        # gradients accumulate for them, but the chain rule still flows
-        # through inputs_embeds → gumbel_onehot → student logits.
         outputs = self._gpt2(
             inputs_embeds=inputs_embeds,
             output_hidden_states=True,
         )
 
-        # Extract features from specified layers
-        hidden_states = outputs.hidden_states  # tuple of [B, L, D_gpt2]
+        hidden_states = outputs.hidden_states
         features = []
         for idx in self._layer_indices:
-            # +1 because hidden_states[0] is the embedding output
             features.append(hidden_states[idx + 1])
 
-        return torch.cat(features, dim=-1)  # [B, L, D_feat]
+        return torch.cat(features, dim=-1)
 
-    def forward(self, probs, x_t, t):
+    def forward(self, probs, x_t, t, return_features=False):
         """
         Args:
-            probs: Token probability distributions [B, L, V]
-            x_t: Noisy input token IDs [B, L] (conditioning context)
-            t: Timestep [B]
+            probs: [B, L, V]
+            x_t: [B, L]
+            t: [B]
+            return_features: if True, also return last-layer features
 
         Returns:
-            token_logits: Per-token real/fake logits [B, L, 1]
-            seq_logit: Sequence-level real/fake logit [B, 1]
+            token_logits: [B, L, 1]
+            seq_logit: [B, 1]
+            (optional) features: [B, L, hidden]
         """
         B, L, V = probs.shape
 
-        # 1. Extract GPT-2 features via Gumbel-Softmax sampling
-        gpt2_feat = self._extract_gpt2_features(probs)  # [B, L, D_feat]
-        feat = self.feat_proj(gpt2_feat)  # [B, L, hidden]
+        gpt2_feat = self._extract_gpt2_features(probs)
+        feat = self.feat_proj(gpt2_feat)
 
-        # 2. Condition: embed the noisy input tokens via GPT-2 embedding
-        # Clamp absorb token (50257) to last valid GPT-2 token to avoid index OOB
         v_gpt2 = self._gpt2.wte.weight.shape[0]
         x_t_clamped = x_t.clamp(max=v_gpt2 - 1)
         with torch.no_grad():
-            cond = self._gpt2.wte(x_t_clamped)  # [B, L, D_gpt2]
-        cond = self.cond_proj(cond)  # [B, L, hidden]
+            cond = self._gpt2.wte(x_t_clamped)
+        cond = self.cond_proj(cond)
 
-        # 3. Fuse features and condition
-        h = self.fusion(torch.cat([feat, cond], dim=-1))  # [B, L, hidden]
+        h = self.fusion(torch.cat([feat, cond], dim=-1))
 
-        # 4. Add position and time embeddings
         h = h + self.pos_embed[:, :L, :]
-        t_emb = self.time_embed(self.timestep_embedding(t))  # [B, hidden]
+        t_emb = self.time_embed(self.timestep_embedding(t))
         h = h + t_emb.unsqueeze(1)
 
-        # 5. Transformer blocks
         for block in self.blocks:
             h = block(h)
         h = self.norm(h)
 
-        # 6. Dual heads
-        token_logits = self.token_head(h)  # [B, L, 1]
-        seq_logit = self.seq_head(h.mean(dim=1))  # [B, 1]
+        token_logits = self.token_head(h)
+        seq_logit = self.seq_head(h.mean(dim=1))
 
+        if return_features:
+            return token_logits, seq_logit, h
         return token_logits, seq_logit
 
 
+# ---------------------------------------------------------------------------
+# Hinge loss utilities
+# ---------------------------------------------------------------------------
+def hinge_loss_disc(real_logits, fake_logits):
+    """Discriminator hinge loss. Returns scalar."""
+    return (F.relu(1.0 - real_logits).mean() + F.relu(1.0 + fake_logits).mean())
+
+
+def hinge_loss_gen(fake_logits):
+    """Generator hinge loss. Returns per-sample loss [B]."""
+    return -fake_logits
+
+
+# ---------------------------------------------------------------------------
+# Adversarial Distillation Loss — v3 (Balanced)
+# ---------------------------------------------------------------------------
 class AdversarialDistillationLoss(nn.Module):
     """
-    Adversarial distillation loss supporting both discriminator types.
+    Balanced adversarial distillation loss with SOTA stabilization.
 
-    Generator (student) loss:
-        L_student = L_fwd_KL + lambda_rev_kl * L_rev_KL + lambda_adv * L_adv
-
-    Discriminator loss (per-token + sequence-level):
-        L_disc = L_token(real, fake) + L_seq(real, fake) + R1_penalty
-
-    The per-token loss provides L=1024 independent training signals per sample,
-    making discriminator training dramatically more data-efficient than the
-    single sequence-level logit of conventional approaches.
+    Key differences from v1/v2:
+    - Hinge loss (not BCE) for both discriminators
+    - LeCam regularization (not R1) for training stability
+    - Feature matching auxiliary loss for the generator
+    - Adaptive lambda (VQGAN-style) to balance gradient magnitudes
     """
 
     def __init__(
         self,
         discriminator,
         lambda_adv=0.1,
-        r1_gamma=10.0,
         token_loss_weight=1.0,
         seq_loss_weight=1.0,
-        r1_interval=16,
         gpt2_discriminator=None,
         lambda_gpt2_adv=0.1,
+        lecam_weight=0.001,
+        feature_matching_weight=0.0,
+        adaptive_lambda=True,
+        max_lambda=10.0,
+        # Keep these for backward compatibility but they're no longer used
+        r1_gamma=0.0,
+        r1_interval=16,
     ):
-        """
-        Args:
-            discriminator: ProjectedDiscriminator instance (teacher-embedding based)
-            lambda_adv: Weight for projected adversarial loss in generator update
-            r1_gamma: R1 gradient penalty coefficient (0 to disable)
-            token_loss_weight: Weight for per-token discrimination loss
-            seq_loss_weight: Weight for sequence-level discrimination loss
-            r1_interval: Lazy R1 interval (StyleGAN2). Compute R1 only every
-                N discriminator steps and scale gamma by N. Set to 1 to
-                compute every step (original behavior). Default 16.
-            gpt2_discriminator: Optional GPT2ProjectedDiscriminator instance
-            lambda_gpt2_adv: Weight for GPT-2 adversarial loss in generator update
-        """
         super().__init__()
         self.discriminator = discriminator
         self.lambda_adv = lambda_adv
-        self.r1_gamma = r1_gamma
         self.token_loss_weight = token_loss_weight
         self.seq_loss_weight = seq_loss_weight
-        self.r1_interval = r1_interval
-        self._disc_step = 0
 
-        # GPT-2 projected discriminator (Direction 1)
+        # GPT-2 discriminator
         self.gpt2_discriminator = gpt2_discriminator
         self.lambda_gpt2_adv = lambda_gpt2_adv
+
+        # LeCam regularization (replaces R1)
+        self.lecam_weight = lecam_weight
+        self.register_buffer('lecam_ema_real', torch.tensor(0.0))
+        self.register_buffer('lecam_ema_fake', torch.tensor(0.0))
+        self.register_buffer('g2_lecam_ema_real', torch.tensor(0.0))
+        self.register_buffer('g2_lecam_ema_fake', torch.tensor(0.0))
+        self.lecam_decay = 0.999
+
+        # Feature matching
+        self.feature_matching_weight = feature_matching_weight
+
+        # Adaptive lambda (VQGAN-style)
+        self.adaptive_lambda = adaptive_lambda
+        self.max_lambda = max_lambda
+
+        self._disc_step = 0
         self._gpt2_disc_step = 0
 
+    def _lecam_reg(self, d_real_mean, d_fake_mean, ema_real, ema_fake):
+        """LeCam regularization (Tseng et al. ICLR 2022).
+        Prevents the discriminator from becoming overconfident by penalizing
+        when real scores drop below EMA of fake scores (and vice versa)."""
+        reg = (F.relu(d_real_mean - ema_fake).pow(2)
+               + F.relu(ema_real - d_fake_mean).pow(2))
+        return reg
+
     def discriminator_loss(self, teacher_probs, student_probs, x_t, t):
-        """
-        Compute discriminator loss with per-token + sequence-level heads.
-
-        Uses lazy R1 regularization (StyleGAN2): compute R1 penalty only every
-        r1_interval discriminator steps, scaling gamma by the interval so the
-        effective regularization strength is unchanged.
-
-        Args:
-            teacher_probs: Teacher distribution [B, L, V] (detached)
-            student_probs: Student distribution [B, L, V] (detached)
-            x_t: Noisy input tokens [B, L]
-            t: Timestep [B]
-
-        Returns:
-            loss: Discriminator loss scalar
-            metrics: Dict with loss components
-        """
+        """Projected discriminator loss with hinge loss + LeCam reg."""
         self._disc_step += 1
-        do_r1 = (self.r1_gamma > 0 and
-                 self._disc_step % self.r1_interval == 0)
 
         teacher_probs = teacher_probs.detach()
         student_probs = student_probs.detach()
-
-        if do_r1:
-            teacher_probs.requires_grad_(True)
 
         # Forward pass
         real_tok, real_seq = self.discriminator(teacher_probs, x_t, t)
         fake_tok, fake_seq = self.discriminator(student_probs, x_t, t)
 
-        # Per-token loss: BCE at each position
-        real_tok_loss = F.binary_cross_entropy_with_logits(
-            real_tok, torch.ones_like(real_tok),
-        )
-        fake_tok_loss = F.binary_cross_entropy_with_logits(
-            fake_tok, torch.zeros_like(fake_tok),
-        )
-        token_loss = real_tok_loss + fake_tok_loss
-
-        # Sequence-level loss
-        real_seq_loss = F.binary_cross_entropy_with_logits(
-            real_seq, torch.ones_like(real_seq),
-        )
-        fake_seq_loss = F.binary_cross_entropy_with_logits(
-            fake_seq, torch.zeros_like(fake_seq),
-        )
-        seq_loss = real_seq_loss + fake_seq_loss
-
+        # Hinge loss (per-token + sequence)
+        token_loss = hinge_loss_disc(real_tok, fake_tok)
+        seq_loss = hinge_loss_disc(real_seq, fake_seq)
         loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
 
-        # Lazy R1 gradient penalty on real samples (StyleGAN2)
-        # Scale gamma by r1_interval so the time-averaged penalty is unchanged.
-        r1_penalty = torch.tensor(0.0, device=loss.device)
-        if do_r1:
-            r1_target = real_tok.sum() + real_seq.sum()
-            grad_real = torch.autograd.grad(
-                outputs=r1_target,
-                inputs=teacher_probs,
-                create_graph=True,
-            )[0]
-            r1_penalty = grad_real.pow(2).sum(dim=[1, 2]).mean()
-            lazy_gamma = self.r1_gamma * self.r1_interval
-            loss = loss + lazy_gamma * 0.5 * r1_penalty
+        # LeCam regularization
+        d_real_mean = real_seq.mean().detach()
+        d_fake_mean = fake_seq.mean().detach()
+
+        # Update EMA
+        self.lecam_ema_real.mul_(self.lecam_decay).add_(
+            d_real_mean * (1 - self.lecam_decay))
+        self.lecam_ema_fake.mul_(self.lecam_decay).add_(
+            d_fake_mean * (1 - self.lecam_decay))
+
+        lecam_reg = self._lecam_reg(
+            real_seq.mean(), fake_seq.mean(),
+            self.lecam_ema_real, self.lecam_ema_fake
+        )
+        loss = loss + self.lecam_weight * lecam_reg
 
         metrics = {
             "disc_loss": loss.item(),
             "disc_token_loss": token_loss.item(),
             "disc_seq_loss": seq_loss.item(),
-            "disc_r1_penalty": r1_penalty.item(),
+            "disc_lecam_reg": lecam_reg.item(),
+            "disc_r1_penalty": 0.0,  # backward compat
             "disc_real_logit_mean": real_seq.mean().item(),
             "disc_fake_logit_mean": fake_seq.mean().item(),
             "disc_real_tok_acc": (real_tok > 0).float().mean().item(),
@@ -606,23 +527,7 @@ class AdversarialDistillationLoss(nn.Module):
         return loss, metrics
 
     def gpt2_discriminator_loss(self, teacher_probs, student_probs, x_t, t):
-        """
-        Compute GPT-2 projected discriminator loss.
-
-        Discriminates in GPT-2 feature space on Gumbel-Softmax sampled tokens.
-        No R1 penalty here — Gumbel-Softmax already provides implicit regularization
-        through stochastic sampling.
-
-        Args:
-            teacher_probs: Teacher distribution [B, L, V] (detached)
-            student_probs: Student distribution [B, L, V] (detached)
-            x_t: Noisy input tokens [B, L]
-            t: Timestep [B]
-
-        Returns:
-            loss: GPT-2 discriminator loss scalar
-            metrics: Dict with loss components
-        """
+        """GPT-2 discriminator loss with hinge loss + LeCam reg."""
         if self.gpt2_discriminator is None:
             return torch.tensor(0.0, device=t.device), {}
 
@@ -631,34 +536,34 @@ class AdversarialDistillationLoss(nn.Module):
         teacher_probs = teacher_probs.detach()
         student_probs = student_probs.detach()
 
-        # Forward pass through GPT-2 discriminator
         real_tok, real_seq = self.gpt2_discriminator(teacher_probs, x_t, t)
         fake_tok, fake_seq = self.gpt2_discriminator(student_probs, x_t, t)
 
-        # Per-token loss
-        real_tok_loss = F.binary_cross_entropy_with_logits(
-            real_tok, torch.ones_like(real_tok),
-        )
-        fake_tok_loss = F.binary_cross_entropy_with_logits(
-            fake_tok, torch.zeros_like(fake_tok),
-        )
-        token_loss = real_tok_loss + fake_tok_loss
-
-        # Sequence-level loss
-        real_seq_loss = F.binary_cross_entropy_with_logits(
-            real_seq, torch.ones_like(real_seq),
-        )
-        fake_seq_loss = F.binary_cross_entropy_with_logits(
-            fake_seq, torch.zeros_like(fake_seq),
-        )
-        seq_loss = real_seq_loss + fake_seq_loss
-
+        # Hinge loss
+        token_loss = hinge_loss_disc(real_tok, fake_tok)
+        seq_loss = hinge_loss_disc(real_seq, fake_seq)
         loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
+
+        # LeCam regularization for GPT-2 disc
+        d_real_mean = real_seq.mean().detach()
+        d_fake_mean = fake_seq.mean().detach()
+
+        self.g2_lecam_ema_real.mul_(self.lecam_decay).add_(
+            d_real_mean * (1 - self.lecam_decay))
+        self.g2_lecam_ema_fake.mul_(self.lecam_decay).add_(
+            d_fake_mean * (1 - self.lecam_decay))
+
+        lecam_reg = self._lecam_reg(
+            real_seq.mean(), fake_seq.mean(),
+            self.g2_lecam_ema_real, self.g2_lecam_ema_fake
+        )
+        loss = loss + self.lecam_weight * lecam_reg
 
         metrics = {
             "gpt2_disc_loss": loss.item(),
             "gpt2_disc_token_loss": token_loss.item(),
             "gpt2_disc_seq_loss": seq_loss.item(),
+            "gpt2_disc_lecam_reg": lecam_reg.item(),
             "gpt2_disc_real_logit_mean": real_seq.mean().item(),
             "gpt2_disc_fake_logit_mean": fake_seq.mean().item(),
             "gpt2_disc_real_tok_acc": (real_tok > 0).float().mean().item(),
@@ -667,82 +572,128 @@ class AdversarialDistillationLoss(nn.Module):
 
         return loss, metrics
 
-    def generator_loss(self, student_probs, x_t, t):
+    def generator_loss(self, student_probs, teacher_probs, x_t, t):
         """
-        Compute adversarial loss for the student (generator).
-
-        Non-saturating loss at both per-token and sequence levels,
-        from both the projected discriminator and GPT-2 discriminator.
-
-        Args:
-            student_probs: Student distribution [B, L, V] (with grad)
-            x_t: Noisy input tokens [B, L]
-            t: Timestep [B]
+        Generator adversarial loss with hinge loss + feature matching.
 
         Returns:
-            loss: Generator adversarial loss [B]
-            gpt2_loss: GPT-2 adversarial loss [B] (0 if no GPT-2 discriminator)
+            proj_loss: [B] projected adversarial loss
+            gpt2_loss: [B] GPT-2 adversarial loss
+            fm_loss: scalar feature matching loss
         """
-        fake_tok, fake_seq = self.discriminator(student_probs, x_t, t)
+        # --- Projected discriminator ---
+        out = self.discriminator(student_probs, x_t, t, return_features=True)
+        fake_tok, fake_seq, fake_feat = out
 
-        # Per-token: non-saturating loss averaged over positions
-        tok_loss = F.binary_cross_entropy_with_logits(
-            fake_tok, torch.ones_like(fake_tok), reduction='none',
-        ).squeeze(-1).mean(dim=-1)  # [B]
-
-        # Sequence-level: non-saturating loss
-        seq_loss = F.binary_cross_entropy_with_logits(
-            fake_seq, torch.ones_like(fake_seq), reduction='none',
-        ).squeeze(-1)  # [B]
-
+        # Hinge loss: -D(fake)
+        tok_loss = hinge_loss_gen(fake_tok.squeeze(-1)).mean(dim=-1)  # [B]
+        seq_loss = hinge_loss_gen(fake_seq.squeeze(-1))  # [B]
         proj_loss = self.token_loss_weight * tok_loss + self.seq_loss_weight * seq_loss
 
-        # GPT-2 discriminator loss
+        # --- Feature matching (projected disc) ---
+        fm_loss = torch.tensor(0.0, device=student_probs.device)
+        if self.feature_matching_weight > 0:
+            with torch.no_grad():
+                _, _, real_feat = self.discriminator(
+                    teacher_probs.detach(), x_t, t, return_features=True)
+            fm_loss = (fake_feat.mean(dim=[0, 1]) - real_feat.mean(dim=[0, 1])).pow(2).mean()
+
+        # --- GPT-2 discriminator ---
         gpt2_loss = torch.zeros_like(proj_loss)
         if self.gpt2_discriminator is not None:
-            g_fake_tok, g_fake_seq = self.gpt2_discriminator(student_probs, x_t, t)
+            g_out = self.gpt2_discriminator(student_probs, x_t, t, return_features=True)
+            g_fake_tok, g_fake_seq, g_fake_feat = g_out
 
-            g_tok_loss = F.binary_cross_entropy_with_logits(
-                g_fake_tok, torch.ones_like(g_fake_tok), reduction='none',
-            ).squeeze(-1).mean(dim=-1)  # [B]
-
-            g_seq_loss = F.binary_cross_entropy_with_logits(
-                g_fake_seq, torch.ones_like(g_fake_seq), reduction='none',
-            ).squeeze(-1)  # [B]
-
+            g_tok_loss = hinge_loss_gen(g_fake_tok.squeeze(-1)).mean(dim=-1)
+            g_seq_loss = hinge_loss_gen(g_fake_seq.squeeze(-1))
             gpt2_loss = self.token_loss_weight * g_tok_loss + self.seq_loss_weight * g_seq_loss
 
-        return proj_loss, gpt2_loss
+            # Feature matching (GPT-2 disc)
+            if self.feature_matching_weight > 0:
+                with torch.no_grad():
+                    _, _, g_real_feat = self.gpt2_discriminator(
+                        teacher_probs.detach(), x_t, t, return_features=True)
+                fm_loss = fm_loss + (
+                    g_fake_feat.mean(dim=[0, 1]) - g_real_feat.mean(dim=[0, 1])
+                ).pow(2).mean()
 
-    def combined_loss(self, kl_loss, student_probs, x_t, t, rev_kl_loss=None, lambda_rev_kl=0.0):
+        return proj_loss, gpt2_loss, fm_loss
+
+    def compute_adaptive_lambda(self, distill_loss, adv_loss, last_layer_param):
         """
-        Compute combined loss for the student:
-            L = L_fwd_KL + lambda_rev_kl * L_rev_KL
-              + lambda_adv * L_proj_adv + lambda_gpt2_adv * L_gpt2_adv
+        VQGAN-style adaptive λ: balance gradient magnitudes.
 
-        Args:
-            kl_loss: Forward KL divergence loss [B]
-            student_probs: Student distribution [B, L, V] (with grad)
-            x_t: Noisy input tokens [B, L]
-            t: Timestep [B]
-            rev_kl_loss: Reverse KL divergence loss [B] (optional)
-            lambda_rev_kl: Weight for reverse KL loss
+        λ = ‖∂L_distill/∂θ_last‖ / (‖∂L_adv/∂θ_last‖ + δ)
 
-        Returns:
-            total_loss: Combined loss [B]
-            metrics: Dict with loss components
+        This prevents the adversarial loss from ever dominating.
         """
-        proj_adv_loss, gpt2_adv_loss = self.generator_loss(student_probs, x_t, t)
+        if not self.adaptive_lambda or last_layer_param is None:
+            return self.lambda_adv, self.lambda_gpt2_adv
 
-        total_loss = kl_loss + self.lambda_adv * proj_adv_loss + self.lambda_gpt2_adv * gpt2_adv_loss
+        try:
+            grad_distill = torch.autograd.grad(
+                distill_loss.mean(), last_layer_param, retain_graph=True
+            )[0]
+            grad_adv = torch.autograd.grad(
+                adv_loss.mean(), last_layer_param, retain_graph=True
+            )[0]
+
+            ratio = torch.norm(grad_distill) / (torch.norm(grad_adv) + 1e-6)
+            adaptive_w = torch.clamp(ratio, 0.0, self.max_lambda).detach()
+            return adaptive_w.item(), adaptive_w.item()
+        except RuntimeError:
+            # Fallback if autograd fails (e.g., no graph)
+            return self.lambda_adv, self.lambda_gpt2_adv
+
+    def combined_loss(self, kl_loss, student_probs, teacher_probs, x_t, t,
+                      rev_kl_loss=None, lambda_rev_kl=0.0,
+                      last_layer_param=None):
+        """
+        Combined generator loss:
+            L = L_fwd_KL + λ_rev * L_rev_KL
+              + λ_proj * L_proj_adv + λ_gpt2 * L_gpt2_adv
+              + λ_fm * L_feature_matching
+        """
+        proj_adv_loss, gpt2_adv_loss, fm_loss = self.generator_loss(
+            student_probs, teacher_probs, x_t, t
+        )
+
+        # Compute distillation loss for adaptive lambda
+        distill_loss = kl_loss.clone()
+        if rev_kl_loss is not None and lambda_rev_kl > 0:
+            distill_loss = distill_loss + lambda_rev_kl * rev_kl_loss
+
+        # Adaptive lambda computation
+        total_adv = proj_adv_loss + gpt2_adv_loss
+        lambda_proj, lambda_gpt2 = self.compute_adaptive_lambda(
+            distill_loss, total_adv, last_layer_param
+        )
+
+        # Clamp adaptive lambda by the configured base lambda
+        # adaptive_lambda acts as a multiplier on the base lambda
+        if self.adaptive_lambda and last_layer_param is not None:
+            effective_proj = self.lambda_adv * lambda_proj
+            effective_gpt2 = self.lambda_gpt2_adv * lambda_gpt2
+        else:
+            effective_proj = self.lambda_adv
+            effective_gpt2 = self.lambda_gpt2_adv
+
+        total_loss = kl_loss + effective_proj * proj_adv_loss + effective_gpt2 * gpt2_adv_loss
+
+        # Feature matching
+        if self.feature_matching_weight > 0:
+            total_loss = total_loss + self.feature_matching_weight * fm_loss
 
         metrics = {
             "gen_fwd_kl_loss": kl_loss.mean().item(),
             "gen_proj_adv_loss": proj_adv_loss.mean().item(),
             "gen_gpt2_adv_loss": gpt2_adv_loss.mean().item(),
+            "gen_fm_loss": fm_loss.item(),
             "gen_total_loss": total_loss.mean().item(),
             "lambda_adv": self.lambda_adv,
             "lambda_gpt2_adv": self.lambda_gpt2_adv,
+            "effective_lambda_proj": effective_proj if isinstance(effective_proj, float) else effective_proj,
+            "effective_lambda_gpt2": effective_gpt2 if isinstance(effective_gpt2, float) else effective_gpt2,
         }
 
         # Add reverse KL if provided
@@ -752,13 +703,16 @@ class AdversarialDistillationLoss(nn.Module):
             metrics["lambda_rev_kl"] = lambda_rev_kl
             metrics["gen_total_loss"] = total_loss.mean().item()
 
-        # Keep backward-compatible key
+        # Backward-compatible keys
         metrics["gen_kl_loss"] = metrics["gen_fwd_kl_loss"]
         metrics["gen_adv_loss"] = metrics["gen_proj_adv_loss"]
 
         return total_loss, metrics
 
 
+# ---------------------------------------------------------------------------
+# Factory functions
+# ---------------------------------------------------------------------------
 def create_discriminator(
     teacher_embed_weight,
     hidden_size=256,
@@ -767,20 +721,6 @@ def create_discriminator(
     dropout=0.1,
     max_seq_len=1024,
 ):
-    """
-    Factory function to create a projected discriminator.
-
-    Args:
-        teacher_embed_weight: Pre-trained teacher embedding weight [V, D_model]
-        hidden_size: Discriminator hidden dimension
-        n_heads: Number of attention heads
-        n_blocks: Number of transformer blocks
-        dropout: Dropout rate
-        max_seq_len: Maximum sequence length
-
-    Returns:
-        ProjectedDiscriminator instance
-    """
     return ProjectedDiscriminator(
         teacher_embed_weight=teacher_embed_weight,
         hidden_size=hidden_size,
@@ -801,22 +741,6 @@ def create_gpt2_discriminator(
     gumbel_tau=0.5,
     feature_layers=(-1, -3),
 ):
-    """
-    Factory function to create a GPT-2 projected discriminator.
-
-    Args:
-        gpt2_model_name: HuggingFace GPT-2 model name
-        hidden_size: Discriminator head hidden dimension
-        n_heads: Number of attention heads
-        n_blocks: Number of transformer blocks in discriminator head
-        dropout: Dropout rate
-        max_seq_len: Maximum sequence length
-        gumbel_tau: Gumbel-Softmax temperature
-        feature_layers: Which GPT-2 layers to extract features from
-
-    Returns:
-        GPT2ProjectedDiscriminator instance
-    """
     return GPT2ProjectedDiscriminator(
         gpt2_model_name=gpt2_model_name,
         hidden_size=hidden_size,

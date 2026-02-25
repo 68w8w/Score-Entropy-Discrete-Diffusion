@@ -1,5 +1,16 @@
-# Adversarial D-PeRFlow Configuration
-# Extends D-PeRFlow config with adversarial distillation settings
+# Adversarial D-PeRFlow Configuration — v3 (Balanced)
+#
+# SOTA stabilization techniques:
+# - Spectral normalization on all discriminator layers (SNGAN)
+# - Hinge loss instead of BCE (BigGAN/SAGAN)
+# - Adaptive lambda for gradient balancing (VQGAN)
+# - LeCam regularization instead of R1 (Tseng et al. 2022)
+# - Feature matching auxiliary loss (Salimans et al. 2016)
+#
+# Loss: L = L_fwd_KL + lambda_rev_kl * L_rev_KL
+#        + adaptive_lambda(lambda_adv) * L_proj_adv
+#        + adaptive_lambda(lambda_gpt2_adv) * L_gpt2_adv
+#        + feature_matching_weight * L_fm
 
 defaults:
   - _self_
@@ -19,46 +30,52 @@ d_perflow:
   euler_steps: 1
   train_temperature: 1.0
 
-# Adversarial distillation settings
-# Loss: L = L_fwd_KL + lambda_rev_kl * L_rev_KL + lambda_adv * L_proj_adv + lambda_gpt2_adv * L_gpt2_adv
+# Adversarial distillation settings (v3)
 adversarial:
-  # --- Direction 2: Reverse KL (mode-seeking signal) ---
-  # Reverse KL penalizes student for being too smooth/flat.
-  # Forward KL (mode-covering) makes student spread mass everywhere;
-  # Reverse KL (mode-seeking) forces student to be sharp where teacher is sharp.
-  lambda_rev_kl: 0.5       # Weight for reverse KL. 0=disabled. Try 0.3, 0.5, 0.7
+  # --- Reverse KL (mode-seeking signal) ---
+  lambda_rev_kl: 0.5
 
-  # --- Projected discriminator (teacher-embedding based) ---
-  disc_hidden_size: 256    # Hidden dimension
-  disc_n_heads: 4          # Number of attention heads
-  disc_n_blocks: 4         # Number of transformer blocks
-  disc_dropout: 0.1        # Dropout rate
-  lambda_adv: 0.1          # Weight for projected adversarial loss
+  # --- Projected discriminator (teacher-embedding + spectral norm) ---
+  disc_hidden_size: 256
+  disc_n_heads: 4
+  disc_n_blocks: 4
+  disc_dropout: 0.1
+  lambda_adv: 0.1          # Base weight for projected adversarial loss
 
-  # --- Direction 1: GPT-2 feature-space adversarial ---
-  # Discriminates on Gumbel-Softmax sampled token sequences in GPT-2 feature space.
-  # Mirrors image ADD's use of DINO features for projected discrimination.
-  enable_gpt2_disc: True   # Set True to enable GPT-2 discriminator
-  gpt2_model_name: gpt2    # HuggingFace model name (gpt2, gpt2-medium, etc.)
+  # --- GPT-2 feature-space adversarial ---
+  enable_gpt2_disc: True
+  gpt2_model_name: gpt2
   gpt2_disc_hidden_size: 256
   gpt2_disc_n_heads: 4
-  gpt2_disc_n_blocks: 2    # Fewer blocks (GPT-2 does the heavy lifting)
-  gumbel_tau: 0.5          # Gumbel-Softmax temperature (lower=sharper)
-  gpt2_feature_layers:     # Which GPT-2 layers to extract features from
-    - -1                   # Last layer (high-level semantics)
-    - -3                   # Third from last (mid-level features)
-  lambda_gpt2_adv: 0.1     # Weight for GPT-2 adversarial loss
+  gpt2_disc_n_blocks: 2
+  gumbel_tau: 0.5
+  gpt2_feature_layers:
+    - -1
+    - -3
+  lambda_gpt2_adv: 0.1     # Base weight for GPT-2 adversarial loss
 
-  # --- R1 gradient penalty ---
-  r1_gamma: 10.0
-  r1_interval: 16          # Lazy R1 (StyleGAN2): compute every N disc steps
+  # --- LeCam regularization (replaces R1) ---
+  # Prevents discriminator from becoming overconfident (Tseng et al. 2022)
+  lecam_weight: 0.001       # LeCam penalty weight. Try 0.001-0.01
+  # R1 kept at 0 (disabled) since LeCam replaces it
+  r1_gamma: 0.0
+  r1_interval: 16
+
+  # --- Feature matching auxiliary loss ---
+  # ||E[f_D(real)] - E[f_D(fake)]||^2 provides smooth gradient signal
+  feature_matching_weight: 1.0  # Try 0.5-2.0. 0=disabled.
+
+  # --- Adaptive lambda (VQGAN-style) ---
+  # Dynamically balances distillation vs adversarial gradient magnitudes
+  adaptive_lambda: True     # Enable/disable adaptive lambda
+  max_lambda: 10.0          # Maximum allowed adaptive lambda
 
   # --- Discriminator training ---
-  disc_steps_per_gen: 1    # Discriminator updates per generator update
+  disc_steps_per_gen: 1
 
   # --- Discriminator optimizer ---
   disc_lr: 2e-4
-  disc_beta1: 0.0          # Low beta1 is standard for GAN discriminators
+  disc_beta1: 0.0
   disc_beta2: 0.99
   disc_weight_decay: 0.01
 

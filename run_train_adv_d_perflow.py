@@ -221,14 +221,18 @@ def _run(rank, world_size, cfg):
         )
         mprint(f"GPT-2 discriminator trainable parameters: {gpt2_disc_params}")
 
-    # Wrap in adversarial loss module
+    # Wrap in adversarial loss module (v3: balanced adversarial distillation)
     adv_loss_module = AdversarialDistillationLoss(
         discriminator=discriminator,
         lambda_adv=adv_cfg.lambda_adv,
-        r1_gamma=adv_cfg.r1_gamma,
-        r1_interval=adv_cfg.r1_interval,
+        r1_gamma=getattr(adv_cfg, 'r1_gamma', 0.0),
+        r1_interval=getattr(adv_cfg, 'r1_interval', 16),
         gpt2_discriminator=gpt2_discriminator,
         lambda_gpt2_adv=getattr(adv_cfg, 'lambda_gpt2_adv', 0.1),
+        lecam_weight=getattr(adv_cfg, 'lecam_weight', 0.001),
+        feature_matching_weight=getattr(adv_cfg, 'feature_matching_weight', 0.0),
+        adaptive_lambda=getattr(adv_cfg, 'adaptive_lambda', True),
+        max_lambda=getattr(adv_cfg, 'max_lambda', 10.0),
     ).to(device)
 
     # Discriminator optimizer: include both discriminator heads
@@ -337,14 +341,17 @@ def _run(rank, world_size, cfg):
         )
 
     num_train_steps = cfg.training.n_iters
-    mprint(f"Starting Adversarial D-PeRFlow training at step {initial_step}.")
+    mprint(f"Starting Adversarial D-PeRFlow v3 (Balanced) training at step {initial_step}.")
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
     mprint(f"Adversarial weight (lambda_adv): {adv_cfg.lambda_adv}")
     mprint(f"GPT-2 adversarial weight (lambda_gpt2_adv): {getattr(adv_cfg, 'lambda_gpt2_adv', 0)}")
     mprint(f"Reverse KL weight (lambda_rev_kl): {lambda_rev_kl}")
     mprint(f"GPT-2 discriminator enabled: {getattr(adv_cfg, 'enable_gpt2_disc', False)}")
     mprint(f"Discriminator steps per generator step: {adv_cfg.disc_steps_per_gen}")
-    mprint(f"R1 gradient penalty: {adv_cfg.r1_gamma} (lazy interval={adv_cfg.r1_interval})")
+    mprint(f"LeCam regularization weight: {getattr(adv_cfg, 'lecam_weight', 0.001)}")
+    mprint(f"Feature matching weight: {getattr(adv_cfg, 'feature_matching_weight', 0.0)}")
+    mprint(f"Adaptive lambda: {getattr(adv_cfg, 'adaptive_lambda', True)} (max={getattr(adv_cfg, 'max_lambda', 10.0)})")
+    mprint(f"Spectral normalization: enabled on all discriminator layers")
 
     while state['step'] < num_train_steps + 1:
         step = state['step']
@@ -381,7 +388,13 @@ def _run(rank, world_size, cfg):
                     )
                     if gen_metrics.get('gen_gpt2_adv_loss', 0) > 0:
                         log_msg += f", gpt2_adv: {gen_metrics['gen_gpt2_adv_loss']:.6f}"
+                    if gen_metrics.get('gen_fm_loss', 0) > 0:
+                        log_msg += f", fm: {gen_metrics['gen_fm_loss']:.6f}"
                     log_msg += f", total: {gen_metrics.get('gen_total_loss', 0):.6f}"
+                    # Log effective lambdas (adaptive)
+                    eff_proj = gen_metrics.get('effective_lambda_proj', gen_metrics.get('lambda_adv', 0))
+                    eff_gpt2 = gen_metrics.get('effective_lambda_gpt2', gen_metrics.get('lambda_gpt2_adv', 0))
+                    log_msg += f", eff_lam: {eff_proj:.4f}/{eff_gpt2:.4f}"
                 if disc_metrics:
                     d_real = disc_metrics.get('disc_real_logit_mean', 0)
                     d_fake = disc_metrics.get('disc_fake_logit_mean', 0)
@@ -392,7 +405,7 @@ def _run(rank, world_size, cfg):
                         f", d_gap: {d_real - d_fake:.3f}"
                         f", tok_acc_r: {disc_metrics.get('disc_real_tok_acc', 0):.2f}"
                         f", tok_acc_f: {disc_metrics.get('disc_fake_tok_acc', 0):.2f}"
-                        f", r1: {disc_metrics.get('disc_r1_penalty', 0):.4f}"
+                        f", lecam: {disc_metrics.get('disc_lecam_reg', 0):.4f}"
                     )
                     # GPT-2 discriminator metrics
                     if 'gpt2_disc_loss' in disc_metrics:
@@ -403,6 +416,7 @@ def _run(rank, world_size, cfg):
                             f", g2_gap: {g_real - g_fake:.3f}"
                             f", g2_tok_r: {disc_metrics.get('gpt2_disc_real_tok_acc', 0):.2f}"
                             f", g2_tok_f: {disc_metrics.get('gpt2_disc_fake_tok_acc', 0):.2f}"
+                            f", g2_lecam: {disc_metrics.get('gpt2_disc_lecam_reg', 0):.4f}"
                         )
                 mprint(log_msg)
 
