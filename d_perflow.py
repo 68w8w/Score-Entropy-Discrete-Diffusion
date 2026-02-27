@@ -430,6 +430,7 @@ def get_d_perflow_loss_fn(
     train: bool = True,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
+    lambda_rev_kl: float = 0.0,
 ):
     """
     Create the D-PeRFlow loss function.
@@ -447,6 +448,7 @@ def get_d_perflow_loss_fn(
                           Higher temperature = softer distributions = more diverse outputs
                           Default 1.0 means no temperature scaling
         debug_log_file: Path to save debug logs (if None, print to console)
+        lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -528,6 +530,11 @@ def get_d_perflow_loss_fn(
         # 5. Forward KL divergence loss: KL(P_target || P_student)
         loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
 
+        # 6. Reverse KL divergence loss: KL(P_student || P_target) (mode-seeking)
+        if lambda_rev_kl > 0:
+            rev_kl = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, P_student)
+            loss = loss + lambda_rev_kl * rev_kl
+
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
             loss_fn.debug_step += 1
@@ -601,6 +608,7 @@ def get_d_perflow_step_fn(
     accum: int = 1,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
+    lambda_rev_kl: float = 0.0,
 ):
     """
     Create the D-PeRFlow training step function.
@@ -618,6 +626,7 @@ def get_d_perflow_step_fn(
         accum: Gradient accumulation steps
         train_temperature: Temperature for softening distributions during training
         debug_log_file: Path to save debug logs (if None, print to console only)
+        lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
 
     Returns:
         step_fn: Training step function
@@ -633,6 +642,7 @@ def get_d_perflow_step_fn(
         train=train,
         train_temperature=train_temperature,
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     accum_iter = 0

@@ -1,5 +1,6 @@
-# D-PeRFlow Configuration
-# This config extends the base SEDD config for D-PeRFlow training
+# D-PeRFlow Configuration (Pure KL Baseline)
+# Loss: fwd_KL + lambda_rev_kl * rev_KL
+# No adversarial training, no discriminator, no feature matching
 
 defaults:
   - _self_
@@ -33,6 +34,11 @@ d_perflow:
 
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0
+
+  # Reverse KL weight: KL(P_student || P_teacher) for mode-seeking behavior
+  # 0.0 = pure forward KL only (mode-covering)
+  # 0.5 = balanced fwd_KL + rev_KL (recommended for distillation)
+  lambda_rev_kl: 0.5
 
 training:
   batch_size: 256  # Smaller batch for distillation

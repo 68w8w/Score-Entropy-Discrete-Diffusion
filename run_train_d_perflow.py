@@ -210,6 +210,8 @@ def _run(rank, world_size, cfg):
     debug_log_file = os.path.join(work_dir, 'debug_log.txt')
     mprint(f"Debug log will be saved to: {debug_log_file}")
 
+    lambda_rev_kl = cfg.d_perflow.get('lambda_rev_kl', 0.0)
+
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
         graph=graph,
@@ -223,6 +225,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -238,6 +241,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
+        lambda_rev_kl=lambda_rev_kl,
     )
 
     # D-PeRFlow sampler for snapshot sampling
@@ -254,8 +258,11 @@ def _run(rank, world_size, cfg):
         )
 
     num_train_steps = cfg.training.n_iters
-    mprint(f"Starting D-PeRFlow training at step {initial_step}.")
+    mprint(f"Starting D-PeRFlow (pure KL) training at step {initial_step}.")
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
+    mprint(f"Euler steps (teacher): {cfg.d_perflow.euler_steps}")
+    mprint(f"Reverse KL weight (lambda_rev_kl): {lambda_rev_kl}")
+    mprint(f"Loss: fwd_KL" + (f" + {lambda_rev_kl} * rev_KL" if lambda_rev_kl > 0 else ""))
 
     while state['step'] < num_train_steps + 1:
         step = state['step']
