@@ -1,40 +1,34 @@
 """
-Adversarial Distillation for Discrete Diffusion Models — v3 (Balanced)
+Adversarial Distillation for Discrete Diffusion Models — v4 (LSGAN)
 
-SOTA techniques for stable adversarial distillation:
+Key insight from v3 experiment: Hinge loss achieves margin immediately on
+near-identical teacher/student distributions (96-97% argmax agreement),
+then gradient = 0 → discriminators freeze. Meanwhile, feature matching
+(weight=1.0, loss≈7) dominated total loss at 90%, overwhelming KL (≈0.2).
 
-1. Spectral Normalization (SNGAN, Miyato et al. 2018)
-   All discriminator linear layers are spectrally normalized to constrain
-   per-layer Lipschitz constant ≤ 1, preventing gradient explosion at the
-   source (not band-aided by global gradient clipping).
+v4 solution — Least Squares GAN (LSGAN, Mao et al. ICCV 2017):
+  D: (D(real) - 1)² + D(fake)²
+  G: (D(fake) - 1)²
 
-2. Hinge Loss (SAGAN, Zhang et al. 2019; BigGAN, Brock et al. 2019)
-   D: max(0,1-D(real)) + max(0,1+D(fake))   G: -D(fake)
-   Once the discriminator achieves margin ≥ 1, gradients vanish for those
-   samples → natural regularization that prevents the discriminator from
-   becoming overconfident (fixes g2_gap → 19 catastrophe).
+Why LSGAN is ideal for distillation:
+1. Quadratic penalty naturally bounds outputs near {0, 1} — no need for
+   the hinge margin trick that caused saturation in v3
+2. Always non-zero gradients (no dead zone like hinge at |D|>1)
+3. Self-regularizing: overshooting is quadratically penalized, so disc
+   never reaches g2_gap=19 (v2 BCE problem) or stops learning (v3 hinge)
+4. Simpler than hinge + LeCam while achieving better properties
 
-3. Adaptive Lambda (VQGAN, Esser et al. 2021)
-   λ_adv = λ_base × (‖∇_θ L_distill‖ / ‖∇_θ L_adv‖ + δ)
-   Dynamically balances distillation vs adversarial gradient magnitudes
-   so the adversarial loss can never dominate the distillation objective.
-
-4. LeCam Regularization (Tseng et al. ICLR 2022)
-   Penalizes the discriminator when its predictions on real data are below
-   the EMA of its predictions on fake data (and vice versa). Much simpler
-   and more stable than R1 gradient penalty.
-
-5. Feature Matching Auxiliary (Salimans et al. 2016)
-   ‖E[f_D(real)] - E[f_D(fake)]‖² as an auxiliary loss for the generator.
-   Provides smooth, informative gradients even when the discriminator is
-   too strong or too weak for pure adversarial training.
+Retained from v3:
+- Spectral Normalization (SNGAN) — gradient stability
+- Adaptive Lambda (VQGAN) — gradient magnitude balancing
+- Feature Matching — reduced weight (0.1, not 1.0)
+- LeCam Regularization — extra disc smoothing
 
 References:
+- Least Squares GANs, Mao et al. ICCV 2017
 - Spectral Normalization for GANs, Miyato et al. ICLR 2018
-- Projected GAN Converges Faster, Sauer et al. NeurIPS 2021
-- Adversarial Diffusion Distillation, Sauer et al. ECCV 2024
 - Taming Transformers (VQGAN), Esser et al. CVPR 2021
-- Regularizing GANs via LeCam, Tseng et al. ICLR 2022
+- Adversarial Diffusion Distillation, Sauer et al. ECCV 2024
 """
 
 import torch
@@ -402,30 +396,31 @@ class GPT2ProjectedDiscriminator(nn.Module):
 
 
 # ---------------------------------------------------------------------------
-# Hinge loss utilities
+# LSGAN loss utilities (Mao et al. ICCV 2017)
 # ---------------------------------------------------------------------------
-def hinge_loss_disc(real_logits, fake_logits):
-    """Discriminator hinge loss. Returns scalar."""
-    return (F.relu(1.0 - real_logits).mean() + F.relu(1.0 + fake_logits).mean())
+def lsgan_loss_disc(real_logits, fake_logits):
+    """LSGAN discriminator loss: (D(real)-1)² + D(fake)².
+    Optimal D: D(real)→1, D(fake)→0. Natural output range ~[0,1]."""
+    return ((real_logits - 1.0).pow(2).mean() + fake_logits.pow(2).mean())
 
 
-def hinge_loss_gen(fake_logits):
-    """Generator hinge loss. Returns per-sample loss [B]."""
-    return -fake_logits
+def lsgan_loss_gen(fake_logits):
+    """LSGAN generator loss: (D(fake)-1)².
+    Returns per-element loss (same shape as input)."""
+    return (fake_logits - 1.0).pow(2)
 
 
 # ---------------------------------------------------------------------------
-# Adversarial Distillation Loss — v3 (Balanced)
+# Adversarial Distillation Loss — v4 (LSGAN)
 # ---------------------------------------------------------------------------
 class AdversarialDistillationLoss(nn.Module):
     """
-    Balanced adversarial distillation loss with SOTA stabilization.
+    Adversarial distillation loss with LSGAN + SOTA stabilization.
 
-    Key differences from v1/v2:
-    - Hinge loss (not BCE) for both discriminators
-    - LeCam regularization (not R1) for training stability
-    - Feature matching auxiliary loss for the generator
-    - Adaptive lambda (VQGAN-style) to balance gradient magnitudes
+    Key differences from v3:
+    - LSGAN (not hinge) — always-non-zero gradients, self-regularizing outputs
+    - Reduced feature matching weight (auxiliary, not dominant)
+    - Retained: spectral norm, LeCam, adaptive lambda
     """
 
     def __init__(
@@ -481,7 +476,7 @@ class AdversarialDistillationLoss(nn.Module):
         return reg
 
     def discriminator_loss(self, teacher_probs, student_probs, x_t, t):
-        """Projected discriminator loss with hinge loss + LeCam reg."""
+        """Projected discriminator loss with LSGAN + LeCam reg."""
         self._disc_step += 1
 
         teacher_probs = teacher_probs.detach()
@@ -491,9 +486,9 @@ class AdversarialDistillationLoss(nn.Module):
         real_tok, real_seq = self.discriminator(teacher_probs, x_t, t)
         fake_tok, fake_seq = self.discriminator(student_probs, x_t, t)
 
-        # Hinge loss (per-token + sequence)
-        token_loss = hinge_loss_disc(real_tok, fake_tok)
-        seq_loss = hinge_loss_disc(real_seq, fake_seq)
+        # LSGAN loss (per-token + sequence)
+        token_loss = lsgan_loss_disc(real_tok, fake_tok)
+        seq_loss = lsgan_loss_disc(real_seq, fake_seq)
         loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
 
         # LeCam regularization
@@ -527,7 +522,7 @@ class AdversarialDistillationLoss(nn.Module):
         return loss, metrics
 
     def gpt2_discriminator_loss(self, teacher_probs, student_probs, x_t, t):
-        """GPT-2 discriminator loss with hinge loss + LeCam reg."""
+        """GPT-2 discriminator loss with LSGAN + LeCam reg."""
         if self.gpt2_discriminator is None:
             return torch.tensor(0.0, device=t.device), {}
 
@@ -539,9 +534,9 @@ class AdversarialDistillationLoss(nn.Module):
         real_tok, real_seq = self.gpt2_discriminator(teacher_probs, x_t, t)
         fake_tok, fake_seq = self.gpt2_discriminator(student_probs, x_t, t)
 
-        # Hinge loss
-        token_loss = hinge_loss_disc(real_tok, fake_tok)
-        seq_loss = hinge_loss_disc(real_seq, fake_seq)
+        # LSGAN loss
+        token_loss = lsgan_loss_disc(real_tok, fake_tok)
+        seq_loss = lsgan_loss_disc(real_seq, fake_seq)
         loss = self.token_loss_weight * token_loss + self.seq_loss_weight * seq_loss
 
         # LeCam regularization for GPT-2 disc
@@ -574,7 +569,7 @@ class AdversarialDistillationLoss(nn.Module):
 
     def generator_loss(self, student_probs, teacher_probs, x_t, t):
         """
-        Generator adversarial loss with hinge loss + feature matching.
+        Generator adversarial loss with LSGAN + feature matching.
 
         Returns:
             proj_loss: [B] projected adversarial loss
@@ -585,9 +580,9 @@ class AdversarialDistillationLoss(nn.Module):
         out = self.discriminator(student_probs, x_t, t, return_features=True)
         fake_tok, fake_seq, fake_feat = out
 
-        # Hinge loss: -D(fake)
-        tok_loss = hinge_loss_gen(fake_tok.squeeze(-1)).mean(dim=-1)  # [B]
-        seq_loss = hinge_loss_gen(fake_seq.squeeze(-1))  # [B]
+        # LSGAN: (D(fake) - 1)²
+        tok_loss = lsgan_loss_gen(fake_tok.squeeze(-1)).mean(dim=-1)  # [B]
+        seq_loss = lsgan_loss_gen(fake_seq.squeeze(-1))  # [B]
         proj_loss = self.token_loss_weight * tok_loss + self.seq_loss_weight * seq_loss
 
         # --- Feature matching (projected disc) ---
@@ -604,8 +599,8 @@ class AdversarialDistillationLoss(nn.Module):
             g_out = self.gpt2_discriminator(student_probs, x_t, t, return_features=True)
             g_fake_tok, g_fake_seq, g_fake_feat = g_out
 
-            g_tok_loss = hinge_loss_gen(g_fake_tok.squeeze(-1)).mean(dim=-1)
-            g_seq_loss = hinge_loss_gen(g_fake_seq.squeeze(-1))
+            g_tok_loss = lsgan_loss_gen(g_fake_tok.squeeze(-1)).mean(dim=-1)
+            g_seq_loss = lsgan_loss_gen(g_fake_seq.squeeze(-1))
             gpt2_loss = self.token_loss_weight * g_tok_loss + self.seq_loss_weight * g_seq_loss
 
             # Feature matching (GPT-2 disc)

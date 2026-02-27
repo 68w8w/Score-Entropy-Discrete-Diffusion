@@ -1,11 +1,10 @@
-# Adversarial D-PeRFlow Configuration — v3 (Balanced)
+# Adversarial D-PeRFlow Configuration — v4 (LSGAN)
 #
-# SOTA stabilization techniques:
-# - Spectral normalization on all discriminator layers (SNGAN)
-# - Hinge loss instead of BCE (BigGAN/SAGAN)
-# - Adaptive lambda for gradient balancing (VQGAN)
-# - LeCam regularization instead of R1 (Tseng et al. 2022)
-# - Feature matching auxiliary loss (Salimans et al. 2016)
+# v3→v4 key change: Hinge loss → LSGAN (Least Squares GAN)
+# - Hinge saturated immediately (disc_loss→0.01 by step 50, gradient=0)
+# - LSGAN: always non-zero quadratic gradient, self-regularizing outputs
+# - FM weight: 1.0 → 0.1 (was dominating 90% of total loss)
+# - LeCam weight: 0.001 → 0.005 (stronger smoothing with LSGAN)
 #
 # Loss: L = L_fwd_KL + lambda_rev_kl * L_rev_KL
 #        + adaptive_lambda(lambda_adv) * L_proj_adv
@@ -55,15 +54,16 @@ adversarial:
   lambda_gpt2_adv: 0.1     # Base weight for GPT-2 adversarial loss
 
   # --- LeCam regularization (replaces R1) ---
-  # Prevents discriminator from becoming overconfident (Tseng et al. 2022)
-  lecam_weight: 0.001       # LeCam penalty weight. Try 0.001-0.01
+  # Extra disc smoothing alongside LSGAN's self-regularization
+  lecam_weight: 0.005       # LeCam penalty weight. Increased from 0.001 for LSGAN
   # R1 kept at 0 (disabled) since LeCam replaces it
   r1_gamma: 0.0
   r1_interval: 16
 
   # --- Feature matching auxiliary loss ---
   # ||E[f_D(real)] - E[f_D(fake)]||^2 provides smooth gradient signal
-  feature_matching_weight: 1.0  # Try 0.5-2.0. 0=disabled.
+  # v3 had 1.0 which dominated (fm≈7 >> kl≈0.2). Reduced to auxiliary role.
+  feature_matching_weight: 0.1  # Auxiliary signal only. Was 1.0 in v3.
 
   # --- Adaptive lambda (VQGAN-style) ---
   # Dynamically balances distillation vs adversarial gradient magnitudes
