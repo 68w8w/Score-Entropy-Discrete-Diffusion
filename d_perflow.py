@@ -431,6 +431,8 @@ def get_d_perflow_loss_fn(
     train_temperature: float = 1.0,
     debug_log_file: str = None,
     lambda_rev_kl: float = 0.0,
+    lambda_perceptual: float = 0.0,
+    perceptual_loss_fn=None,
 ):
     """
     Create the D-PeRFlow loss function.
@@ -449,6 +451,8 @@ def get_d_perflow_loss_fn(
                           Default 1.0 means no temperature scaling
         debug_log_file: Path to save debug logs (if None, print to console)
         lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
+        lambda_perceptual: Weight for perceptual loss (0 = disabled)
+        perceptual_loss_fn: GPT2PerceptualLoss instance (required if lambda_perceptual > 0)
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -535,6 +539,11 @@ def get_d_perflow_loss_fn(
             rev_kl = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, P_student)
             loss = loss + lambda_rev_kl * rev_kl
 
+        # 7. Perceptual loss: GPT-2 feature distance between teacher and student
+        if lambda_perceptual > 0 and perceptual_loss_fn is not None:
+            p_loss = perceptual_loss_fn(P_t_k_minus_1, P_student)
+            loss = loss + lambda_perceptual * p_loss
+
         # Debug: print distribution statistics every 100 steps
         if hasattr(loss_fn, 'debug_step'):
             loss_fn.debug_step += 1
@@ -609,6 +618,8 @@ def get_d_perflow_step_fn(
     train_temperature: float = 1.0,
     debug_log_file: str = None,
     lambda_rev_kl: float = 0.0,
+    lambda_perceptual: float = 0.0,
+    perceptual_loss_fn=None,
 ):
     """
     Create the D-PeRFlow training step function.
@@ -627,6 +638,8 @@ def get_d_perflow_step_fn(
         train_temperature: Temperature for softening distributions during training
         debug_log_file: Path to save debug logs (if None, print to console only)
         lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
+        lambda_perceptual: Weight for perceptual loss (0 = disabled)
+        perceptual_loss_fn: GPT2PerceptualLoss instance (required if lambda_perceptual > 0)
 
     Returns:
         step_fn: Training step function
@@ -643,6 +656,8 @@ def get_d_perflow_step_fn(
         train_temperature=train_temperature,
         debug_log_file=debug_log_file,
         lambda_rev_kl=lambda_rev_kl,
+        lambda_perceptual=lambda_perceptual,
+        perceptual_loss_fn=perceptual_loss_fn,
     )
 
     accum_iter = 0

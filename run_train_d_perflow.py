@@ -211,6 +211,20 @@ def _run(rank, world_size, cfg):
     mprint(f"Debug log will be saved to: {debug_log_file}")
 
     lambda_rev_kl = cfg.d_perflow.get('lambda_rev_kl', 0.0)
+    lambda_perceptual = cfg.d_perflow.get('lambda_perceptual', 0.0)
+
+    # Perceptual loss (frozen GPT-2 features)
+    perceptual_loss_fn = None
+    if lambda_perceptual > 0:
+        from perceptual_loss import GPT2PerceptualLoss
+        perceptual_layers = cfg.d_perflow.get('perceptual_layers', [2, 5, 8, 11])
+        perceptual_loss_type = cfg.d_perflow.get('perceptual_loss_type', 'l2')
+        perceptual_loss_fn = GPT2PerceptualLoss(
+            model_name="gpt2",
+            feature_layers=tuple(perceptual_layers),
+            loss_type=perceptual_loss_type,
+        ).to(device)
+        mprint(f"Perceptual loss: GPT-2 layers {list(perceptual_layers)}, type={perceptual_loss_type}")
 
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
@@ -226,6 +240,8 @@ def _run(rank, world_size, cfg):
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
         lambda_rev_kl=lambda_rev_kl,
+        lambda_perceptual=lambda_perceptual,
+        perceptual_loss_fn=perceptual_loss_fn,
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -242,6 +258,8 @@ def _run(rank, world_size, cfg):
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
         lambda_rev_kl=lambda_rev_kl,
+        lambda_perceptual=lambda_perceptual,
+        perceptual_loss_fn=perceptual_loss_fn,
     )
 
     # D-PeRFlow sampler for snapshot sampling
@@ -262,7 +280,13 @@ def _run(rank, world_size, cfg):
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
     mprint(f"Euler steps (teacher): {cfg.d_perflow.euler_steps}")
     mprint(f"Reverse KL weight (lambda_rev_kl): {lambda_rev_kl}")
-    mprint(f"Loss: fwd_KL" + (f" + {lambda_rev_kl} * rev_KL" if lambda_rev_kl > 0 else ""))
+    mprint(f"Perceptual loss weight (lambda_perceptual): {lambda_perceptual}")
+    loss_str = "fwd_KL"
+    if lambda_rev_kl > 0:
+        loss_str += f" + {lambda_rev_kl} * rev_KL"
+    if lambda_perceptual > 0:
+        loss_str += f" + {lambda_perceptual} * perceptual"
+    mprint(f"Loss: {loss_str}")
 
     while state['step'] < num_train_steps + 1:
         step = state['step']

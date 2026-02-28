@@ -40,6 +40,13 @@ d_perflow:
   # 0.5 = balanced fwd_KL + rev_KL (recommended for distillation)
   lambda_rev_kl: 0.5
 
+  # Perceptual loss: frozen GPT-2 feature distance
+  # 0.0 = disabled (pure KL only)
+  # 0.1 = recommended weight for perceptual loss
+  lambda_perceptual: 0.0
+  perceptual_layers: [2, 5, 8, 11]  # GPT-2 layers to extract features from
+  perceptual_loss_type: l2  # l2, cosine, or l1
+
 training:
   batch_size: 256  # Smaller batch for distillation
   accum: 1
