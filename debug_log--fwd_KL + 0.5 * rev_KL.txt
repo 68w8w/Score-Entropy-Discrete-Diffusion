@@ -1,0 +1,2844 @@
+
+[DEBUG Step 100] 2026-02-28 15:28:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0814, unique_argmax=415.0/1024
+  Student: entropy=0.2604, unique_argmax=395.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 198, 286, 11] counts: [360, 34, 20, 18, 18]
+  Loss: 0.6084
+
+[DEBUG Step 100] 2026-02-28 15:28:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1320, unique_argmax=225.0/1024
+  Student: entropy=0.4657, unique_argmax=198.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [696, 15, 12, 12, 9]
+  Loss: 0.9879
+
+[DEBUG Step 100] 2026-02-28 15:28:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1291, unique_argmax=258.0/1024
+  Student: entropy=0.4569, unique_argmax=239.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 198, 262, 11, 290] counts: [651, 22, 15, 13, 10]
+  Loss: 0.8046
+
+[DEBUG Step 100] 2026-02-28 15:28:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1698, unique_argmax=95.0/1024
+  Student: entropy=0.6150, unique_argmax=66.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 13, 262, 286, 284] counts: [947, 5, 3, 2, 2]
+  Loss: 0.8195
+
+[DEBUG Step 200] 2026-02-28 15:29:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0713, unique_argmax=407.0/1024
+  Student: entropy=0.2106, unique_argmax=388.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 13, 11, 447] counts: [193, 40, 35, 33, 24]
+  Loss: 0.5462
+
+[DEBUG Step 200] 2026-02-28 15:29:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0968, unique_argmax=433.0/1024
+  Student: entropy=0.3040, unique_argmax=409.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 11, 13, 290, 198] counts: [296, 36, 28, 27, 26]
+  Loss: 0.6600
+
+[DEBUG Step 200] 2026-02-28 15:29:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0605, unique_argmax=364.0/1024
+  Student: entropy=0.1822, unique_argmax=358.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 198, 11, 284] counts: [183, 40, 37, 32, 26]
+  Loss: 0.5366
+
+[DEBUG Step 200] 2026-02-28 15:29:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1279, unique_argmax=229.0/1024
+  Student: entropy=0.4626, unique_argmax=204.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [709, 13, 11, 10, 9]
+  Loss: 0.9895
+
+[DEBUG Step 300] 2026-02-28 15:29:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0226, unique_argmax=436.0/1024
+  Student: entropy=0.0462, unique_argmax=433.0/1024
+  Argmax agreement: 99.5%
+  Student top5 tokens: [198, 13, 14, 12, 357] counts: [74, 61, 46, 31, 27]
+  Loss: 0.0951
+
+[DEBUG Step 300] 2026-02-28 15:29:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0259, unique_argmax=408.0/1024
+  Student: entropy=0.0784, unique_argmax=401.0/1024
+  Argmax agreement: 98.6%
+  Student top5 tokens: [11, 284, 198, 290, 262] counts: [51, 38, 35, 32, 28]
+  Loss: 0.2578
+
+[DEBUG Step 300] 2026-02-28 15:29:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0476, unique_argmax=449.0/1024
+  Student: entropy=0.1584, unique_argmax=442.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 262, 11, 284, 13] counts: [63, 47, 35, 33, 32]
+  Loss: 0.4543
+
+[DEBUG Step 300] 2026-02-28 15:29:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0999, unique_argmax=340.0/1024
+  Student: entropy=0.3475, unique_argmax=318.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [410, 39, 31, 18, 17]
+  Loss: 0.7955
+
+[DEBUG Step 400] 2026-02-28 15:30:28
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1046, unique_argmax=329.0/1024
+  Student: entropy=0.3483, unique_argmax=313.0/1024
+  Argmax agreement: 96.6%
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [495, 29, 22, 18, 15]
+  Loss: 0.5800
+
+[DEBUG Step 400] 2026-02-28 15:30:28
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0907, unique_argmax=295.0/1024
+  Student: entropy=0.3131, unique_argmax=284.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 13, 262, 286] counts: [332, 35, 34, 33, 21]
+  Loss: 0.6806
+
+[DEBUG Step 400] 2026-02-28 15:30:28
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0273, unique_argmax=469.0/1024
+  Student: entropy=0.0736, unique_argmax=466.0/1024
+  Argmax agreement: 98.6%
+  Student top5 tokens: [198, 262, 13, 11, 286] counts: [56, 38, 35, 33, 24]
+  Loss: 0.1968
+
+[DEBUG Step 400] 2026-02-28 15:30:28
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1147, unique_argmax=258.0/1024
+  Student: entropy=0.4077, unique_argmax=236.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 11, 318, 13] counts: [627, 15, 14, 12, 11]
+  Loss: 0.8748
+
+[DEBUG Step 500] 2026-02-28 15:31:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0825, unique_argmax=427.0/1024
+  Student: entropy=0.2553, unique_argmax=418.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 262, 11, 13, 286] counts: [247, 38, 35, 27, 18]
+  Loss: 0.4438
+
+[DEBUG Step 500] 2026-02-28 15:31:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1017, unique_argmax=341.0/1024
+  Student: entropy=0.3501, unique_argmax=322.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 13, 447, 198, 11] counts: [447, 23, 22, 21, 19]
+  Loss: 0.8029
+
+[DEBUG Step 500] 2026-02-28 15:31:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0898, unique_argmax=415.0/1024
+  Student: entropy=0.2939, unique_argmax=395.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [316, 30, 25, 21, 21]
+  Loss: 0.5478
+
+[DEBUG Step 500] 2026-02-28 15:31:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1371, unique_argmax=224.0/1024
+  Student: entropy=0.4536, unique_argmax=203.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 284, 13, 11] counts: [717, 18, 11, 10, 8]
+  Loss: 0.7988
+
+[DEBUG Step 600] 2026-02-28 15:31:54
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1618, unique_argmax=76.0/1024
+  Student: entropy=0.5103, unique_argmax=50.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 447, 326, 284, 251] counts: [964, 3, 2, 2, 2]
+  Loss: 1.0282
+
+[DEBUG Step 600] 2026-02-28 15:31:54
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0661, unique_argmax=451.0/1024
+  Student: entropy=0.2081, unique_argmax=436.0/1024
+  Argmax agreement: 92.9%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [139, 45, 44, 37, 30]
+  Loss: 0.5219
+
+[DEBUG Step 600] 2026-02-28 15:31:54
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1251, unique_argmax=244.0/1024
+  Student: entropy=0.4143, unique_argmax=216.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 11, 13, 287, 262] counts: [696, 15, 14, 10, 9]
+  Loss: 0.9606
+
+[DEBUG Step 600] 2026-02-28 15:31:54
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1463, unique_argmax=180.0/1024
+  Student: entropy=0.4736, unique_argmax=154.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 284, 11, 290, 262] counts: [791, 13, 12, 8, 8]
+  Loss: 0.9017
+
+[DEBUG Step 700] 2026-02-28 15:32:37
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1374, unique_argmax=198.0/1024
+  Student: entropy=0.4196, unique_argmax=180.0/1024
+  Argmax agreement: 97.0%
+  Student top5 tokens: [50257, 198, 11, 284, 13] counts: [753, 14, 11, 9, 8]
+  Loss: 0.5901
+
+[DEBUG Step 700] 2026-02-28 15:32:37
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1856, unique_argmax=33.0/1024
+  Student: entropy=0.5476, unique_argmax=3.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 2631, 286, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 0.9177
+
+[DEBUG Step 700] 2026-02-28 15:32:37
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1866, unique_argmax=42.0/1024
+  Student: entropy=0.5469, unique_argmax=2.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 11, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 1.1462
+
+[DEBUG Step 700] 2026-02-28 15:32:37
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1903, unique_argmax=28.0/1024
+  Student: entropy=0.5509, unique_argmax=1.0/1024
+  Argmax agreement: 97.0%
+  Student top5 tokens: [50257, 2, 0, 3, 1] counts: [1024, 0, 0, 0, 0]
+  Loss: 0.6934
+
+[DEBUG Step 800] 2026-02-28 15:33:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0847, unique_argmax=363.0/1024
+  Student: entropy=0.2807, unique_argmax=348.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [404, 25, 21, 18, 18]
+  Loss: 0.7615
+
+[DEBUG Step 800] 2026-02-28 15:33:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1218, unique_argmax=289.0/1024
+  Student: entropy=0.3753, unique_argmax=263.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 11, 290, 286] counts: [573, 24, 20, 17, 17]
+  Loss: 0.7954
+
+[DEBUG Step 800] 2026-02-28 15:33:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.0916, unique_argmax=291.0/1024
+  Student: entropy=0.3086, unique_argmax=274.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 13, 290, 11, 262] counts: [496, 26, 25, 19, 18]
+  Loss: 0.7778
+
+[DEBUG Step 800] 2026-02-28 15:33:20
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1567, unique_argmax=118.0/1024
+  Student: entropy=0.4474, unique_argmax=97.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 13, 247, 198, 11] counts: [890, 6, 5, 5, 5]
+  Loss: 0.7735
+
+[DEBUG Step 900] 2026-02-28 15:34:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1223, unique_argmax=233.0/1024
+  Student: entropy=0.3696, unique_argmax=212.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 13, 11, 198, 447] counts: [635, 22, 20, 17, 14]
+  Loss: 0.8463
+
+[DEBUG Step 900] 2026-02-28 15:34:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.1082, unique_argmax=329.0/1024
+  Student: entropy=0.3249, unique_argmax=312.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 13, 11, 262, 447] counts: [395, 32, 27, 21, 18]
+  Loss: 0.6320
+
+[DEBUG Step 900] 2026-02-28 15:34:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1741, unique_argmax=49.0/1024
+  Student: entropy=0.5284, unique_argmax=4.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 461, 135, 389, 0] counts: [1021, 1, 1, 1, 0]
+  Loss: 1.0806
+
+[DEBUG Step 900] 2026-02-28 15:34:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0913, unique_argmax=420.0/1024
+  Student: entropy=0.3028, unique_argmax=397.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 11, 290, 198, 262] counts: [330, 28, 21, 21, 20]
+  Loss: 0.8020
+
+[DEBUG Step 1000] 2026-02-28 15:34:58
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1523, unique_argmax=136.0/1024
+  Student: entropy=0.4264, unique_argmax=117.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 262, 284, 13] counts: [839, 13, 7, 6, 5]
+  Loss: 0.8338
+
+[DEBUG Step 1000] 2026-02-28 15:34:58
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0617, unique_argmax=382.0/1024
+  Student: entropy=0.2083, unique_argmax=372.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 287, 262, 198, 465] counts: [210, 27, 25, 17, 16]
+  Loss: 0.5829
+
+[DEBUG Step 1000] 2026-02-28 15:34:58
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1313, unique_argmax=258.0/1024
+  Student: entropy=0.3866, unique_argmax=241.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 262, 284, 290, 247] counts: [577, 21, 16, 13, 13]
+  Loss: 0.6066
+
+[DEBUG Step 1000] 2026-02-28 15:34:58
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1843, unique_argmax=45.0/1024
+  Student: entropy=0.4947, unique_argmax=3.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 1972, 1785, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 1.0256
+
+[DEBUG Step 1100] 2026-02-28 15:35:41
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0644, unique_argmax=418.0/1024
+  Student: entropy=0.1412, unique_argmax=421.0/1024
+  Argmax agreement: 93.4%
+  Student top5 tokens: [262, 50257, 198, 13, 11] counts: [45, 43, 42, 33, 32]
+  Loss: 0.3585
+
+[DEBUG Step 1100] 2026-02-28 15:35:41
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0808, unique_argmax=444.0/1024
+  Student: entropy=0.2561, unique_argmax=427.0/1024
+  Argmax agreement: 94.3%
+  Student top5 tokens: [50257, 11, 257, 13, 198] counts: [239, 29, 26, 23, 20]
+  Loss: 0.7229
+
+[DEBUG Step 1100] 2026-02-28 15:35:41
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0681, unique_argmax=456.0/1024
+  Student: entropy=0.1995, unique_argmax=449.0/1024
+  Argmax agreement: 93.3%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [128, 46, 36, 35, 28]
+  Loss: 0.4288
+
+[DEBUG Step 1100] 2026-02-28 15:35:41
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1054, unique_argmax=213.0/1024
+  Student: entropy=0.3356, unique_argmax=196.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 447, 11, 198, 247] counts: [598, 30, 20, 19, 17]
+  Loss: 0.7620
+
+[DEBUG Step 1200] 2026-02-28 15:36:24
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0841, unique_argmax=370.0/1024
+  Student: entropy=0.2731, unique_argmax=358.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 13, 11, 262, 284] counts: [318, 40, 30, 24, 19]
+  Loss: 0.6407
+
+[DEBUG Step 1200] 2026-02-28 15:36:24
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0880, unique_argmax=282.0/1024
+  Student: entropy=0.3023, unique_argmax=271.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 247, 447, 13, 284] counts: [400, 28, 23, 21, 20]
+  Loss: 0.7679
+
+[DEBUG Step 1200] 2026-02-28 15:36:24
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1103, unique_argmax=300.0/1024
+  Student: entropy=0.3401, unique_argmax=290.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [463, 27, 20, 17, 12]
+  Loss: 0.7483
+
+[DEBUG Step 1200] 2026-02-28 15:36:24
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1285, unique_argmax=247.0/1024
+  Student: entropy=0.3828, unique_argmax=226.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 13, 290, 198] counts: [657, 12, 12, 11, 11]
+  Loss: 0.8914
+
+[DEBUG Step 1300] 2026-02-28 15:37:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0737, unique_argmax=406.0/1024
+  Student: entropy=0.2433, unique_argmax=395.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [245, 43, 30, 29, 25]
+  Loss: 0.6681
+
+[DEBUG Step 1300] 2026-02-28 15:37:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1777, unique_argmax=80.0/1024
+  Student: entropy=0.4565, unique_argmax=40.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 262, 583, 287, 198] counts: [970, 4, 3, 3, 3]
+  Loss: 1.2052
+
+[DEBUG Step 1300] 2026-02-28 15:37:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1727, unique_argmax=87.0/1024
+  Student: entropy=0.4679, unique_argmax=50.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 338, 286, 198, 11] counts: [968, 3, 3, 2, 2]
+  Loss: 1.1679
+
+[DEBUG Step 1300] 2026-02-28 15:37:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0742, unique_argmax=349.0/1024
+  Student: entropy=0.2250, unique_argmax=337.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 11, 447, 13, 284] counts: [241, 29, 28, 26, 25]
+  Loss: 0.5254
+
+[DEBUG Step 1400] 2026-02-28 15:37:51
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1762, unique_argmax=72.0/1024
+  Student: entropy=0.4424, unique_argmax=45.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 262, 13, 284, 198] counts: [970, 3, 3, 2, 2]
+  Loss: 0.8206
+
+[DEBUG Step 1400] 2026-02-28 15:37:51
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0893, unique_argmax=274.0/1024
+  Student: entropy=0.2810, unique_argmax=260.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 447, 11, 13, 198] counts: [431, 35, 31, 26, 18]
+  Loss: 0.5678
+
+[DEBUG Step 1400] 2026-02-28 15:37:51
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1837, unique_argmax=47.0/1024
+  Student: entropy=0.4624, unique_argmax=3.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 4664, 508, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 1.0215
+
+[DEBUG Step 1400] 2026-02-28 15:37:51
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0248, unique_argmax=531.0/1024
+  Student: entropy=0.0906, unique_argmax=522.0/1024
+  Argmax agreement: 98.3%
+  Student top5 tokens: [11, 262, 290, 447, 284] counts: [48, 40, 22, 21, 20]
+  Loss: 0.2785
+
+[DEBUG Step 1500] 2026-02-28 15:38:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0893, unique_argmax=436.0/1024
+  Student: entropy=0.2708, unique_argmax=428.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 262, 13, 286] counts: [250, 45, 31, 25, 19]
+  Loss: 0.5476
+
+[DEBUG Step 1500] 2026-02-28 15:38:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1061, unique_argmax=333.0/1024
+  Student: entropy=0.3326, unique_argmax=315.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 198, 13, 262, 156] counts: [453, 29, 23, 18, 14]
+  Loss: 0.8111
+
+[DEBUG Step 1500] 2026-02-28 15:38:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0906, unique_argmax=401.0/1024
+  Student: entropy=0.2909, unique_argmax=377.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [327, 27, 27, 26, 20]
+  Loss: 0.6630
+
+[DEBUG Step 1500] 2026-02-28 15:38:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1606, unique_argmax=120.0/1024
+  Student: entropy=0.4268, unique_argmax=93.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 11, 290, 257, 198] counts: [907, 5, 4, 4, 4]
+  Loss: 0.8780
+
+[DEBUG Step 1600] 2026-02-28 15:39:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0879, unique_argmax=401.0/1024
+  Student: entropy=0.2785, unique_argmax=387.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 262, 11, 286, 13] counts: [186, 58, 49, 39, 25]
+  Loss: 0.6594
+
+[DEBUG Step 1600] 2026-02-28 15:39:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0894, unique_argmax=357.0/1024
+  Student: entropy=0.2759, unique_argmax=343.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [326, 35, 28, 25, 21]
+  Loss: 0.6133
+
+[DEBUG Step 1600] 2026-02-28 15:39:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1451, unique_argmax=195.0/1024
+  Student: entropy=0.3911, unique_argmax=167.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 247, 198, 447, 290] counts: [781, 9, 9, 8, 7]
+  Loss: 0.9223
+
+[DEBUG Step 1600] 2026-02-28 15:39:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1281, unique_argmax=174.0/1024
+  Student: entropy=0.3715, unique_argmax=156.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 45838, 287, 11, 13] counts: [720, 11, 9, 9, 8]
+  Loss: 0.7749
+
+[DEBUG Step 1700] 2026-02-28 15:40:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1197, unique_argmax=235.0/1024
+  Student: entropy=0.3426, unique_argmax=212.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 198, 13, 11, 284] counts: [717, 14, 8, 7, 6]
+  Loss: 0.8750
+
+[DEBUG Step 1700] 2026-02-28 15:40:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.1029, unique_argmax=421.0/1024
+  Student: entropy=0.3099, unique_argmax=408.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 198, 13, 284, 11] counts: [331, 25, 21, 15, 15]
+  Loss: 0.5597
+
+[DEBUG Step 1700] 2026-02-28 15:40:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1092, unique_argmax=301.0/1024
+  Student: entropy=0.3434, unique_argmax=281.0/1024
+  Argmax agreement: 94.4%
+  Student top5 tokens: [50257, 13, 262, 11, 338] counts: [518, 27, 22, 16, 15]
+  Loss: 0.9075
+
+[DEBUG Step 1700] 2026-02-28 15:40:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0995, unique_argmax=330.0/1024
+  Student: entropy=0.3097, unique_argmax=312.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 198, 11, 262, 284] counts: [450, 33, 27, 24, 20]
+  Loss: 0.5994
+
+[DEBUG Step 1800] 2026-02-28 15:40:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1482, unique_argmax=163.0/1024
+  Student: entropy=0.3970, unique_argmax=136.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 11, 262, 198, 286] counts: [814, 13, 12, 10, 8]
+  Loss: 0.8269
+
+[DEBUG Step 1800] 2026-02-28 15:40:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0882, unique_argmax=392.0/1024
+  Student: entropy=0.2847, unique_argmax=372.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [325, 32, 30, 27, 23]
+  Loss: 0.6435
+
+[DEBUG Step 1800] 2026-02-28 15:40:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0950, unique_argmax=361.0/1024
+  Student: entropy=0.3066, unique_argmax=340.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 13, 11, 198] counts: [419, 31, 30, 22, 20]
+  Loss: 0.6680
+
+[DEBUG Step 1800] 2026-02-28 15:40:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1204, unique_argmax=228.0/1024
+  Student: entropy=0.3522, unique_argmax=207.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 262, 13, 284, 11] counts: [661, 21, 21, 14, 12]
+  Loss: 0.8884
+
+[DEBUG Step 1900] 2026-02-28 15:41:40
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1055, unique_argmax=372.0/1024
+  Student: entropy=0.3261, unique_argmax=347.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [436, 38, 20, 20, 20]
+  Loss: 0.6706
+
+[DEBUG Step 1900] 2026-02-28 15:41:40
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0637, unique_argmax=422.0/1024
+  Student: entropy=0.2122, unique_argmax=407.0/1024
+  Argmax agreement: 92.8%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [129, 50, 48, 32, 30]
+  Loss: 0.6784
+
+[DEBUG Step 1900] 2026-02-28 15:41:40
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1207, unique_argmax=241.0/1024
+  Student: entropy=0.3588, unique_argmax=220.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 11, 262, 447, 198] counts: [587, 29, 24, 14, 12]
+  Loss: 0.8691
+
+[DEBUG Step 1900] 2026-02-28 15:41:40
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1882, unique_argmax=47.0/1024
+  Student: entropy=0.4754, unique_argmax=2.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 5981, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 1.1019
+
+[DEBUG Step 2000] 2026-02-28 15:42:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1740, unique_argmax=78.0/1024
+  Student: entropy=0.4410, unique_argmax=53.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 284, 11, 262, 198] counts: [963, 4, 4, 2, 2]
+  Loss: 0.8518
+
+[DEBUG Step 2000] 2026-02-28 15:42:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0813, unique_argmax=382.0/1024
+  Student: entropy=0.2734, unique_argmax=356.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [355, 33, 28, 22, 17]
+  Loss: 0.7148
+
+[DEBUG Step 2000] 2026-02-28 15:42:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1744, unique_argmax=77.0/1024
+  Student: entropy=0.4527, unique_argmax=49.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 13, 257, 198, 314] counts: [964, 7, 3, 3, 2]
+  Loss: 0.8848
+
+[DEBUG Step 2000] 2026-02-28 15:42:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0252, unique_argmax=491.0/1024
+  Student: entropy=0.0759, unique_argmax=484.0/1024
+  Argmax agreement: 98.5%
+  Student top5 tokens: [198, 13, 11, 257, 262] counts: [46, 31, 31, 29, 28]
+  Loss: 0.2344
+
+[DEBUG Step 2100] 2026-02-28 15:43:06
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0542, unique_argmax=412.0/1024
+  Student: entropy=0.1315, unique_argmax=407.0/1024
+  Argmax agreement: 93.9%
+  Student top5 tokens: [50257, 13, 11, 262, 447] counts: [50, 40, 34, 31, 30]
+  Loss: 0.3789
+
+[DEBUG Step 2100] 2026-02-28 15:43:06
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1059, unique_argmax=283.0/1024
+  Student: entropy=0.3149, unique_argmax=258.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 13, 262, 257, 314] counts: [513, 19, 17, 17, 16]
+  Loss: 0.9318
+
+[DEBUG Step 2100] 2026-02-28 15:43:06
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0657, unique_argmax=421.0/1024
+  Student: entropy=0.1904, unique_argmax=409.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [143, 38, 37, 34, 34]
+  Loss: 0.5498
+
+[DEBUG Step 2100] 2026-02-28 15:43:06
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0901, unique_argmax=318.0/1024
+  Student: entropy=0.2753, unique_argmax=297.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 262, 11, 447, 13] counts: [442, 25, 22, 20, 19]
+  Loss: 0.6768
+
+[DEBUG Step 2200] 2026-02-28 15:43:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1664, unique_argmax=101.0/1024
+  Student: entropy=0.4387, unique_argmax=60.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 262, 5888, 13, 11] counts: [949, 5, 3, 3, 2]
+  Loss: 1.1330
+
+[DEBUG Step 2200] 2026-02-28 15:43:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0191, unique_argmax=435.0/1024
+  Student: entropy=0.0584, unique_argmax=433.0/1024
+  Argmax agreement: 98.5%
+  Student top5 tokens: [13, 262, 11, 257, 290] counts: [44, 43, 38, 26, 20]
+  Loss: 0.1885
+
+[DEBUG Step 2200] 2026-02-28 15:43:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1353, unique_argmax=206.0/1024
+  Student: entropy=0.3665, unique_argmax=190.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 11, 257, 318, 262] counts: [708, 18, 9, 8, 8]
+  Loss: 0.7231
+
+[DEBUG Step 2200] 2026-02-28 15:43:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1083, unique_argmax=326.0/1024
+  Student: entropy=0.3172, unique_argmax=302.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 13, 198, 11, 257] counts: [487, 43, 39, 18, 15]
+  Loss: 0.7374
+
+[DEBUG Step 2300] 2026-02-28 15:44:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0653, unique_argmax=463.0/1024
+  Student: entropy=0.1588, unique_argmax=458.0/1024
+  Argmax agreement: 92.7%
+  Student top5 tokens: [13, 50257, 11, 198, 12] counts: [51, 48, 47, 40, 24]
+  Loss: 0.4902
+
+[DEBUG Step 2300] 2026-02-28 15:44:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1081, unique_argmax=330.0/1024
+  Student: entropy=0.3341, unique_argmax=304.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 13, 11, 198, 262] counts: [501, 32, 23, 17, 13]
+  Loss: 0.8905
+
+[DEBUG Step 2300] 2026-02-28 15:44:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1100, unique_argmax=263.0/1024
+  Student: entropy=0.3369, unique_argmax=243.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 11, 13, 338, 314] counts: [561, 22, 17, 14, 13]
+  Loss: 0.8890
+
+[DEBUG Step 2300] 2026-02-28 15:44:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1839, unique_argmax=35.0/1024
+  Student: entropy=0.4549, unique_argmax=3.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 4652, 3245, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 0.9079
+
+[DEBUG Step 2400] 2026-02-28 15:45:19
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0886, unique_argmax=433.0/1024
+  Student: entropy=0.2629, unique_argmax=419.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 198, 262, 13, 11] counts: [246, 46, 27, 24, 19]
+  Loss: 0.5494
+
+[DEBUG Step 2400] 2026-02-28 15:45:19
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0604, unique_argmax=318.0/1024
+  Student: entropy=0.1705, unique_argmax=311.0/1024
+  Argmax agreement: 91.3%
+  Student top5 tokens: [50257, 62, 447, 247, 13] counts: [109, 52, 46, 36, 27]
+  Loss: 0.4999
+
+[DEBUG Step 2400] 2026-02-28 15:45:19
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1361, unique_argmax=220.0/1024
+  Student: entropy=0.3738, unique_argmax=203.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [677, 18, 15, 8, 7]
+  Loss: 0.8166
+
+[DEBUG Step 2400] 2026-02-28 15:45:19
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1844, unique_argmax=35.0/1024
+  Student: entropy=0.4617, unique_argmax=2.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 286, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 0.9193
+
+[DEBUG Step 2500] 2026-02-28 15:46:13
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0773, unique_argmax=444.0/1024
+  Student: entropy=0.2531, unique_argmax=423.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [247, 31, 24, 17, 17]
+  Loss: 0.7083
+
+[DEBUG Step 2500] 2026-02-28 15:46:13
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1303, unique_argmax=230.0/1024
+  Student: entropy=0.3545, unique_argmax=204.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 262, 198, 290, 13] counts: [707, 16, 14, 9, 8]
+  Loss: 0.7591
+
+[DEBUG Step 2500] 2026-02-28 15:46:13
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0862, unique_argmax=345.0/1024
+  Student: entropy=0.2814, unique_argmax=331.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 13, 198, 447, 247] counts: [323, 31, 23, 19, 18]
+  Loss: 0.7664
+
+[DEBUG Step 2500] 2026-02-28 15:46:13
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1904, unique_argmax=41.0/1024
+  Student: entropy=0.4695, unique_argmax=2.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 3237, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 1.0304
+
+[DEBUG Step 2600] 2026-02-28 15:46:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0884, unique_argmax=378.0/1024
+  Student: entropy=0.2764, unique_argmax=361.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 286, 284, 13] counts: [313, 26, 23, 22, 22]
+  Loss: 0.5939
+
+[DEBUG Step 2600] 2026-02-28 15:46:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1434, unique_argmax=178.0/1024
+  Student: entropy=0.3757, unique_argmax=151.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 262, 290, 284, 13] counts: [804, 13, 6, 6, 5]
+  Loss: 0.9945
+
+[DEBUG Step 2600] 2026-02-28 15:46:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1108, unique_argmax=324.0/1024
+  Student: entropy=0.3265, unique_argmax=300.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 262, 13, 198, 284] counts: [470, 26, 26, 22, 15]
+  Loss: 0.7138
+
+[DEBUG Step 2600] 2026-02-28 15:46:56
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0527, unique_argmax=351.0/1024
+  Student: entropy=0.1322, unique_argmax=347.0/1024
+  Argmax agreement: 92.6%
+  Student top5 tokens: [262, 447, 50257, 13, 11] counts: [41, 39, 37, 33, 30]
+  Loss: 0.4143
+
+[DEBUG Step 2700] 2026-02-28 15:47:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0102, unique_argmax=500.0/1024
+  Student: entropy=0.0478, unique_argmax=497.0/1024
+  Argmax agreement: 98.8%
+  Student top5 tokens: [11, 262, 60, 287, 290] counts: [50, 29, 28, 25, 22]
+  Loss: 0.1607
+
+[DEBUG Step 2700] 2026-02-28 15:47:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0245, unique_argmax=349.0/1024
+  Student: entropy=0.0674, unique_argmax=345.0/1024
+  Argmax agreement: 98.9%
+  Student top5 tokens: [198, 13, 262, 12, 25] counts: [52, 50, 48, 26, 22]
+  Loss: 0.1851
+
+[DEBUG Step 2700] 2026-02-28 15:47:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1169, unique_argmax=271.0/1024
+  Student: entropy=0.3457, unique_argmax=249.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 11, 13, 262, 284] counts: [570, 23, 20, 19, 13]
+  Loss: 0.7523
+
+[DEBUG Step 2700] 2026-02-28 15:47:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.1153, unique_argmax=327.0/1024
+  Student: entropy=0.3837, unique_argmax=307.0/1024
+  Argmax agreement: 93.9%
+  Student top5 tokens: [50257, 11033, 29090, 6184, 198] counts: [400, 24, 17, 13, 13]
+  Loss: 0.9830
+
+[DEBUG Step 2800] 2026-02-28 15:48:22
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1439, unique_argmax=178.0/1024
+  Student: entropy=0.3968, unique_argmax=157.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 198, 13, 262] counts: [776, 14, 13, 8, 7]
+  Loss: 0.9115
+
+[DEBUG Step 2800] 2026-02-28 15:48:22
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0969, unique_argmax=426.0/1024
+  Student: entropy=0.2968, unique_argmax=413.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 286, 287, 11, 13] counts: [305, 26, 21, 19, 18]
+  Loss: 0.6082
+
+[DEBUG Step 2800] 2026-02-28 15:48:22
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1864, unique_argmax=35.0/1024
+  Student: entropy=0.4669, unique_argmax=2.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 198, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 0.8247
+
+[DEBUG Step 2800] 2026-02-28 15:48:22
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1613, unique_argmax=133.0/1024
+  Student: entropy=0.4223, unique_argmax=102.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 262, 284, 257, 198] counts: [886, 7, 6, 5, 5]
+  Loss: 0.9780
+
+[DEBUG Step 2900] 2026-02-28 15:49:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0814, unique_argmax=329.0/1024
+  Student: entropy=0.2529, unique_argmax=314.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [50257, 11, 262, 13, 311] counts: [231, 48, 40, 35, 25]
+  Loss: 0.5579
+
+[DEBUG Step 2900] 2026-02-28 15:49:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0581, unique_argmax=423.0/1024
+  Student: entropy=0.1327, unique_argmax=421.0/1024
+  Argmax agreement: 92.8%
+  Student top5 tokens: [50257, 198, 13, 11, 284] counts: [46, 42, 41, 38, 30]
+  Loss: 0.5554
+
+[DEBUG Step 2900] 2026-02-28 15:49:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0806, unique_argmax=329.0/1024
+  Student: entropy=0.2692, unique_argmax=321.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 198, 262, 290, 284] counts: [370, 37, 20, 13, 13]
+  Loss: 0.6407
+
+[DEBUG Step 2900] 2026-02-28 15:49:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1327, unique_argmax=226.0/1024
+  Student: entropy=0.3576, unique_argmax=204.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [711, 15, 13, 11, 8]
+  Loss: 0.7313
+
+[DEBUG Step 3000] 2026-02-28 15:49:48
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0569, unique_argmax=480.0/1024
+  Student: entropy=0.1604, unique_argmax=476.0/1024
+  Argmax agreement: 93.5%
+  Student top5 tokens: [198, 262, 13, 50257, 284] counts: [57, 57, 47, 44, 30]
+  Loss: 0.5305
+
+[DEBUG Step 3000] 2026-02-28 15:49:48
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0817, unique_argmax=425.0/1024
+  Student: entropy=0.2759, unique_argmax=408.0/1024
+  Argmax agreement: 93.2%
+  Student top5 tokens: [50257, 11, 262, 13, 284] counts: [267, 26, 25, 24, 21]
+  Loss: 0.7639
+
+[DEBUG Step 3000] 2026-02-28 15:49:48
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0883, unique_argmax=337.0/1024
+  Student: entropy=0.2725, unique_argmax=329.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 290, 11, 329, 198] counts: [297, 29, 29, 24, 22]
+  Loss: 0.6003
+
+[DEBUG Step 3000] 2026-02-28 15:49:48
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1364, unique_argmax=204.0/1024
+  Student: entropy=0.3574, unique_argmax=191.0/1024
+  Argmax agreement: 97.1%
+  Student top5 tokens: [50257, 262, 198, 13, 326] counts: [713, 15, 15, 11, 10]
+  Loss: 0.5365
+
+[DEBUG Step 3100] 2026-02-28 15:50:31
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1280, unique_argmax=216.0/1024
+  Student: entropy=0.3557, unique_argmax=197.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 198, 13, 26, 262] counts: [704, 19, 10, 7, 6]
+  Loss: 0.8608
+
+[DEBUG Step 3100] 2026-02-28 15:50:31
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0882, unique_argmax=392.0/1024
+  Student: entropy=0.2884, unique_argmax=370.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 11, 13, 262, 284] counts: [364, 23, 22, 21, 18]
+  Loss: 0.7440
+
+[DEBUG Step 3100] 2026-02-28 15:50:31
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1062, unique_argmax=258.0/1024
+  Student: entropy=0.3150, unique_argmax=240.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 198, 13, 284, 262] counts: [576, 21, 18, 13, 12]
+  Loss: 0.7827
+
+[DEBUG Step 3100] 2026-02-28 15:50:31
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1324, unique_argmax=165.0/1024
+  Student: entropy=0.3589, unique_argmax=145.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [769, 15, 11, 11, 10]
+  Loss: 0.8546
+
+[DEBUG Step 3200] 2026-02-28 15:51:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1273, unique_argmax=248.0/1024
+  Student: entropy=0.3478, unique_argmax=222.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 198, 262, 13, 11] counts: [646, 18, 17, 16, 10]
+  Loss: 0.8323
+
+[DEBUG Step 3200] 2026-02-28 15:51:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0973, unique_argmax=390.0/1024
+  Student: entropy=0.2949, unique_argmax=375.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 11, 262, 13, 284] counts: [314, 26, 25, 22, 17]
+  Loss: 0.5289
+
+[DEBUG Step 3200] 2026-02-28 15:51:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1361, unique_argmax=193.0/1024
+  Student: entropy=0.3528, unique_argmax=164.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 198, 11, 290] counts: [766, 17, 13, 9, 8]
+  Loss: 0.9290
+
+[DEBUG Step 3200] 2026-02-28 15:51:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1907, unique_argmax=34.0/1024
+  Student: entropy=0.4573, unique_argmax=3.0/1024
+  Argmax agreement: 96.4%
+  Student top5 tokens: [50257, 12765, 286, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 0.8299
+
+[DEBUG Step 3300] 2026-02-28 15:52:07
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1539, unique_argmax=119.0/1024
+  Student: entropy=0.3804, unique_argmax=103.0/1024
+  Argmax agreement: 96.8%
+  Student top5 tokens: [50257, 11, 284, 326, 286] counts: [874, 10, 7, 5, 5]
+  Loss: 0.6714
+
+[DEBUG Step 3300] 2026-02-28 15:52:07
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1886, unique_argmax=39.0/1024
+  Student: entropy=0.4746, unique_argmax=2.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 286, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 0.9703
+
+[DEBUG Step 3300] 2026-02-28 15:52:07
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0793, unique_argmax=387.0/1024
+  Student: entropy=0.2427, unique_argmax=376.0/1024
+  Argmax agreement: 92.4%
+  Student top5 tokens: [50257, 11, 13, 198, 262] counts: [266, 29, 27, 24, 20]
+  Loss: 0.7328
+
+[DEBUG Step 3300] 2026-02-28 15:52:07
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1131, unique_argmax=240.0/1024
+  Student: entropy=0.3322, unique_argmax=222.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [636, 18, 17, 14, 13]
+  Loss: 0.8329
+
+[DEBUG Step 3400] 2026-02-28 15:52:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1486, unique_argmax=176.0/1024
+  Student: entropy=0.3808, unique_argmax=157.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 13, 284, 262, 11] counts: [805, 8, 7, 6, 6]
+  Loss: 0.8806
+
+[DEBUG Step 3400] 2026-02-28 15:52:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1237, unique_argmax=272.0/1024
+  Student: entropy=0.3353, unique_argmax=247.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 13, 11, 284, 262] counts: [622, 20, 14, 13, 13]
+  Loss: 0.8030
+
+[DEBUG Step 3400] 2026-02-28 15:52:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0725, unique_argmax=466.0/1024
+  Student: entropy=0.2337, unique_argmax=447.0/1024
+  Argmax agreement: 93.4%
+  Student top5 tokens: [50257, 262, 13, 11, 286] counts: [167, 44, 37, 37, 26]
+  Loss: 0.6599
+
+[DEBUG Step 3400] 2026-02-28 15:52:50
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1193, unique_argmax=300.0/1024
+  Student: entropy=0.3263, unique_argmax=279.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [587, 24, 19, 18, 14]
+  Loss: 0.7932
+
+[DEBUG Step 3500] 2026-02-28 15:53:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0195, unique_argmax=387.0/1024
+  Student: entropy=0.0525, unique_argmax=384.0/1024
+  Argmax agreement: 99.0%
+  Student top5 tokens: [447, 13, 11, 198, 262] counts: [56, 50, 46, 38, 24]
+  Loss: 0.1760
+
+[DEBUG Step 3500] 2026-02-28 15:53:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0729, unique_argmax=485.0/1024
+  Student: entropy=0.2028, unique_argmax=475.0/1024
+  Argmax agreement: 92.5%
+  Student top5 tokens: [50257, 11, 262, 13, 447] counts: [65, 44, 39, 31, 23]
+  Loss: 0.6772
+
+[DEBUG Step 3500] 2026-02-28 15:53:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0538, unique_argmax=493.0/1024
+  Student: entropy=0.1225, unique_argmax=499.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [262, 50257, 198, 284, 11] counts: [47, 38, 30, 28, 26]
+  Loss: 0.4792
+
+[DEBUG Step 3500] 2026-02-28 15:53:34
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1661, unique_argmax=105.0/1024
+  Student: entropy=0.4325, unique_argmax=77.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 11, 338, 262, 198] counts: [914, 8, 5, 5, 4]
+  Loss: 1.0467
+
+[DEBUG Step 3600] 2026-02-28 15:54:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0237, unique_argmax=486.0/1024
+  Student: entropy=0.0667, unique_argmax=481.0/1024
+  Argmax agreement: 98.7%
+  Student top5 tokens: [198, 262, 11, 13, 257] counts: [54, 42, 39, 36, 20]
+  Loss: 0.2013
+
+[DEBUG Step 3600] 2026-02-28 15:54:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1662, unique_argmax=89.0/1024
+  Student: entropy=0.4188, unique_argmax=60.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 262, 286, 257, 12] counts: [939, 8, 4, 4, 4]
+  Loss: 1.1010
+
+[DEBUG Step 3600] 2026-02-28 15:54:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1265, unique_argmax=272.0/1024
+  Student: entropy=0.3627, unique_argmax=254.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 262, 13, 198, 11] counts: [621, 24, 12, 11, 10]
+  Loss: 0.7670
+
+[DEBUG Step 3600] 2026-02-28 15:54:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.0988, unique_argmax=280.0/1024
+  Student: entropy=0.3032, unique_argmax=263.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 262, 11, 13, 47] counts: [495, 31, 24, 16, 14]
+  Loss: 0.8336
+
+[DEBUG Step 3700] 2026-02-28 15:55:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1042, unique_argmax=294.0/1024
+  Student: entropy=0.3120, unique_argmax=275.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 262, 11, 13, 198] counts: [521, 21, 21, 17, 13]
+  Loss: 0.7047
+
+[DEBUG Step 3700] 2026-02-28 15:55:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0782, unique_argmax=388.0/1024
+  Student: entropy=0.2356, unique_argmax=371.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 262, 13, 11, 198] counts: [263, 27, 25, 25, 24]
+  Loss: 0.7258
+
+[DEBUG Step 3700] 2026-02-28 15:55:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1389, unique_argmax=182.0/1024
+  Student: entropy=0.3705, unique_argmax=155.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [785, 13, 10, 9, 5]
+  Loss: 0.8844
+
+[DEBUG Step 3700] 2026-02-28 15:55:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0697, unique_argmax=438.0/1024
+  Student: entropy=0.2046, unique_argmax=437.0/1024
+  Argmax agreement: 91.7%
+  Student top5 tokens: [50257, 13, 262, 198, 11] counts: [132, 41, 38, 31, 26]
+  Loss: 0.5568
+
+[DEBUG Step 3800] 2026-02-28 15:55:46
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0485, unique_argmax=475.0/1024
+  Student: entropy=0.1323, unique_argmax=473.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [198, 50257, 262, 11, 13] counts: [68, 45, 43, 38, 26]
+  Loss: 0.4457
+
+[DEBUG Step 3800] 2026-02-28 15:55:46
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1259, unique_argmax=188.0/1024
+  Student: entropy=0.3481, unique_argmax=166.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 286, 11, 447, 284] counts: [762, 10, 10, 7, 7]
+  Loss: 0.9088
+
+[DEBUG Step 3800] 2026-02-28 15:55:46
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1921, unique_argmax=34.0/1024
+  Student: entropy=0.4611, unique_argmax=3.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 262, 13, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 0.8487
+
+[DEBUG Step 3800] 2026-02-28 15:55:46
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1642, unique_argmax=107.0/1024
+  Student: entropy=0.4174, unique_argmax=87.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 465, 286, 284, 11] counts: [897, 8, 6, 6, 5]
+  Loss: 0.9597
+
+[DEBUG Step 3900] 2026-02-28 15:56:30
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1137, unique_argmax=321.0/1024
+  Student: entropy=0.3395, unique_argmax=299.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 262, 11, 290, 13] counts: [523, 35, 33, 14, 13]
+  Loss: 0.8180
+
+[DEBUG Step 3900] 2026-02-28 15:56:30
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1268, unique_argmax=230.0/1024
+  Student: entropy=0.3387, unique_argmax=203.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 262, 284, 198, 13] counts: [695, 17, 12, 12, 11]
+  Loss: 0.8945
+
+[DEBUG Step 3900] 2026-02-28 15:56:30
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1548, unique_argmax=146.0/1024
+  Student: entropy=0.4305, unique_argmax=124.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 257, 11, 13] counts: [846, 8, 5, 5, 4]
+  Loss: 0.9590
+
+[DEBUG Step 3900] 2026-02-28 15:56:30
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1447, unique_argmax=205.0/1024
+  Student: entropy=0.3825, unique_argmax=183.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 262, 11, 284, 198] counts: [762, 12, 9, 6, 6]
+  Loss: 0.8247
+
+[DEBUG Step 4000] 2026-02-28 15:57:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1057, unique_argmax=291.0/1024
+  Student: entropy=0.3239, unique_argmax=275.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 13, 198, 11, 257] counts: [556, 25, 24, 13, 10]
+  Loss: 0.6439
+
+[DEBUG Step 4000] 2026-02-28 15:57:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0938, unique_argmax=312.0/1024
+  Student: entropy=0.3247, unique_argmax=284.0/1024
+  Argmax agreement: 93.4%
+  Student top5 tokens: [50257, 262, 198, 13, 284] counts: [464, 38, 26, 22, 16]
+  Loss: 1.0368
+
+[DEBUG Step 4000] 2026-02-28 15:57:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1729, unique_argmax=81.0/1024
+  Student: entropy=0.4323, unique_argmax=55.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 11, 262, 198, 510] counts: [955, 6, 5, 5, 2]
+  Loss: 0.7821
+
+[DEBUG Step 4000] 2026-02-28 15:57:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0868, unique_argmax=371.0/1024
+  Student: entropy=0.2814, unique_argmax=352.0/1024
+  Argmax agreement: 93.3%
+  Student top5 tokens: [50257, 262, 13, 198, 287] counts: [274, 49, 42, 31, 23]
+  Loss: 0.7750
+
+[DEBUG Step 100] 2026-02-28 16:25:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1055, unique_argmax=291.0/1024
+  Student: entropy=0.3217, unique_argmax=265.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [537, 20, 20, 20, 13]
+  Loss: 0.8656
+
+[DEBUG Step 100] 2026-02-28 16:25:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0861, unique_argmax=374.0/1024
+  Student: entropy=0.2856, unique_argmax=352.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 262, 11, 286, 13] counts: [434, 26, 21, 17, 17]
+  Loss: 0.9745
+
+[DEBUG Step 100] 2026-02-28 16:25:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1154, unique_argmax=305.0/1024
+  Student: entropy=0.3321, unique_argmax=290.0/1024
+  Argmax agreement: 96.8%
+  Student top5 tokens: [50257, 198, 262, 290, 11] counts: [506, 33, 28, 14, 13]
+  Loss: 0.5357
+
+[DEBUG Step 100] 2026-02-28 16:25:23
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0309, unique_argmax=478.0/1024
+  Student: entropy=0.1069, unique_argmax=469.0/1024
+  Argmax agreement: 97.3%
+  Student top5 tokens: [11, 262, 13, 286, 198] counts: [44, 39, 39, 32, 26]
+  Loss: 0.3702
+
+[DEBUG Step 200] 2026-02-28 16:26:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1302, unique_argmax=210.0/1024
+  Student: entropy=0.3482, unique_argmax=193.0/1024
+  Argmax agreement: 96.4%
+  Student top5 tokens: [50257, 11, 13, 262, 447] counts: [696, 19, 15, 11, 10]
+  Loss: 0.6699
+
+[DEBUG Step 200] 2026-02-28 16:26:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0855, unique_argmax=348.0/1024
+  Student: entropy=0.2593, unique_argmax=328.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [374, 30, 26, 24, 22]
+  Loss: 0.7344
+
+[DEBUG Step 200] 2026-02-28 16:26:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1762, unique_argmax=74.0/1024
+  Student: entropy=0.4305, unique_argmax=43.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 784, 262, 247, 198] counts: [974, 3, 2, 2, 2]
+  Loss: 0.9765
+
+[DEBUG Step 200] 2026-02-28 16:26:05
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1577, unique_argmax=126.0/1024
+  Student: entropy=0.3886, unique_argmax=98.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [895, 9, 6, 4, 4]
+  Loss: 0.9498
+
+[DEBUG Step 300] 2026-02-28 16:26:47
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1210, unique_argmax=179.0/1024
+  Student: entropy=0.3316, unique_argmax=156.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 13, 198, 14, 11] counts: [758, 17, 14, 13, 10]
+  Loss: 0.9030
+
+[DEBUG Step 300] 2026-02-28 16:26:47
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1613, unique_argmax=133.0/1024
+  Student: entropy=0.4252, unique_argmax=101.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 262, 11, 290, 74] counts: [894, 5, 5, 4, 3]
+  Loss: 1.0234
+
+[DEBUG Step 300] 2026-02-28 16:26:47
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1144, unique_argmax=275.0/1024
+  Student: entropy=0.3306, unique_argmax=257.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [567, 27, 20, 14, 14]
+  Loss: 0.7286
+
+[DEBUG Step 300] 2026-02-28 16:26:47
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1654, unique_argmax=102.0/1024
+  Student: entropy=0.4552, unique_argmax=59.0/1024
+  Argmax agreement: 93.9%
+  Student top5 tokens: [50257, 284, 11, 262, 340] counts: [957, 3, 3, 3, 2]
+  Loss: 1.2705
+
+[DEBUG Step 400] 2026-02-28 16:27:33
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0779, unique_argmax=389.0/1024
+  Student: entropy=0.2550, unique_argmax=371.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [50257, 262, 13, 11, 284] counts: [309, 28, 27, 26, 18]
+  Loss: 0.7736
+
+[DEBUG Step 400] 2026-02-28 16:27:33
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0894, unique_argmax=367.0/1024
+  Student: entropy=0.2859, unique_argmax=351.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 198, 262, 13, 11] counts: [394, 31, 23, 22, 18]
+  Loss: 0.7200
+
+[DEBUG Step 400] 2026-02-28 16:27:33
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0974, unique_argmax=372.0/1024
+  Student: entropy=0.2908, unique_argmax=356.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 11, 198, 286, 13] counts: [406, 30, 26, 20, 20]
+  Loss: 0.6451
+
+[DEBUG Step 400] 2026-02-28 16:27:33
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1647, unique_argmax=72.0/1024
+  Student: entropy=0.4046, unique_argmax=45.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 11, 284, 13, 198] counts: [956, 6, 4, 4, 3]
+  Loss: 1.0343
+
+[DEBUG Step 500] 2026-02-28 16:28:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1082, unique_argmax=289.0/1024
+  Student: entropy=0.3188, unique_argmax=268.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 198, 13, 447, 11] counts: [548, 22, 20, 18, 14]
+  Loss: 0.7830
+
+[DEBUG Step 500] 2026-02-28 16:28:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0777, unique_argmax=461.0/1024
+  Student: entropy=0.2264, unique_argmax=452.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 11, 262, 13, 286] counts: [147, 45, 42, 34, 22]
+  Loss: 0.5416
+
+[DEBUG Step 500] 2026-02-28 16:28:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1470, unique_argmax=169.0/1024
+  Student: entropy=0.3964, unique_argmax=136.0/1024
+  Argmax agreement: 94.1%
+  Student top5 tokens: [50257, 13, 262, 329, 11] counts: [829, 9, 7, 6, 6]
+  Loss: 1.1483
+
+[DEBUG Step 500] 2026-02-28 16:28:14
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1425, unique_argmax=214.0/1024
+  Student: entropy=0.3794, unique_argmax=195.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 13, 11, 262, 284] counts: [726, 12, 11, 10, 9]
+  Loss: 0.7804
+
+[DEBUG Step 600] 2026-02-28 16:28:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0216, unique_argmax=420.0/1024
+  Student: entropy=0.0655, unique_argmax=416.0/1024
+  Argmax agreement: 98.6%
+  Student top5 tokens: [13, 11, 314, 262, 198] counts: [44, 33, 31, 28, 24]
+  Loss: 0.2140
+
+[DEBUG Step 600] 2026-02-28 16:28:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1319, unique_argmax=211.0/1024
+  Student: entropy=0.3520, unique_argmax=188.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 11, 198, 262, 13] counts: [744, 17, 15, 10, 9]
+  Loss: 0.9401
+
+[DEBUG Step 600] 2026-02-28 16:28:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1681, unique_argmax=97.0/1024
+  Student: entropy=0.4314, unique_argmax=64.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 11, 262, 257, 656] counts: [943, 5, 4, 4, 3]
+  Loss: 0.9630
+
+[DEBUG Step 600] 2026-02-28 16:28:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0896, unique_argmax=402.0/1024
+  Student: entropy=0.2810, unique_argmax=389.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 13, 262, 11, 198] counts: [272, 36, 34, 34, 19]
+  Loss: 0.7104
+
+[DEBUG Step 700] 2026-02-28 16:29:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1746, unique_argmax=83.0/1024
+  Student: entropy=0.4495, unique_argmax=50.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [962, 5, 4, 2, 2]
+  Loss: 0.9674
+
+[DEBUG Step 700] 2026-02-28 16:29:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1222, unique_argmax=253.0/1024
+  Student: entropy=0.3638, unique_argmax=224.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 13, 14, 12, 11] counts: [657, 25, 17, 17, 13]
+  Loss: 0.8295
+
+[DEBUG Step 700] 2026-02-28 16:29:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1276, unique_argmax=212.0/1024
+  Student: entropy=0.3529, unique_argmax=188.0/1024
+  Argmax agreement: 94.3%
+  Student top5 tokens: [50257, 11, 13, 447, 262] counts: [708, 20, 15, 10, 8]
+  Loss: 1.0176
+
+[DEBUG Step 700] 2026-02-28 16:29:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1363, unique_argmax=204.0/1024
+  Student: entropy=0.3822, unique_argmax=169.0/1024
+  Argmax agreement: 94.1%
+  Student top5 tokens: [50257, 198, 11, 284, 262] counts: [763, 12, 12, 9, 9]
+  Loss: 1.1538
+
+[DEBUG Step 800] 2026-02-28 16:30:32
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0235, unique_argmax=499.0/1024
+  Student: entropy=0.0628, unique_argmax=492.0/1024
+  Argmax agreement: 98.8%
+  Student top5 tokens: [262, 286, 11, 290, 284] counts: [50, 36, 35, 32, 30]
+  Loss: 0.1587
+
+[DEBUG Step 800] 2026-02-28 16:30:32
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1528, unique_argmax=126.0/1024
+  Student: entropy=0.3794, unique_argmax=109.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 290, 11, 447, 262] counts: [848, 9, 9, 7, 7]
+  Loss: 0.7604
+
+[DEBUG Step 800] 2026-02-28 16:30:32
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1235, unique_argmax=249.0/1024
+  Student: entropy=0.3450, unique_argmax=225.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 13, 11, 198, 262] counts: [651, 15, 15, 13, 10]
+  Loss: 0.8742
+
+[DEBUG Step 800] 2026-02-28 16:30:32
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1884, unique_argmax=36.0/1024
+  Student: entropy=0.4518, unique_argmax=4.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 481, 13, 290, 0] counts: [1021, 1, 1, 1, 0]
+  Loss: 0.9356
+
+[DEBUG Step 900] 2026-02-28 16:31:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0945, unique_argmax=380.0/1024
+  Student: entropy=0.2958, unique_argmax=363.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 11, 290, 13, 262] counts: [376, 33, 19, 19, 17]
+  Loss: 0.7805
+
+[DEBUG Step 900] 2026-02-28 16:31:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1395, unique_argmax=222.0/1024
+  Student: entropy=0.3506, unique_argmax=204.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 11, 262, 13, 12] counts: [704, 12, 11, 8, 8]
+  Loss: 0.7556
+
+[DEBUG Step 900] 2026-02-28 16:31:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1913, unique_argmax=35.0/1024
+  Student: entropy=0.4495, unique_argmax=3.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 550, 13, 1, 0] counts: [1022, 1, 1, 0, 0]
+  Loss: 0.8948
+
+[DEBUG Step 900] 2026-02-28 16:31:15
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0635, unique_argmax=450.0/1024
+  Student: entropy=0.1858, unique_argmax=439.0/1024
+  Argmax agreement: 93.6%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [69, 41, 40, 30, 28]
+  Loss: 0.4406
+
+[DEBUG Step 1000] 2026-02-28 16:31:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0916, unique_argmax=309.0/1024
+  Student: entropy=0.2929, unique_argmax=294.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 13, 198, 284] counts: [379, 44, 31, 19, 18]
+  Loss: 0.6421
+
+[DEBUG Step 1000] 2026-02-28 16:31:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0182, unique_argmax=424.0/1024
+  Student: entropy=0.0691, unique_argmax=422.0/1024
+  Argmax agreement: 98.2%
+  Student top5 tokens: [262, 287, 11, 198, 465] counts: [34, 30, 25, 24, 23]
+  Loss: 0.2011
+
+[DEBUG Step 1000] 2026-02-28 16:31:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1773, unique_argmax=106.0/1024
+  Student: entropy=0.4430, unique_argmax=80.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 262, 290, 13, 8] counts: [914, 5, 4, 3, 3]
+  Loss: 0.8211
+
+[DEBUG Step 1000] 2026-02-28 16:31:57
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1898, unique_argmax=43.0/1024
+  Student: entropy=0.4485, unique_argmax=4.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 1110, 286, 326, 0] counts: [1021, 1, 1, 1, 0]
+  Loss: 1.0849
+
+[DEBUG Step 1100] 2026-02-28 16:32:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0681, unique_argmax=466.0/1024
+  Student: entropy=0.2141, unique_argmax=459.0/1024
+  Argmax agreement: 92.8%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [145, 41, 35, 32, 25]
+  Loss: 0.5535
+
+[DEBUG Step 1100] 2026-02-28 16:32:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0709, unique_argmax=402.0/1024
+  Student: entropy=0.2291, unique_argmax=387.0/1024
+  Argmax agreement: 91.4%
+  Student top5 tokens: [50257, 198, 262, 13, 11] counts: [150, 39, 38, 27, 27]
+  Loss: 0.7218
+
+[DEBUG Step 1100] 2026-02-28 16:32:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0880, unique_argmax=407.0/1024
+  Student: entropy=0.3030, unique_argmax=393.0/1024
+  Argmax agreement: 94.4%
+  Student top5 tokens: [50257, 13, 11, 257, 198] counts: [298, 31, 29, 20, 20]
+  Loss: 0.7576
+
+[DEBUG Step 1100] 2026-02-28 16:32:39
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1870, unique_argmax=47.0/1024
+  Student: entropy=0.4572, unique_argmax=2.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 2493, 2, 1, 0] counts: [1023, 1, 0, 0, 0]
+  Loss: 1.2296
+
+[DEBUG Step 1200] 2026-02-28 16:33:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0730, unique_argmax=420.0/1024
+  Student: entropy=0.1641, unique_argmax=422.0/1024
+  Argmax agreement: 92.2%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [60, 54, 45, 35, 28]
+  Loss: 0.5504
+
+[DEBUG Step 1200] 2026-02-28 16:33:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1090, unique_argmax=311.0/1024
+  Student: entropy=0.3326, unique_argmax=293.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [467, 30, 29, 18, 13]
+  Loss: 0.7332
+
+[DEBUG Step 1200] 2026-02-28 16:33:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1358, unique_argmax=135.0/1024
+  Student: entropy=0.3563, unique_argmax=116.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 447, 262, 247, 11] counts: [832, 11, 10, 6, 6]
+  Loss: 0.9065
+
+[DEBUG Step 1200] 2026-02-28 16:33:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1607, unique_argmax=117.0/1024
+  Student: entropy=0.3984, unique_argmax=87.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 287, 284, 198, 11] counts: [916, 4, 4, 3, 3]
+  Loss: 0.9891
+
+[DEBUG Step 1300] 2026-02-28 16:34:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0655, unique_argmax=351.0/1024
+  Student: entropy=0.2058, unique_argmax=340.0/1024
+  Argmax agreement: 92.0%
+  Student top5 tokens: [50257, 11, 447, 13, 198] counts: [142, 37, 29, 28, 27]
+  Loss: 0.5893
+
+[DEBUG Step 1300] 2026-02-28 16:34:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0987, unique_argmax=291.0/1024
+  Student: entropy=0.3171, unique_argmax=277.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [463, 25, 24, 22, 19]
+  Loss: 0.7381
+
+[DEBUG Step 1300] 2026-02-28 16:34:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1062, unique_argmax=295.0/1024
+  Student: entropy=0.3289, unique_argmax=269.0/1024
+  Argmax agreement: 94.3%
+  Student top5 tokens: [50257, 198, 13, 262, 11] counts: [567, 27, 20, 19, 10]
+  Loss: 0.9740
+
+[DEBUG Step 1300] 2026-02-28 16:34:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0722, unique_argmax=469.0/1024
+  Student: entropy=0.2256, unique_argmax=461.0/1024
+  Argmax agreement: 92.2%
+  Student top5 tokens: [50257, 13, 11, 198, 262] counts: [138, 41, 37, 36, 25]
+  Loss: 0.5729
+
+[DEBUG Step 1400] 2026-02-28 16:34:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1542, unique_argmax=177.0/1024
+  Student: entropy=0.3875, unique_argmax=155.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 13, 257, 11, 262] counts: [793, 8, 7, 7, 6]
+  Loss: 0.8078
+
+[DEBUG Step 1400] 2026-02-28 16:34:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.1084, unique_argmax=249.0/1024
+  Student: entropy=0.3123, unique_argmax=241.0/1024
+  Argmax agreement: 96.8%
+  Student top5 tokens: [50257, 198, 11, 447, 13] counts: [485, 25, 25, 22, 22]
+  Loss: 0.5007
+
+[DEBUG Step 1400] 2026-02-28 16:34:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1023, unique_argmax=307.0/1024
+  Student: entropy=0.3216, unique_argmax=274.0/1024
+  Argmax agreement: 92.2%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [537, 36, 23, 18, 16]
+  Loss: 1.2562
+
+[DEBUG Step 1400] 2026-02-28 16:34:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0358, unique_argmax=525.0/1024
+  Student: entropy=0.1133, unique_argmax=518.0/1024
+  Argmax agreement: 97.9%
+  Student top5 tokens: [11, 262, 290, 447, 284] counts: [47, 39, 22, 21, 20]
+  Loss: 0.3526
+
+[DEBUG Step 1500] 2026-02-28 16:35:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0911, unique_argmax=392.0/1024
+  Student: entropy=0.2775, unique_argmax=380.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 198, 13, 262, 156] counts: [319, 37, 28, 22, 21]
+  Loss: 0.7569
+
+[DEBUG Step 1500] 2026-02-28 16:35:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1077, unique_argmax=316.0/1024
+  Student: entropy=0.3004, unique_argmax=302.0/1024
+  Argmax agreement: 96.7%
+  Student top5 tokens: [50257, 11, 262, 198, 13] counts: [509, 21, 20, 20, 15]
+  Loss: 0.5483
+
+[DEBUG Step 1500] 2026-02-28 16:35:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1531, unique_argmax=170.0/1024
+  Student: entropy=0.3841, unique_argmax=147.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 11, 262, 198, 287] counts: [824, 9, 7, 7, 6]
+  Loss: 0.8115
+
+[DEBUG Step 1500] 2026-02-28 16:35:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1463, unique_argmax=165.0/1024
+  Student: entropy=0.3674, unique_argmax=142.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 262, 286, 198, 13] counts: [835, 9, 6, 6, 6]
+  Loss: 0.9752
+
+[DEBUG Step 1600] 2026-02-28 16:36:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0766, unique_argmax=438.0/1024
+  Student: entropy=0.2449, unique_argmax=417.0/1024
+  Argmax agreement: 93.4%
+  Student top5 tokens: [50257, 262, 447, 13, 11] counts: [252, 38, 22, 21, 19]
+  Loss: 0.7311
+
+[DEBUG Step 1600] 2026-02-28 16:36:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1199, unique_argmax=193.0/1024
+  Student: entropy=0.3242, unique_argmax=179.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 13, 287, 45838, 262] counts: [684, 14, 12, 8, 8]
+  Loss: 0.7443
+
+[DEBUG Step 1600] 2026-02-28 16:36:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1852, unique_argmax=44.0/1024
+  Student: entropy=0.4611, unique_argmax=1.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 2, 0, 3, 1] counts: [1024, 0, 0, 0, 0]
+  Loss: 1.1049
+
+[DEBUG Step 1600] 2026-02-28 16:36:21
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0946, unique_argmax=372.0/1024
+  Student: entropy=0.2831, unique_argmax=353.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 198, 11, 326, 262] counts: [339, 27, 26, 24, 24]
+  Loss: 0.7339
+
+[DEBUG Step 1700] 2026-02-28 16:37:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1751, unique_argmax=75.0/1024
+  Student: entropy=0.4574, unique_argmax=49.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 13, 262, 257, 198] counts: [956, 8, 3, 3, 3]
+  Loss: 0.8642
+
+[DEBUG Step 1700] 2026-02-28 16:37:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1612, unique_argmax=103.0/1024
+  Student: entropy=0.4247, unique_argmax=66.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [945, 6, 3, 3, 2]
+  Loss: 0.9964
+
+[DEBUG Step 1700] 2026-02-28 16:37:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1269, unique_argmax=262.0/1024
+  Student: entropy=0.3450, unique_argmax=233.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 13, 198, 284, 11] counts: [683, 17, 10, 9, 9]
+  Loss: 0.8057
+
+[DEBUG Step 1700] 2026-02-28 16:37:03
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1119, unique_argmax=302.0/1024
+  Student: entropy=0.3285, unique_argmax=288.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 198, 13, 262, 11] counts: [568, 19, 17, 11, 10]
+  Loss: 0.6474
+
+[DEBUG Step 1800] 2026-02-28 16:37:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1301, unique_argmax=224.0/1024
+  Student: entropy=0.3441, unique_argmax=207.0/1024
+  Argmax agreement: 96.6%
+  Student top5 tokens: [50257, 13, 198, 262, 11] counts: [697, 17, 13, 12, 8]
+  Loss: 0.6474
+
+[DEBUG Step 1800] 2026-02-28 16:37:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1321, unique_argmax=240.0/1024
+  Student: entropy=0.3502, unique_argmax=212.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 11, 198, 262, 284] counts: [704, 17, 15, 11, 9]
+  Loss: 0.9524
+
+[DEBUG Step 1800] 2026-02-28 16:37:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0879, unique_argmax=334.0/1024
+  Student: entropy=0.2555, unique_argmax=331.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 11, 262, 13, 284] counts: [370, 30, 28, 26, 21]
+  Loss: 0.4734
+
+[DEBUG Step 1800] 2026-02-28 16:37:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1487, unique_argmax=172.0/1024
+  Student: entropy=0.3888, unique_argmax=135.0/1024
+  Argmax agreement: 94.5%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [827, 14, 13, 8, 7]
+  Loss: 1.0971
+
+[DEBUG Step 1900] 2026-02-28 16:38:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0768, unique_argmax=390.0/1024
+  Student: entropy=0.2247, unique_argmax=381.0/1024
+  Argmax agreement: 94.1%
+  Student top5 tokens: [50257, 262, 11, 13, 447] counts: [155, 45, 42, 33, 27]
+  Loss: 0.4805
+
+[DEBUG Step 1900] 2026-02-28 16:38:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0650, unique_argmax=490.0/1024
+  Student: entropy=0.2066, unique_argmax=479.0/1024
+  Argmax agreement: 91.7%
+  Student top5 tokens: [50257, 198, 13, 262, 11] counts: [71, 42, 40, 35, 26]
+  Loss: 0.6227
+
+[DEBUG Step 1900] 2026-02-28 16:38:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1557, unique_argmax=176.0/1024
+  Student: entropy=0.4078, unique_argmax=133.0/1024
+  Argmax agreement: 93.9%
+  Student top5 tokens: [50257, 11, 286, 262, 12] counts: [853, 8, 6, 6, 3]
+  Loss: 1.2026
+
+[DEBUG Step 1900] 2026-02-28 16:38:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1515, unique_argmax=196.0/1024
+  Student: entropy=0.3987, unique_argmax=174.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 198, 262, 286, 13] counts: [738, 20, 17, 10, 10]
+  Loss: 0.8463
+
+[DEBUG Step 2000] 2026-02-28 16:39:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0830, unique_argmax=410.0/1024
+  Student: entropy=0.2513, unique_argmax=396.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [309, 28, 28, 24, 17]
+  Loss: 0.5776
+
+[DEBUG Step 2000] 2026-02-28 16:39:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0609, unique_argmax=456.0/1024
+  Student: entropy=0.1501, unique_argmax=452.0/1024
+  Argmax agreement: 92.6%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [65, 42, 42, 36, 31]
+  Loss: 0.6226
+
+[DEBUG Step 2000] 2026-02-28 16:39:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0991, unique_argmax=396.0/1024
+  Student: entropy=0.3003, unique_argmax=375.0/1024
+  Argmax agreement: 94.3%
+  Student top5 tokens: [50257, 262, 13, 11, 198] counts: [405, 30, 24, 22, 19]
+  Loss: 0.8285
+
+[DEBUG Step 2000] 2026-02-28 16:39:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1276, unique_argmax=219.0/1024
+  Student: entropy=0.3395, unique_argmax=198.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [694, 15, 14, 13, 11]
+  Loss: 0.8536
+
+[DEBUG Step 2100] 2026-02-28 16:39:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0854, unique_argmax=344.0/1024
+  Student: entropy=0.2726, unique_argmax=332.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 13, 11, 262, 447] counts: [320, 26, 24, 23, 21]
+  Loss: 0.6271
+
+[DEBUG Step 2100] 2026-02-28 16:39:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0606, unique_argmax=405.0/1024
+  Student: entropy=0.1925, unique_argmax=394.0/1024
+  Argmax agreement: 91.5%
+  Student top5 tokens: [50257, 11, 262, 447, 198] counts: [115, 43, 35, 33, 30]
+  Loss: 0.5733
+
+[DEBUG Step 2100] 2026-02-28 16:39:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0739, unique_argmax=362.0/1024
+  Student: entropy=0.2490, unique_argmax=346.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [337, 28, 27, 25, 23]
+  Loss: 0.6884
+
+[DEBUG Step 2100] 2026-02-28 16:39:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1477, unique_argmax=146.0/1024
+  Student: entropy=0.3877, unique_argmax=127.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 257, 11, 262, 13] counts: [836, 6, 6, 6, 6]
+  Loss: 0.9319
+
+[DEBUG Step 2200] 2026-02-28 16:40:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1629, unique_argmax=93.0/1024
+  Student: entropy=0.4309, unique_argmax=60.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 262, 16375, 13, 11] counts: [947, 4, 3, 2, 2]
+  Loss: 0.9811
+
+[DEBUG Step 2200] 2026-02-28 16:40:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1675, unique_argmax=111.0/1024
+  Student: entropy=0.4392, unique_argmax=88.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 198, 13, 11, 257] counts: [889, 13, 12, 6, 5]
+  Loss: 0.8253
+
+[DEBUG Step 2200] 2026-02-28 16:40:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1108, unique_argmax=282.0/1024
+  Student: entropy=0.3189, unique_argmax=266.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 262, 13, 11, 257] counts: [528, 23, 22, 20, 13]
+  Loss: 0.7743
+
+[DEBUG Step 2200] 2026-02-28 16:40:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1613, unique_argmax=113.0/1024
+  Student: entropy=0.4121, unique_argmax=90.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 262, 257, 286, 198] counts: [897, 7, 7, 4, 4]
+  Loss: 0.8953
+
+[DEBUG Step 2300] 2026-02-28 16:41:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1367, unique_argmax=194.0/1024
+  Student: entropy=0.3444, unique_argmax=183.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 13, 11, 284, 198] counts: [759, 15, 11, 6, 5]
+  Loss: 0.7301
+
+[DEBUG Step 2300] 2026-02-28 16:41:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0159, unique_argmax=419.0/1024
+  Student: entropy=0.0626, unique_argmax=414.0/1024
+  Argmax agreement: 97.9%
+  Student top5 tokens: [11, 13, 314, 290, 286] counts: [45, 40, 33, 24, 21]
+  Loss: 0.2792
+
+[DEBUG Step 2300] 2026-02-28 16:41:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1316, unique_argmax=214.0/1024
+  Student: entropy=0.3408, unique_argmax=190.0/1024
+  Argmax agreement: 94.4%
+  Student top5 tokens: [50257, 11, 286, 13, 247] counts: [716, 10, 9, 9, 8]
+  Loss: 1.0276
+
+[DEBUG Step 2300] 2026-02-28 16:41:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1592, unique_argmax=150.0/1024
+  Student: entropy=0.3982, unique_argmax=114.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 13, 198, 12] counts: [868, 8, 6, 5, 5]
+  Loss: 1.0456
+
+[DEBUG Step 2400] 2026-02-28 16:42:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0640, unique_argmax=397.0/1024
+  Student: entropy=0.2006, unique_argmax=385.0/1024
+  Argmax agreement: 93.6%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [137, 44, 38, 36, 24]
+  Loss: 0.4969
+
+[DEBUG Step 2400] 2026-02-28 16:42:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1142, unique_argmax=272.0/1024
+  Student: entropy=0.3463, unique_argmax=244.0/1024
+  Argmax agreement: 93.8%
+  Student top5 tokens: [50257, 13, 262, 11, 198] counts: [594, 18, 15, 15, 11]
+  Loss: 1.1105
+
+[DEBUG Step 2400] 2026-02-28 16:42:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1027, unique_argmax=224.0/1024
+  Student: entropy=0.3001, unique_argmax=209.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 62, 447, 13, 12] counts: [570, 27, 20, 14, 12]
+  Loss: 0.7871
+
+[DEBUG Step 2400] 2026-02-28 16:42:11
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1300, unique_argmax=263.0/1024
+  Student: entropy=0.3633, unique_argmax=237.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 198, 13, 11, 262] counts: [649, 25, 13, 11, 10]
+  Loss: 1.0579
+
+[DEBUG Step 2500] 2026-02-28 16:42:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1108, unique_argmax=292.0/1024
+  Student: entropy=0.3252, unique_argmax=267.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 11, 13, 262, 284] counts: [582, 17, 15, 14, 12]
+  Loss: 0.8571
+
+[DEBUG Step 2500] 2026-02-28 16:42:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0743, unique_argmax=419.0/1024
+  Student: entropy=0.2467, unique_argmax=398.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 11, 262, 284, 13] counts: [286, 27, 22, 20, 17]
+  Loss: 0.6674
+
+[DEBUG Step 2500] 2026-02-28 16:42:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0831, unique_argmax=366.0/1024
+  Student: entropy=0.2577, unique_argmax=358.0/1024
+  Argmax agreement: 94.3%
+  Student top5 tokens: [50257, 13, 198, 257, 284] counts: [246, 37, 29, 23, 19]
+  Loss: 0.6185
+
+[DEBUG Step 2500] 2026-02-28 16:42:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1356, unique_argmax=262.0/1024
+  Student: entropy=0.3871, unique_argmax=237.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 198, 1, 357, 11] counts: [644, 21, 17, 13, 8]
+  Loss: 0.7818
+
+[DEBUG Step 2600] 2026-02-28 16:43:36
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1524, unique_argmax=157.0/1024
+  Student: entropy=0.3785, unique_argmax=131.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 262, 13, 290, 286] counts: [827, 10, 8, 7, 6]
+  Loss: 1.0285
+
+[DEBUG Step 2600] 2026-02-28 16:43:36
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1623, unique_argmax=83.0/1024
+  Student: entropy=0.4057, unique_argmax=58.0/1024
+  Argmax agreement: 96.0%
+  Student top5 tokens: [50257, 13, 465, 286, 262] counts: [948, 5, 3, 3, 3]
+  Loss: 0.8578
+
+[DEBUG Step 2600] 2026-02-28 16:43:36
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0769, unique_argmax=277.0/1024
+  Student: entropy=0.2446, unique_argmax=265.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 447, 262, 284, 13] counts: [356, 27, 25, 20, 20]
+  Loss: 0.6845
+
+[DEBUG Step 2600] 2026-02-28 16:43:36
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1264, unique_argmax=247.0/1024
+  Student: entropy=0.3372, unique_argmax=219.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 11, 198, 13, 262] counts: [647, 15, 13, 13, 12]
+  Loss: 0.8193
+
+[DEBUG Step 2700] 2026-02-28 16:44:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.1033, unique_argmax=337.0/1024
+  Student: entropy=0.3730, unique_argmax=318.0/1024
+  Argmax agreement: 93.6%
+  Student top5 tokens: [50257, 11033, 13, 198, 277] counts: [313, 27, 19, 17, 15]
+  Loss: 0.8745
+
+[DEBUG Step 2700] 2026-02-28 16:44:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1157, unique_argmax=215.0/1024
+  Student: entropy=0.3663, unique_argmax=198.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 13, 262, 198, 5797] counts: [627, 33, 18, 17, 9]
+  Loss: 0.8644
+
+[DEBUG Step 2700] 2026-02-28 16:44:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0748, unique_argmax=446.0/1024
+  Student: entropy=0.2334, unique_argmax=434.0/1024
+  Argmax agreement: 94.0%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [131, 42, 41, 35, 26]
+  Loss: 0.4796
+
+[DEBUG Step 2700] 2026-02-28 16:44:18
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1416, unique_argmax=185.0/1024
+  Student: entropy=0.3848, unique_argmax=160.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 11, 60, 198, 287] counts: [772, 13, 10, 8, 7]
+  Loss: 0.8545
+
+[DEBUG Step 2800] 2026-02-28 16:45:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1128, unique_argmax=228.0/1024
+  Student: entropy=0.2849, unique_argmax=208.0/1024
+  Argmax agreement: 96.6%
+  Student top5 tokens: [50257, 198, 13, 447, 262] counts: [668, 20, 14, 12, 12]
+  Loss: 0.6321
+
+[DEBUG Step 2800] 2026-02-28 16:45:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0658, unique_argmax=418.0/1024
+  Student: entropy=0.2000, unique_argmax=403.0/1024
+  Argmax agreement: 93.7%
+  Student top5 tokens: [50257, 198, 11, 13, 262] counts: [143, 44, 37, 33, 25]
+  Loss: 0.5145
+
+[DEBUG Step 2800] 2026-02-28 16:45:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0560, unique_argmax=461.0/1024
+  Student: entropy=0.1463, unique_argmax=460.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [60, 47, 42, 40, 34]
+  Loss: 0.3733
+
+[DEBUG Step 2800] 2026-02-28 16:45:01
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0805, unique_argmax=432.0/1024
+  Student: entropy=0.2423, unique_argmax=419.0/1024
+  Argmax agreement: 94.8%
+  Student top5 tokens: [50257, 286, 287, 11, 262] counts: [282, 24, 20, 20, 18]
+  Loss: 0.7039
+
+[DEBUG Step 2900] 2026-02-28 16:45:43
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1476, unique_argmax=139.0/1024
+  Student: entropy=0.3906, unique_argmax=119.0/1024
+  Argmax agreement: 95.2%
+  Student top5 tokens: [50257, 11, 13, 262, 311] counts: [825, 17, 11, 10, 8]
+  Loss: 0.9219
+
+[DEBUG Step 2900] 2026-02-28 16:45:43
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0183, unique_argmax=453.0/1024
+  Student: entropy=0.0563, unique_argmax=453.0/1024
+  Argmax agreement: 98.8%
+  Student top5 tokens: [198, 13, 11, 284, 262] counts: [42, 41, 39, 30, 25]
+  Loss: 0.1831
+
+[DEBUG Step 2900] 2026-02-28 16:45:43
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1394, unique_argmax=204.0/1024
+  Student: entropy=0.3760, unique_argmax=182.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 262, 290, 198] counts: [765, 14, 10, 8, 8]
+  Loss: 0.8118
+
+[DEBUG Step 2900] 2026-02-28 16:45:43
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1801, unique_argmax=74.0/1024
+  Student: entropy=0.4693, unique_argmax=48.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 262, 198, 4041, 284] counts: [969, 4, 3, 2, 2]
+  Loss: 0.7893
+
+[DEBUG Step 3000] 2026-02-28 16:46:26
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1385, unique_argmax=205.0/1024
+  Student: entropy=0.3773, unique_argmax=187.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 262, 13, 290, 198] counts: [719, 11, 10, 9, 9]
+  Loss: 0.9932
+
+[DEBUG Step 3000] 2026-02-28 16:46:26
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1089, unique_argmax=314.0/1024
+  Student: entropy=0.3245, unique_argmax=297.0/1024
+  Argmax agreement: 95.3%
+  Student top5 tokens: [50257, 262, 198, 13, 284] counts: [531, 30, 25, 24, 17]
+  Loss: 0.7568
+
+[DEBUG Step 3000] 2026-02-28 16:46:26
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1119, unique_argmax=303.0/1024
+  Student: entropy=0.3274, unique_argmax=286.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 262, 447, 13, 11] counts: [512, 21, 19, 19, 15]
+  Loss: 0.7442
+
+[DEBUG Step 3000] 2026-02-28 16:46:26
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0707, unique_argmax=405.0/1024
+  Student: entropy=0.2050, unique_argmax=402.0/1024
+  Argmax agreement: 92.4%
+  Student top5 tokens: [50257, 198, 262, 11, 13] counts: [120, 54, 39, 33, 28]
+  Loss: 0.4612
+
+[DEBUG Step 3100] 2026-02-28 16:47:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1321, unique_argmax=184.0/1024
+  Student: entropy=0.3524, unique_argmax=159.0/1024
+  Argmax agreement: 95.1%
+  Student top5 tokens: [50257, 13, 198, 262, 1391] counts: [799, 12, 7, 6, 5]
+  Loss: 0.9568
+
+[DEBUG Step 3100] 2026-02-28 16:47:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0520, unique_argmax=425.0/1024
+  Student: entropy=0.1340, unique_argmax=421.0/1024
+  Argmax agreement: 93.5%
+  Student top5 tokens: [50257, 198, 13, 11, 262] counts: [49, 44, 35, 35, 33]
+  Loss: 0.5587
+
+[DEBUG Step 3100] 2026-02-28 16:47:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1551, unique_argmax=117.0/1024
+  Student: entropy=0.3985, unique_argmax=82.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 13, 262, 286, 290] counts: [901, 8, 7, 6, 5]
+  Loss: 1.0609
+
+[DEBUG Step 3100] 2026-02-28 16:47:08
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1749, unique_argmax=90.0/1024
+  Student: entropy=0.4229, unique_argmax=62.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 284, 13, 257, 11] counts: [948, 5, 4, 3, 3]
+  Loss: 0.8196
+
+[DEBUG Step 3200] 2026-02-28 16:48:02
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 4.0/16
+  Teacher: entropy=0.0810, unique_argmax=407.0/1024
+  Student: entropy=0.2261, unique_argmax=399.0/1024
+  Argmax agreement: 96.6%
+  Student top5 tokens: [50257, 262, 198, 11, 13] counts: [236, 39, 35, 33, 24]
+  Loss: 0.3915
+
+[DEBUG Step 3200] 2026-02-28 16:48:02
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1435, unique_argmax=184.0/1024
+  Student: entropy=0.3649, unique_argmax=148.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 13, 11, 286, 247] counts: [803, 15, 9, 5, 5]
+  Loss: 1.1607
+
+[DEBUG Step 3200] 2026-02-28 16:48:02
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1540, unique_argmax=137.0/1024
+  Student: entropy=0.3811, unique_argmax=107.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 198, 12, 262, 13] counts: [877, 12, 6, 5, 5]
+  Loss: 0.9146
+
+[DEBUG Step 3200] 2026-02-28 16:48:02
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1634, unique_argmax=126.0/1024
+  Student: entropy=0.4203, unique_argmax=99.0/1024
+  Argmax agreement: 94.1%
+  Student top5 tokens: [50257, 262, 11, 247, 286] counts: [886, 6, 6, 6, 5]
+  Loss: 1.2105
+
+[DEBUG Step 3300] 2026-02-28 16:48:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1170, unique_argmax=241.0/1024
+  Student: entropy=0.3420, unique_argmax=225.0/1024
+  Argmax agreement: 95.8%
+  Student top5 tokens: [50257, 262, 198, 13, 11] counts: [627, 15, 14, 12, 10]
+  Loss: 0.7500
+
+[DEBUG Step 3300] 2026-02-28 16:48:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 10.0/16
+  Teacher: entropy=0.1149, unique_argmax=244.0/1024
+  Student: entropy=0.3342, unique_argmax=225.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 262, 11, 284, 198] counts: [626, 18, 18, 14, 14]
+  Loss: 0.7017
+
+[DEBUG Step 3300] 2026-02-28 16:48:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 9.0/16
+  Teacher: entropy=0.1057, unique_argmax=273.0/1024
+  Student: entropy=0.3182, unique_argmax=261.0/1024
+  Argmax agreement: 95.9%
+  Student top5 tokens: [50257, 11, 13, 198, 262] counts: [570, 19, 16, 15, 11]
+  Loss: 0.6984
+
+[DEBUG Step 3300] 2026-02-28 16:48:45
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1724, unique_argmax=81.0/1024
+  Student: entropy=0.4435, unique_argmax=50.0/1024
+  Argmax agreement: 95.5%
+  Student top5 tokens: [50257, 284, 286, 373, 13] counts: [966, 4, 3, 2, 2]
+  Loss: 0.9559
+
+[DEBUG Step 3400] 2026-02-28 16:49:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0865, unique_argmax=389.0/1024
+  Student: entropy=0.2644, unique_argmax=376.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 11, 13, 262, 198] counts: [355, 34, 24, 20, 19]
+  Loss: 0.5627
+
+[DEBUG Step 3400] 2026-02-28 16:49:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0809, unique_argmax=453.0/1024
+  Student: entropy=0.2400, unique_argmax=442.0/1024
+  Argmax agreement: 92.9%
+  Student top5 tokens: [50257, 13, 11, 262, 284] counts: [163, 42, 32, 24, 22]
+  Loss: 0.5483
+
+[DEBUG Step 3400] 2026-02-28 16:49:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1657, unique_argmax=128.0/1024
+  Student: entropy=0.4324, unique_argmax=93.0/1024
+  Argmax agreement: 94.7%
+  Student top5 tokens: [50257, 13, 284, 262, 198] counts: [897, 12, 5, 5, 5]
+  Loss: 1.1261
+
+[DEBUG Step 3400] 2026-02-28 16:49:27
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1078, unique_argmax=326.0/1024
+  Student: entropy=0.3326, unique_argmax=300.0/1024
+  Argmax agreement: 95.0%
+  Student top5 tokens: [50257, 13, 11, 262, 286] counts: [525, 21, 21, 19, 15]
+  Loss: 0.9065
+
+[DEBUG Step 3500] 2026-02-28 16:50:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 1.0/16
+  Teacher: entropy=0.0263, unique_argmax=466.0/1024
+  Student: entropy=0.1127, unique_argmax=459.0/1024
+  Argmax agreement: 97.9%
+  Student top5 tokens: [262, 11, 13, 284, 286] counts: [43, 41, 39, 25, 21]
+  Loss: 0.3245
+
+[DEBUG Step 3500] 2026-02-28 16:50:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1424, unique_argmax=200.0/1024
+  Student: entropy=0.4058, unique_argmax=175.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 262, 11, 247, 13] counts: [758, 13, 12, 7, 7]
+  Loss: 0.8801
+
+[DEBUG Step 3500] 2026-02-28 16:50:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 16.0/16
+  Teacher: entropy=0.1869, unique_argmax=37.0/1024
+  Student: entropy=0.4778, unique_argmax=1.0/1024
+  Argmax agreement: 96.1%
+  Student top5 tokens: [50257, 2, 0, 3, 1] counts: [1024, 0, 0, 0, 0]
+  Loss: 0.8806
+
+[DEBUG Step 3500] 2026-02-28 16:50:10
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.0877, unique_argmax=406.0/1024
+  Student: entropy=0.2904, unique_argmax=385.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 262, 198, 284, 13] counts: [357, 32, 21, 19, 19]
+  Loss: 0.7126
+
+[DEBUG Step 3600] 2026-02-28 16:50:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1142, unique_argmax=317.0/1024
+  Student: entropy=0.3246, unique_argmax=294.0/1024
+  Argmax agreement: 95.6%
+  Student top5 tokens: [50257, 262, 290, 11, 13] counts: [518, 18, 13, 13, 12]
+  Loss: 0.7933
+
+[DEBUG Step 3600] 2026-02-28 16:50:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 8.0/16
+  Teacher: entropy=0.1078, unique_argmax=300.0/1024
+  Student: entropy=0.3090, unique_argmax=275.0/1024
+  Argmax agreement: 94.9%
+  Student top5 tokens: [50257, 198, 11, 262, 13] counts: [533, 27, 23, 16, 12]
+  Loss: 0.8286
+
+[DEBUG Step 3600] 2026-02-28 16:50:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1811, unique_argmax=71.0/1024
+  Student: entropy=0.4348, unique_argmax=47.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 13, 287, 247, 47] counts: [967, 3, 2, 2, 2]
+  Loss: 0.7758
+
+[DEBUG Step 3600] 2026-02-28 16:50:53
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1675, unique_argmax=74.0/1024
+  Student: entropy=0.4200, unique_argmax=51.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 564, 290, 287, 250] counts: [961, 4, 4, 3, 2]
+  Loss: 0.8863
+
+[DEBUG Step 3700] 2026-02-28 16:51:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 3.0/16
+  Teacher: entropy=0.0665, unique_argmax=424.0/1024
+  Student: entropy=0.1873, unique_argmax=418.0/1024
+  Argmax agreement: 93.0%
+  Student top5 tokens: [50257, 262, 11, 198, 13] counts: [132, 52, 41, 34, 31]
+  Loss: 0.4894
+
+[DEBUG Step 3700] 2026-02-28 16:51:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 15.0/16
+  Teacher: entropy=0.1756, unique_argmax=73.0/1024
+  Student: entropy=0.4343, unique_argmax=53.0/1024
+  Argmax agreement: 97.0%
+  Student top5 tokens: [50257, 6143, 287, 326, 13] counts: [964, 3, 3, 2, 2]
+  Loss: 0.6464
+
+[DEBUG Step 3700] 2026-02-28 16:51:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 5.0/16
+  Teacher: entropy=0.0800, unique_argmax=376.0/1024
+  Student: entropy=0.2731, unique_argmax=351.0/1024
+  Argmax agreement: 93.5%
+  Student top5 tokens: [50257, 11, 262, 13, 198] counts: [336, 23, 20, 19, 18]
+  Loss: 0.8772
+
+[DEBUG Step 3700] 2026-02-28 16:51:35
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 11.0/16
+  Teacher: entropy=0.1361, unique_argmax=184.0/1024
+  Student: entropy=0.3582, unique_argmax=171.0/1024
+  Argmax agreement: 96.5%
+  Student top5 tokens: [50257, 13, 11, 262, 198] counts: [747, 12, 12, 9, 5]
+  Loss: 0.6308
+
+[DEBUG Step 3800] 2026-02-28 16:52:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0567, unique_argmax=474.0/1024
+  Student: entropy=0.1746, unique_argmax=463.0/1024
+  Argmax agreement: 92.6%
+  Student top5 tokens: [198, 50257, 262, 11, 13] counts: [68, 66, 45, 38, 27]
+  Loss: 0.5612
+
+[DEBUG Step 3800] 2026-02-28 16:52:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 2.0/16
+  Teacher: entropy=0.0515, unique_argmax=420.0/1024
+  Student: entropy=0.1592, unique_argmax=405.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 11, 13, 284, 262] counts: [59, 43, 38, 33, 29]
+  Loss: 0.5535
+
+[DEBUG Step 3800] 2026-02-28 16:52:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.1035, unique_argmax=300.0/1024
+  Student: entropy=0.3208, unique_argmax=276.0/1024
+  Argmax agreement: 94.6%
+  Student top5 tokens: [50257, 11, 198, 262, 13] counts: [403, 39, 25, 22, 20]
+  Loss: 0.7674
+
+[DEBUG Step 3800] 2026-02-28 16:52:17
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 12.0/16
+  Teacher: entropy=0.1603, unique_argmax=158.0/1024
+  Student: entropy=0.4131, unique_argmax=136.0/1024
+  Argmax agreement: 96.3%
+  Student top5 tokens: [50257, 262, 6257, 11, 13] counts: [789, 17, 13, 11, 10]
+  Loss: 0.7781
+
+[DEBUG Step 3900] 2026-02-28 16:53:00
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 13.0/16
+  Teacher: entropy=0.1459, unique_argmax=161.0/1024
+  Student: entropy=0.3713, unique_argmax=141.0/1024
+  Argmax agreement: 96.2%
+  Student top5 tokens: [50257, 11, 262, 1512, 286] counts: [807, 10, 9, 7, 7]
+  Loss: 0.7372
+
+[DEBUG Step 3900] 2026-02-28 16:53:00
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 14.0/16
+  Teacher: entropy=0.1629, unique_argmax=136.0/1024
+  Student: entropy=0.4282, unique_argmax=99.0/1024
+  Argmax agreement: 94.2%
+  Student top5 tokens: [50257, 262, 13, 257, 11] counts: [896, 6, 6, 4, 3]
+  Loss: 1.2066
+
+[DEBUG Step 3900] 2026-02-28 16:53:00
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 7.0/16
+  Teacher: entropy=0.0969, unique_argmax=336.0/1024
+  Student: entropy=0.3035, unique_argmax=320.0/1024
+  Argmax agreement: 95.4%
+  Student top5 tokens: [50257, 262, 198, 13, 284] counts: [430, 30, 22, 22, 17]
+  Loss: 0.7040
+
+[DEBUG Step 3900] 2026-02-28 16:53:00
+  Method: SEDD native Euler (1-step student, 4-step teacher)
+  Avg window k: 6.0/16
+  Teacher: entropy=0.1059, unique_argmax=348.0/1024
+  Student: entropy=0.3275, unique_argmax=333.0/1024
+  Argmax agreement: 95.7%
+  Student top5 tokens: [50257, 11, 262, 286, 13] counts: [413, 40, 37, 25, 19]
+  Loss: 0.7269

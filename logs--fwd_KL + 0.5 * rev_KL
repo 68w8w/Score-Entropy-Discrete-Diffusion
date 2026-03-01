@@ -1,0 +1,219 @@
+2026-02-28 15:27:09,431 - /data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever
+2026-02-28 15:27:09,431 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 4, 'train_temperature': 1.0, 'lambda_rev_kl': 0.5, 'lambda_perceptual': 0.0, 'perceptual_layers': [2, 5, 8, 11], 'perceptual_loss_type': 'l2'}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever'}
+2026-02-28 15:27:09,432 - Found 4 CUDA devices.
+2026-02-28 15:27:09,432 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 15:27:09,432 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 15:27:09,432 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 15:27:09,432 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 15:27:09,432 - Found 128 total number of CPUs.
+2026-02-28 15:27:09,805 - Loading teacher model...
+2026-02-28 15:27:11,357 - Teacher model loaded successfully.
+2026-02-28 15:27:11,358 - Initializing student model from teacher weights...
+2026-02-28 15:27:12,437 - Student initialized from teacher weights.
+2026-02-28 15:27:12,472 - Number of parameters in student model: 169627218
+2026-02-28 15:27:12,480 - Student Model: DistributedDataParallel(
+  (module): SEDD(
+    (vocab_embed): EmbeddingLayer()
+    (sigma_map): TimestepEmbedder(
+      (mlp): Sequential(
+        (0): Linear(in_features=256, out_features=128, bias=True)
+        (1): SiLU()
+        (2): Linear(in_features=128, out_features=128, bias=True)
+      )
+    )
+    (rotary_emb): Rotary()
+    (blocks): ModuleList(
+      (0-11): 12 x DDiTBlock(
+        (norm1): LayerNorm()
+        (attn_qkv): Linear(in_features=768, out_features=2304, bias=False)
+        (attn_out): Linear(in_features=768, out_features=768, bias=False)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (norm2): LayerNorm()
+        (mlp): Sequential(
+          (0): Linear(in_features=768, out_features=3072, bias=True)
+          (1): GELU(approximate='tanh')
+          (2): Linear(in_features=3072, out_features=768, bias=True)
+        )
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (adaLN_modulation): Linear(in_features=128, out_features=4608, bias=True)
+      )
+    )
+    (output_layer): DDitFinalLayer(
+      (norm_final): LayerNorm()
+      (linear): Linear(in_features=768, out_features=50258, bias=True)
+      (adaLN_modulation): Linear(in_features=128, out_features=1536, bias=True)
+    )
+  )
+)
+2026-02-28 15:27:12,480 - EMA: <model.ema.ExponentialMovingAverage object at 0x7eff7a8e57c0>
+2026-02-28 15:27:12,481 - Optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    weight_decay: 0
+)
+2026-02-28 15:27:12,481 - Scaler: <torch.cuda.amp.grad_scaler.GradScaler object at 0x7eff7a8e5820>
+2026-02-28 15:27:12,482 - No checkpoint found at /data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever/checkpoints-meta/checkpoint.pth. Returned the same state as input
+2026-02-28 15:27:26,944 - Debug log will be saved to: /data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever/debug_log.txt
+2026-02-28 15:27:26,945 - Starting D-PeRFlow (pure KL) training at step 0.
+2026-02-28 15:27:26,945 - Number of time windows: 16
+2026-02-28 15:27:26,945 - Euler steps (teacher): 4
+2026-02-28 15:27:26,945 - Reverse KL weight (lambda_rev_kl): 0.5
+2026-02-28 15:27:26,945 - Perceptual loss weight (lambda_perceptual): 0.0
+2026-02-28 15:27:26,945 - Loss: fwd_KL + 0.5 * rev_KL
+2026-02-28 15:27:33,512 - step: 0, training_loss: 8.64716e-01
+2026-02-28 15:27:39,524 - step: 0, evaluation_loss: 9.12851e-01
+2026-02-28 15:29:04,593 - step: 50, training_loss: 7.13684e-01
+2026-02-28 15:30:29,667 - step: 100, training_loss: 7.50716e-01
+2026-02-28 15:30:29,896 - step: 100, evaluation_loss: 8.51869e-01
+2026-02-28 15:31:56,256 - step: 150, training_loss: 7.51397e-01
+2026-02-28 15:33:22,246 - step: 200, training_loss: 7.82505e-01
+2026-02-28 15:33:26,468 - step: 200, evaluation_loss: 6.18677e-01
+2026-02-28 15:33:29,242 - Generating text at step: 200 with 16-step sampling
+2026-02-28 15:33:34,862 - Generative Perplexity at step: 200. Perplexity: 156.059. (Using 16-step sampling)
+2026-02-28 15:34:59,920 - step: 250, training_loss: 7.59875e-01
+2026-02-28 15:36:25,653 - step: 300, training_loss: 8.08410e-01
+2026-02-28 15:36:25,882 - step: 300, evaluation_loss: 1.02538e+00
+2026-02-28 15:37:52,901 - step: 350, training_loss: 7.21001e-01
+2026-02-28 15:39:19,665 - step: 400, training_loss: 7.70972e-01
+2026-02-28 15:39:24,135 - step: 400, evaluation_loss: 7.09518e-01
+2026-02-28 15:39:27,436 - Generating text at step: 400 with 16-step sampling
+2026-02-28 15:39:30,056 - Generative Perplexity at step: 400. Perplexity: 151.497. (Using 16-step sampling)
+2026-02-28 15:40:57,660 - step: 450, training_loss: 7.33436e-01
+2026-02-28 15:42:25,244 - step: 500, training_loss: 7.48815e-01
+2026-02-28 15:42:25,479 - step: 500, evaluation_loss: 7.92248e-01
+2026-02-28 15:43:52,285 - step: 550, training_loss: 7.42091e-01
+2026-02-28 15:45:20,837 - step: 600, training_loss: 7.82802e-01
+2026-02-28 15:45:25,178 - step: 600, evaluation_loss: 7.69983e-01
+2026-02-28 15:45:28,440 - Generating text at step: 600 with 16-step sampling
+2026-02-28 15:45:31,612 - Generative Perplexity at step: 600. Perplexity: 150.248. (Using 16-step sampling)
+2026-02-28 15:46:58,386 - step: 650, training_loss: 6.96296e-01
+2026-02-28 15:48:23,947 - step: 700, training_loss: 6.89089e-01
+2026-02-28 15:48:24,147 - step: 700, evaluation_loss: 8.29735e-01
+2026-02-28 15:49:50,106 - step: 750, training_loss: 7.05982e-01
+2026-02-28 15:51:15,743 - step: 800, training_loss: 7.63094e-01
+2026-02-28 15:51:20,258 - step: 800, evaluation_loss: 7.45650e-01
+2026-02-28 15:51:23,367 - Generating text at step: 800 with 16-step sampling
+2026-02-28 15:51:25,796 - Generative Perplexity at step: 800. Perplexity: 144.078. (Using 16-step sampling)
+2026-02-28 15:52:51,621 - step: 850, training_loss: 8.35432e-01
+2026-02-28 15:54:19,316 - step: 900, training_loss: 7.66864e-01
+2026-02-28 15:54:19,534 - step: 900, evaluation_loss: 7.75519e-01
+2026-02-28 15:55:48,050 - step: 950, training_loss: 8.46211e-01
+2026-02-28 15:57:15,916 - step: 1000, training_loss: 7.67964e-01
+2026-02-28 15:57:20,257 - step: 1000, evaluation_loss: 8.82054e-01
+2026-02-28 16:23:55,971 - /data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever
+2026-02-28 16:23:55,971 - {'ngpus': 4, 'tokens': 50257, 'd_perflow': {'teacher_checkpoint': '/data0/fufeiyang/src/Text/SEDD/ckpt/pytorch_model.bin', 'init_from_teacher': True, 'num_time_windows': 16, 'delta_t': 0.0001, 'sampling_eps': 0.001, 'euler_steps': 4, 'train_temperature': 1.0, 'lambda_rev_kl': 0.5, 'lambda_perceptual': 0.0, 'perceptual_layers': [2, 5, 8, 11], 'perceptual_loss_type': 'l2'}, 'training': {'batch_size': 16, 'accum': 4, 'n_iters': 2000, 'snapshot_freq': 200, 'log_freq': 50, 'eval_freq': 100, 'snapshot_freq_for_preemption': 200, 'weight': 'standard', 'snapshot_sampling': True, 'ema': 0.9999}, 'data': {'train': 'openwebtext', 'valid': 'wikitext103', 'cache_dir': '/data1/wulingdan/data/diffusion/Score-Entropy-Discrete-Diffusion/data'}, 'graph': {'type': 'absorb', 'file': 'data', 'report_all': False}, 'noise': {'type': 'loglinear', 'sigma_min': 0.0001, 'sigma_max': 20}, 'sampling': {'predictor': 'euler', 'steps': 4, 'noise_removal': True}, 'eval': {'batch_size': 16, 'perplexity': True, 'perplexity_batch_size': 1}, 'optim': {'weight_decay': 0, 'optimizer': 'AdamW', 'lr': 0.0001, 'beta1': 0.9, 'beta2': 0.999, 'eps': 1e-08, 'warmup': 1000, 'grad_clip': 1.0}, 'model': {'name': 'small', 'type': 'ddit', 'hidden_size': 768, 'cond_dim': 128, 'length': 1024, 'n_blocks': 12, 'n_heads': 12, 'scale_by_sigma': True, 'dropout': 0.1}, 'work_dir': '/data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever'}
+2026-02-28 16:23:55,972 - Found 4 CUDA devices.
+2026-02-28 16:23:55,972 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 16:23:55,972 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 16:23:55,972 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 16:23:55,972 - NVIDIA GeForce RTX 4090 	 Memory: 23.64GB
+2026-02-28 16:23:55,972 - Found 128 total number of CPUs.
+2026-02-28 16:23:56,482 - Loading teacher model...
+2026-02-28 16:23:59,299 - Teacher model loaded successfully.
+2026-02-28 16:23:59,299 - Initializing student model from teacher weights...
+2026-02-28 16:24:00,375 - Student initialized from teacher weights.
+2026-02-28 16:24:00,445 - Number of parameters in student model: 169627218
+2026-02-28 16:24:00,453 - Student Model: DistributedDataParallel(
+  (module): SEDD(
+    (vocab_embed): EmbeddingLayer()
+    (sigma_map): TimestepEmbedder(
+      (mlp): Sequential(
+        (0): Linear(in_features=256, out_features=128, bias=True)
+        (1): SiLU()
+        (2): Linear(in_features=128, out_features=128, bias=True)
+      )
+    )
+    (rotary_emb): Rotary()
+    (blocks): ModuleList(
+      (0-11): 12 x DDiTBlock(
+        (norm1): LayerNorm()
+        (attn_qkv): Linear(in_features=768, out_features=2304, bias=False)
+        (attn_out): Linear(in_features=768, out_features=768, bias=False)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (norm2): LayerNorm()
+        (mlp): Sequential(
+          (0): Linear(in_features=768, out_features=3072, bias=True)
+          (1): GELU(approximate='tanh')
+          (2): Linear(in_features=3072, out_features=768, bias=True)
+        )
+        (dropout2): Dropout(p=0.1, inplace=False)
+        (adaLN_modulation): Linear(in_features=128, out_features=4608, bias=True)
+      )
+    )
+    (output_layer): DDitFinalLayer(
+      (norm_final): LayerNorm()
+      (linear): Linear(in_features=768, out_features=50258, bias=True)
+      (adaLN_modulation): Linear(in_features=128, out_features=1536, bias=True)
+    )
+  )
+)
+2026-02-28 16:24:00,453 - EMA: <model.ema.ExponentialMovingAverage object at 0x7f877247b730>
+2026-02-28 16:24:00,454 - Optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    weight_decay: 0
+)
+2026-02-28 16:24:00,454 - Scaler: <torch.cuda.amp.grad_scaler.GradScaler object at 0x7f877247b790>
+2026-02-28 16:24:35,239 - Debug log will be saved to: /data1/wulingdan/data/diffusion/peloss0228/Score-Entropy-Discrete-Diffusion/forkl+rever/debug_log.txt
+2026-02-28 16:24:35,240 - Starting D-PeRFlow (pure KL) training at step 1001.
+2026-02-28 16:24:35,240 - Number of time windows: 16
+2026-02-28 16:24:35,241 - Euler steps (teacher): 4
+2026-02-28 16:24:35,241 - Reverse KL weight (lambda_rev_kl): 0.5
+2026-02-28 16:24:35,241 - Perceptual loss weight (lambda_perceptual): 0.0
+2026-02-28 16:24:35,241 - Loss: fwd_KL + 0.5 * rev_KL
+2026-02-28 16:26:05,347 - step: 1050, training_loss: 7.84244e-01
+2026-02-28 16:27:29,446 - step: 1100, training_loss: 7.49437e-01
+2026-02-28 16:27:32,883 - step: 1100, evaluation_loss: 6.39532e-01
+2026-02-28 16:28:56,839 - step: 1150, training_loss: 7.37365e-01
+2026-02-28 16:30:21,088 - step: 1200, training_loss: 7.51753e-01
+2026-02-28 16:30:25,600 - step: 1200, evaluation_loss: 7.85353e-01
+2026-02-28 16:30:28,924 - Generating text at step: 1200 with 16-step sampling
+2026-02-28 16:30:32,183 - Generative Perplexity at step: 1200. Perplexity: 180.215. (Using 16-step sampling)
+2026-02-28 16:31:57,294 - step: 1250, training_loss: 7.10867e-01
+2026-02-28 16:33:21,290 - step: 1300, training_loss: 7.01552e-01
+2026-02-28 16:33:21,485 - step: 1300, evaluation_loss: 8.35082e-01
+2026-02-28 16:34:45,679 - step: 1350, training_loss: 7.53802e-01
+2026-02-28 16:36:10,022 - step: 1400, training_loss: 6.79941e-01
+2026-02-28 16:36:14,634 - step: 1400, evaluation_loss: 7.49356e-01
+2026-02-28 16:36:18,034 - Generating text at step: 1400 with 16-step sampling
+2026-02-28 16:36:20,859 - Generative Perplexity at step: 1400. Perplexity: 126.666. (Using 16-step sampling)
+2026-02-28 16:37:45,526 - step: 1450, training_loss: 7.22666e-01
+2026-02-28 16:39:10,293 - step: 1500, training_loss: 8.20709e-01
+2026-02-28 16:39:10,505 - step: 1500, evaluation_loss: 8.93081e-01
+2026-02-28 16:40:35,533 - step: 1550, training_loss: 7.22079e-01
+2026-02-28 16:42:00,233 - step: 1600, training_loss: 7.14410e-01
+2026-02-28 16:42:05,089 - step: 1600, evaluation_loss: 9.45799e-01
+2026-02-28 16:42:08,328 - Generating text at step: 1600 with 16-step sampling
+2026-02-28 16:42:10,983 - Generative Perplexity at step: 1600. Perplexity: 130.575. (Using 16-step sampling)
+2026-02-28 16:43:35,843 - step: 1650, training_loss: 7.70197e-01
+2026-02-28 16:45:01,018 - step: 1700, training_loss: 7.55045e-01
+2026-02-28 16:45:01,206 - step: 1700, evaluation_loss: 6.92301e-01
+2026-02-28 16:46:26,188 - step: 1750, training_loss: 7.32292e-01
+2026-02-28 16:47:51,358 - step: 1800, training_loss: 7.82034e-01
+2026-02-28 16:47:56,323 - step: 1800, evaluation_loss: 7.98601e-01
+2026-02-28 16:47:59,792 - Generating text at step: 1800 with 16-step sampling
+2026-02-28 16:48:02,464 - Generative Perplexity at step: 1800. Perplexity: 142.439. (Using 16-step sampling)
+2026-02-28 16:49:27,553 - step: 1850, training_loss: 8.12055e-01
+2026-02-28 16:50:52,671 - step: 1900, training_loss: 6.41644e-01
+2026-02-28 16:50:52,887 - step: 1900, evaluation_loss: 8.00397e-01
+2026-02-28 16:52:17,713 - step: 1950, training_loss: 7.55055e-01
+2026-02-28 16:53:43,011 - step: 2000, training_loss: 7.88800e-01
+2026-02-28 16:53:48,115 - step: 2000, evaluation_loss: 6.54045e-01
+2026-02-28 16:53:51,549 - Generating text at step: 2000 with 16-step sampling
+2026-02-28 16:53:54,108 - Generative Perplexity at step: 2000. Perplexity: 153.166. (Using 16-step sampling)
