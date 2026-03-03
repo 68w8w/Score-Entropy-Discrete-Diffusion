@@ -27,6 +27,9 @@ import torch.nn.functional as F
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
+import math
+from collections import Counter
+
 import data
 import losses
 import sampling
@@ -379,9 +382,46 @@ def _run(rank, world_size, cfg):
                             if distributed:
                                 dist.all_reduce(total_perplexity)
                                 total_perplexity /= world_size
-                            mprint(f"Generative Perplexity at step: {step}. "
-                                   f"Perplexity: {total_perplexity:.3f}. "
-                                   f"(Using {cfg.d_perflow.num_time_windows}-step sampling)")
+                            # --- Lightweight diversity metrics ---
+                            # Distinct-n on decoded text
+                            texts = tokenizer.batch_decode(sample)
+
+                            def _distinct_n(texts, n):
+                                all_ngrams = []
+                                for t in texts:
+                                    tokens = t.split()
+                                    if len(tokens) >= n:
+                                        all_ngrams.extend(
+                                            tuple(tokens[j:j+n])
+                                            for j in range(len(tokens) - n + 1)
+                                        )
+                                return len(set(all_ngrams)) / max(len(all_ngrams), 1)
+
+                            distinct1 = _distinct_n(texts, 1)
+                            distinct2 = _distinct_n(texts, 2)
+                            distinct3 = _distinct_n(texts, 3)
+
+                            # Token-level entropy & unique ratio
+                            flat_tokens = sample.reshape(-1).tolist()
+                            tok_counts = Counter(flat_tokens)
+                            total_tok = len(flat_tokens)
+                            tok_entropy = -sum(
+                                (c / total_tok) * math.log2(c / total_tok)
+                                for c in tok_counts.values()
+                            )
+                            unique_ratio = len(tok_counts) / total_tok
+
+                            mprint(
+                                f"Eval at step {step} "
+                                f"({cfg.d_perflow.num_time_windows}-step sampling):\n"
+                                f"  PPL: {total_perplexity:.3f} | "
+                                f"Distinct-1: {distinct1:.4f} | "
+                                f"Distinct-2: {distinct2:.4f} | "
+                                f"Distinct-3: {distinct3:.4f}\n"
+                                f"  Token Entropy: {tok_entropy:.3f} bits | "
+                                f"Unique Token Ratio: {unique_ratio:.4f} "
+                                f"({len(tok_counts)}/{total_tok})"
+                            )
 
                             del eval_model, logits, loss_val
 
