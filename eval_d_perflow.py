@@ -17,6 +17,7 @@ import torch
 import torch.nn.functional as F
 import sys
 import os
+import json
 
 import hydra
 from hydra import compose, initialize_config_dir
@@ -261,6 +262,8 @@ def main():
                         help='Compute Distinct-n scores')
     parser.add_argument('--all_metrics', action='store_true',
                         help='Compute all metrics (PPL, MAUVE, Self-BLEU, Distinct-n)')
+    parser.add_argument('--output_file', type=str, default=None,
+                        help='Path to save evaluation results as JSON (e.g., eval_results.json)')
     args = parser.parse_args()
 
     # If --all_metrics, enable all
@@ -412,6 +415,20 @@ def main():
     if 'MAUVE' in results:
         print(f"  MAUVE: {results['MAUVE']:.4f} (higher = closer to real text)")
     print(f"{'='*60}")
+
+    # Save results to file
+    if args.output_file:
+        save_data = {
+            'sampler': args.sampler,
+            'num_samples': args.num_samples,
+            'steps': args.num_time_windows if args.sampler == 'd_perflow' else args.sedd_steps,
+            'temperature': args.temperature,
+            'checkpoint': args.checkpoint,
+            'metrics': results,
+        }
+        with open(args.output_file, 'w') as f:
+            json.dump(save_data, f, indent=2)
+        print(f"\nResults saved to {args.output_file}")
 
 
 if __name__ == '__main__':
