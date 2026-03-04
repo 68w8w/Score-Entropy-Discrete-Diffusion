@@ -64,7 +64,8 @@ def compute_kl_divergence(p, q):
 
 def main():
     parser = argparse.ArgumentParser(description="Compare teacher distribution methods")
-    parser.add_argument("--model_path", default="louaaron/sedd-medium", type=str)
+    parser.add_argument("--model_path", default="louaaron/sedd-medium", type=str,
+                        help="HuggingFace model ID or local training run directory")
     parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--seq_len", type=int, default=1024)
     parser.add_argument("--num_time_windows", type=int, default=16,
@@ -74,6 +75,8 @@ def main():
     parser.add_argument("--num_batches", type=int, default=4,
                         help="Number of batches to average over")
     parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--cache_dir", type=str, default=None,
+                        help="Cache directory for datasets (optional)")
     args = parser.parse_args()
 
     device = torch.device(args.device)
@@ -97,7 +100,10 @@ def main():
     # Load real text data
     print("Loading dataset...")
     from datasets import load_dataset
-    ds = load_dataset("wikitext", "wikitext-103-raw-v1", split="test")
+    load_kwargs = {}
+    if args.cache_dir is not None:
+        load_kwargs["cache_dir"] = args.cache_dir
+    ds = load_dataset("wikitext", "wikitext-103-raw-v1", split="test", **load_kwargs)
     texts = [t for t in ds["text"] if len(t.strip()) > 100]
 
     # Tokenize
