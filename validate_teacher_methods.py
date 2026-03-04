@@ -67,7 +67,7 @@ def main():
     parser.add_argument("--model_path", default="louaaron/sedd-medium", type=str,
                         help="HuggingFace model ID or local training run directory")
     parser.add_argument("--batch_size", type=int, default=4)
-    parser.add_argument("--seq_len", type=int, default=1024)
+    parser.add_argument("--seq_len", type=int, default=128)
     parser.add_argument("--num_time_windows", type=int, default=16,
                         help="K: number of time windows (larger = smaller steps = easier)")
     parser.add_argument("--euler_steps", type=int, default=4,
@@ -108,10 +108,13 @@ def main():
 
     # Tokenize
     all_tokens = []
-    for text in texts[:200]:
+    max_sequences = 500
+    for text in texts:
         tokens = tokenizer.encode(text)
         if len(tokens) >= args.seq_len:
             all_tokens.append(tokens[:args.seq_len])
+            if len(all_tokens) >= max_sequences:
+                break
     all_tokens = torch.tensor(all_tokens, device=device)
     print(f"Prepared {len(all_tokens)} sequences of length {args.seq_len}")
 
