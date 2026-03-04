@@ -9,7 +9,22 @@ import noise_lib
 from omegaconf import OmegaConf
 
 def load_model_hf(dir, device):
-    score_model = SEDD.from_pretrained(dir).to(device)
+    # Try from_pretrained first; if it fails due to missing safetensors,
+    # fall back to manually loading config.json + pytorch_model.bin
+    try:
+        score_model = SEDD.from_pretrained(dir).to(device)
+    except FileNotFoundError:
+        import json
+        config_path = os.path.join(dir, "config.json")
+        bin_path = os.path.join(dir, "pytorch_model.bin")
+        if os.path.exists(config_path) and os.path.exists(bin_path):
+            with open(config_path) as f:
+                config = OmegaConf.create(json.load(f))
+            score_model = SEDD(config).to(device)
+            state_dict = torch.load(bin_path, map_location=device)
+            score_model.load_state_dict(state_dict)
+        else:
+            raise
     graph = graph_lib.get_graph(score_model.config, device)
     noise = noise_lib.get_noise(score_model.config).to(device)
     return score_model, graph, noise
