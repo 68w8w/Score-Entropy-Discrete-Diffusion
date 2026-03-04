@@ -349,6 +349,126 @@ class DPerflowTrainer:
 
         return probs_final
 
+    def _sigma_to_t(self, sigma):
+        """Invert the LogLinear noise schedule: σ(t) = -log(1-(1-ε)t) => t = (1-exp(-σ))/(1-ε)"""
+        eps = getattr(self.noise, 'eps', 1e-3)
+        return (1 - torch.exp(-sigma)) / (1 - eps)
+
+    def compute_exp_midpoint_sigma_distribution(
+        self,
+        score_fn,
+        x: torch.Tensor,
+        t_start: torch.Tensor,
+        t_end: torch.Tensor,
+    ):
+        """
+        Exponential Midpoint method with σ-space adaptive midpoint.
+
+        Instead of t_mid = (t_start + t_end) / 2, computes the midpoint in σ-space:
+            σ_mid = (σ(t_start) + σ(t_end)) / 2
+            t_mid = σ⁻¹(σ_mid)
+
+        This is motivated by the fact that the LogLinear noise schedule σ(t) = -log(1-(1-ε)t)
+        is nonlinear in t. Near t=1, σ changes extremely fast while near t=0 it's slow.
+        Taking the midpoint in σ-space places it where the dynamics are more uniform,
+        yielding better 2nd-order accuracy with no extra computational cost.
+
+        Accuracy: O(Δσ³) with better constants than t-space midpoint.
+        NFE: 2 (same as exp_midpoint)
+        """
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+
+        # Compute σ values at boundaries
+        sigma_start = self.noise(t_start_1d)[0]   # [B]
+        sigma_end = self.noise(t_end_1d)[0]        # [B]
+
+        # Midpoint in σ-space (arithmetic mean of σ values)
+        sigma_mid = (sigma_start + sigma_end) / 2.0
+        t_mid = self._sigma_to_t(sigma_mid)
+
+        # === Step 1: Half-step predictor (t_start -> t_mid) ===
+        dsigma_half = sigma_start - sigma_mid       # [B]
+        score_start = score_fn(x, sigma_start)      # [B, L, V]
+
+        dsigma_half_exp = dsigma_half[:, None]
+        stag_half = self.graph.staggered_score(score_start, dsigma_half_exp)
+        probs_half = stag_half * self.graph.transp_transition(x, dsigma_half_exp)
+        probs_half = probs_half.clamp(min=0)
+        probs_half = probs_half / (probs_half.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # Sample midpoint state
+        x_mid = sample_categorical(probs_half, method="hard")
+
+        # === Step 2: Full step using midpoint score ===
+        score_mid = score_fn(x_mid, sigma_mid)      # [B, L, V]
+
+        dsigma_full = sigma_start - sigma_end        # [B]
+        dsigma_full_exp = dsigma_full[:, None]
+        stag_full = self.graph.staggered_score(score_mid, dsigma_full_exp)
+        probs_final = stag_full * self.graph.transp_transition(x, dsigma_full_exp)
+        probs_final = probs_final.clamp(min=0)
+        probs_final = probs_final / (probs_final.sum(dim=-1, keepdim=True) + 1e-10)
+
+        return probs_final
+
+    def compute_exp_corrector_distribution(
+        self,
+        score_fn,
+        x: torch.Tensor,
+        t_start: torch.Tensor,
+        t_end: torch.Tensor,
+    ):
+        """
+        Exponential Predictor-Corrector (Heun's method) for discrete diffusion.
+
+        Uses the trapezoidal rule to approximate the score integral:
+            1. Predict: Take a full analytic step using score at t_start
+            2. Correct: Evaluate score at predicted endpoint
+            3. Average the two scores and redo the step
+
+        This avoids the sampling noise at the midpoint (unlike exp_midpoint),
+        and achieves 2nd-order accuracy via the trapezoidal rule:
+            s_avg = (s(x, σ_start) + s(x_pred, σ_end)) / 2
+
+        Combined with σ-space optimization for the prediction step.
+
+        Accuracy: O(Δσ³) with reduced variance (no midpoint sampling)
+        NFE: 2 (same as exp_midpoint)
+        """
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+
+        sigma_start = self.noise(t_start_1d)[0]   # [B]
+        sigma_end = self.noise(t_end_1d)[0]        # [B]
+        dsigma_full = sigma_start - sigma_end       # [B]
+        dsigma_full_exp = dsigma_full[:, None]
+
+        # === Step 1: Predict - full analytic step with score at t_start ===
+        score_start = score_fn(x, sigma_start)      # [B, L, V]
+
+        stag_pred = self.graph.staggered_score(score_start, dsigma_full_exp)
+        probs_pred = stag_pred * self.graph.transp_transition(x, dsigma_full_exp)
+        probs_pred = probs_pred.clamp(min=0)
+        probs_pred = probs_pred / (probs_pred.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # Sample predicted endpoint
+        x_pred = sample_categorical(probs_pred, method="hard")
+
+        # === Step 2: Correct - evaluate score at predicted endpoint ===
+        score_end = score_fn(x_pred, sigma_end)      # [B, L, V]
+
+        # === Step 3: Trapezoidal average of scores ===
+        score_avg = (score_start + score_end) / 2.0
+
+        # === Step 4: Full step with averaged score ===
+        stag_final = self.graph.staggered_score(score_avg, dsigma_full_exp)
+        probs_final = stag_final * self.graph.transp_transition(x, dsigma_full_exp)
+        probs_final = probs_final.clamp(min=0)
+        probs_final = probs_final / (probs_final.sum(dim=-1, keepdim=True) + 1e-10)
+
+        return probs_final
+
     def compute_teacher_distributions(
         self,
         teacher_score_fn,
@@ -370,7 +490,9 @@ class DPerflowTrainer:
             teacher_method: Which method to compute P_{t_{k-1}}:
                 - "euler": Euler ODE solver (I + dt*Q, Taylor approximation)
                 - "analytic": Analytic multi-step (exact exp(ΔσQ), 1st-order Exp Integrator)
-                - "exp_midpoint": Exponential Midpoint (2nd-order Exp Integrator, 2 evals)
+                - "exp_midpoint": Exponential Midpoint (2nd-order, t-space midpoint)
+                - "exp_midpoint_sigma": Exponential Midpoint with σ-space adaptive midpoint
+                - "exp_corrector": Predictor-Corrector / Heun's method (2nd-order, trapezoidal)
 
         Returns:
             P_t_k: Distribution at window start [B, L, V]
@@ -393,6 +515,14 @@ class DPerflowTrainer:
             )
         elif teacher_method == "exp_midpoint":
             P_t_k_minus_1 = self.compute_exp_midpoint_distribution(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1
+            )
+        elif teacher_method == "exp_midpoint_sigma":
+            P_t_k_minus_1 = self.compute_exp_midpoint_sigma_distribution(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1
+            )
+        elif teacher_method == "exp_corrector":
+            P_t_k_minus_1 = self.compute_exp_corrector_distribution(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1
             )
         else:

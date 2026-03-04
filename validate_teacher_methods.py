@@ -2,7 +2,9 @@
 Quick validation script to compare teacher distribution methods:
   - Euler (Taylor approximation: I + dt*Q)
   - Analytic multi-step (exact exp(ΔσQ), 1st-order Exponential Integrator)
-  - Exp-Midpoint (2nd-order Exponential Integrator)
+  - Exp-Midpoint (2nd-order Exponential Integrator, t-space midpoint)
+  - Exp-Midpoint-σ (2nd-order, σ-space adaptive midpoint)
+  - Exp-Corrector (Predictor-Corrector / Heun's method, trapezoidal rule)
 
 Evaluation approach:
   1. Take real text x_0 from the dataset
@@ -118,10 +120,11 @@ def main():
     all_tokens = torch.tensor(all_tokens, device=device)
     print(f"Prepared {len(all_tokens)} sequences of length {args.seq_len}")
 
+    # Methods to compare
+    methods = ["euler", "analytic", "exp_midpoint", "exp_midpoint_sigma", "exp_corrector"]
+
     # Results storage
-    all_results = {
-        "euler": [], "analytic": [], "exp_midpoint": []
-    }
+    all_results = {m: [] for m in methods}
 
     # Test across different windows
     K = args.num_time_windows
@@ -132,7 +135,7 @@ def main():
     print(f"{'='*80}\n")
 
     for window_k in windows_to_test:
-        window_results = {"euler": [], "analytic": [], "exp_midpoint": []}
+        window_results = {m: [] for m in methods}
 
         for batch_idx in range(args.num_batches):
             # Sample a batch of real data
@@ -167,29 +170,43 @@ def main():
                 metrics_analytic = compute_metrics(P_analytic, x_0, "analytic")
                 window_results["analytic"].append(metrics_analytic)
 
-                # === Method 3: Exp-Midpoint ===
+                # === Method 3: Exp-Midpoint (t-space) ===
                 P_midpoint = trainer.compute_exp_midpoint_distribution(
                     score_fn, x_t_k, t_k, t_k_minus_1
                 )
                 metrics_midpoint = compute_metrics(P_midpoint, x_0, "exp_midpoint")
                 window_results["exp_midpoint"].append(metrics_midpoint)
 
+                # === Method 4: Exp-Midpoint (σ-space) ===
+                P_midpoint_sigma = trainer.compute_exp_midpoint_sigma_distribution(
+                    score_fn, x_t_k, t_k, t_k_minus_1
+                )
+                metrics_midpoint_sigma = compute_metrics(P_midpoint_sigma, x_0, "exp_midpoint_sigma")
+                window_results["exp_midpoint_sigma"].append(metrics_midpoint_sigma)
+
+                # === Method 5: Exp-Corrector (Heun) ===
+                P_corrector = trainer.compute_exp_corrector_distribution(
+                    score_fn, x_t_k, t_k, t_k_minus_1
+                )
+                metrics_corrector = compute_metrics(P_corrector, x_0, "exp_corrector")
+                window_results["exp_corrector"].append(metrics_corrector)
+
         # Average metrics for this window
         t_k_val = trainer.time_boundaries[window_k].item()
         t_km1_val = trainer.time_boundaries[window_k - 1].item()
         print(f"Window k={window_k}/{K}  t: {t_k_val:.4f} -> {t_km1_val:.4f}  "
               f"(mask_ratio ≈ {mask_ratio:.2f})")
-        print(f"  {'Method':<16} {'AvgTrueProb':>12} {'AvgLogProb':>12} {'Top1Acc':>10} {'Entropy':>10}")
-        print(f"  {'-'*62}")
+        print(f"  {'Method':<22} {'AvgTrueProb':>12} {'AvgLogProb':>12} {'Top1Acc':>10} {'Entropy':>10}")
+        print(f"  {'-'*68}")
 
-        for method in ["euler", "analytic", "exp_midpoint"]:
+        for method in methods:
             results = window_results[method]
             avg = {
                 key: np.mean([r[key] for r in results])
                 for key in ["avg_true_prob", "avg_log_prob", "top1_accuracy", "entropy"]
             }
             all_results[method].append(avg)
-            print(f"  {method:<16} {avg['avg_true_prob']:>12.6f} {avg['avg_log_prob']:>12.4f} "
+            print(f"  {method:<22} {avg['avg_true_prob']:>12.6f} {avg['avg_log_prob']:>12.4f} "
                   f"{avg['top1_accuracy']:>10.4f} {avg['entropy']:>10.4f}")
         print()
 
@@ -197,15 +214,15 @@ def main():
     print(f"\n{'='*80}")
     print("SUMMARY (averaged across all windows)")
     print(f"{'='*80}")
-    print(f"  {'Method':<16} {'AvgTrueProb':>12} {'AvgLogProb':>12} {'Top1Acc':>10} {'Entropy':>10}")
-    print(f"  {'-'*62}")
-    for method in ["euler", "analytic", "exp_midpoint"]:
+    print(f"  {'Method':<22} {'AvgTrueProb':>12} {'AvgLogProb':>12} {'Top1Acc':>10} {'Entropy':>10}")
+    print(f"  {'-'*68}")
+    for method in methods:
         results = all_results[method]
         avg = {
             key: np.mean([r[key] for r in results])
             for key in ["avg_true_prob", "avg_log_prob", "top1_accuracy", "entropy"]
         }
-        print(f"  {method:<16} {avg['avg_true_prob']:>12.6f} {avg['avg_log_prob']:>12.4f} "
+        print(f"  {method:<22} {avg['avg_true_prob']:>12.6f} {avg['avg_log_prob']:>12.4f} "
               f"{avg['top1_accuracy']:>10.4f} {avg['entropy']:>10.4f}")
 
     print(f"\nInterpretation:")
