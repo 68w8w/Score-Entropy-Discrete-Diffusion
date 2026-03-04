@@ -208,6 +208,147 @@ class DPerflowTrainer:
 
         return probs
 
+    def compute_analytic_multi_step(
+        self,
+        score_fn,
+        x: torch.Tensor,
+        t_start: torch.Tensor,
+        t_end: torch.Tensor,
+        num_steps: int = 4,
+    ):
+        """
+        Compute target distribution using Analytic predictor with multiple steps.
+
+        This is an Exponential Euler (1st-order Exponential Integrator):
+        each step uses the EXACT matrix exponential exp(ΔσQ) via SEDD's
+        staggered_score * transp_transition, instead of the Taylor approximation
+        I + dt*Q used by Euler.
+
+        The only approximation is that the score is held constant within each sub-step.
+        More steps = more score updates = higher accuracy.
+
+        Args:
+            score_fn: Score function from teacher model
+            x: Starting discrete state [B, L]
+            t_start: Start time [B] or [B, 1]
+            t_end: End time [B] or [B, 1]
+            num_steps: Number of analytic sub-steps
+
+        Returns:
+            probs: Target probability distribution at t_end [B, L, V]
+        """
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+
+        # Linearly spaced time points from t_start to t_end
+        # dt per step (t_start > t_end, so dt > 0)
+        dt = (t_start_1d - t_end_1d) / num_steps  # [B]
+
+        current_x = x
+        current_t = t_start_1d.clone()
+        probs = None
+
+        for step in range(num_steps):
+            next_t = current_t - dt
+            # Clamp to avoid going below t_end due to floating point
+            next_t = torch.max(next_t, t_end_1d)
+
+            # Compute sigma at current and next time
+            curr_sigma = self.noise(current_t)[0]  # [B]
+            next_sigma = self.noise(next_t)[0]      # [B]
+            dsigma = curr_sigma - next_sigma         # [B]
+
+            # Score at current state and time
+            score = score_fn(current_x, curr_sigma)  # [B, L, V]
+
+            # Analytic predictor: stag_score * transp_transition = exact exp(ΔσQ)
+            dsigma_expanded = dsigma[:, None]  # [B, 1]
+            stag_score = self.graph.staggered_score(score, dsigma_expanded)
+            probs = stag_score * self.graph.transp_transition(current_x, dsigma_expanded)
+
+            # Normalize
+            probs = probs.clamp(min=0)
+            probs = probs / (probs.sum(dim=-1, keepdim=True) + 1e-10)
+
+            # Update time
+            current_t = next_t
+
+            # Sample intermediate state for multi-step (except last step)
+            if step < num_steps - 1:
+                current_x = sample_categorical(probs, method="hard")
+
+        return probs
+
+    def compute_exp_midpoint_distribution(
+        self,
+        score_fn,
+        x: torch.Tensor,
+        t_start: torch.Tensor,
+        t_end: torch.Tensor,
+    ):
+        """
+        Compute target distribution using 2nd-order Exponential Midpoint method.
+
+        This is a 2nd-order Exponential Integrator that uses 2 score evaluations
+        to achieve O(Δσ³) accuracy, compared to O(Δσ²) for Exp-Euler (Analytic).
+
+        Algorithm:
+            1. Score at start: s₁ = score(x_t, σ(t_start))
+            2. Half-step with s₁: P_half = stag_score(s₁, Δσ/2) * exp(Δσ/2 · Q^T)
+            3. Sample midpoint: x_mid ~ P_half
+            4. Score at midpoint: s₂ = score(x_mid, σ(t_mid))
+            5. Full step with s₂: P_final = stag_score(s₂, Δσ) * exp(Δσ · Q^T)
+
+        The midpoint score s₂ better represents the average behavior over the
+        full interval, cancelling the first-order error term by symmetry.
+
+        Args:
+            score_fn: Score function from teacher model
+            x: Starting discrete state [B, L]
+            t_start: Start time [B] or [B, 1]
+            t_end: End time [B] or [B, 1]
+
+        Returns:
+            probs: Target probability distribution at t_end [B, L, V]
+        """
+        t_start_1d = t_start.squeeze(-1) if t_start.dim() > 1 else t_start
+        t_end_1d = t_end.squeeze(-1) if t_end.dim() > 1 else t_end
+        t_mid = (t_start_1d + t_end_1d) / 2.0
+
+        # === Step 1: Half-step predictor (Exp-Euler from t_start to t_mid) ===
+        sigma_start = self.noise(t_start_1d)[0]   # [B]
+        sigma_mid = self.noise(t_mid)[0]           # [B]
+        sigma_end = self.noise(t_end_1d)[0]        # [B]
+
+        dsigma_half = sigma_start - sigma_mid       # [B]
+
+        # Score at start
+        score_start = score_fn(x, sigma_start)      # [B, L, V]
+
+        # Analytic half-step
+        dsigma_half_exp = dsigma_half[:, None]
+        stag_half = self.graph.staggered_score(score_start, dsigma_half_exp)
+        probs_half = stag_half * self.graph.transp_transition(x, dsigma_half_exp)
+        probs_half = probs_half.clamp(min=0)
+        probs_half = probs_half / (probs_half.sum(dim=-1, keepdim=True) + 1e-10)
+
+        # Sample midpoint state
+        x_mid = sample_categorical(probs_half, method="hard")
+
+        # === Step 2: Full step using midpoint score (Exp-Euler from t_start to t_end, with s₂) ===
+        # Score at midpoint (the key improvement: this score is more representative)
+        score_mid = score_fn(x_mid, sigma_mid)       # [B, L, V]
+
+        # Full analytic step from original x using midpoint score
+        dsigma_full = sigma_start - sigma_end         # [B]
+        dsigma_full_exp = dsigma_full[:, None]
+        stag_full = self.graph.staggered_score(score_mid, dsigma_full_exp)
+        probs_final = stag_full * self.graph.transp_transition(x, dsigma_full_exp)
+        probs_final = probs_final.clamp(min=0)
+        probs_final = probs_final / (probs_final.sum(dim=-1, keepdim=True) + 1e-10)
+
+        return probs_final
+
     def compute_teacher_distributions(
         self,
         teacher_score_fn,
@@ -215,6 +356,7 @@ class DPerflowTrainer:
         t_k: torch.Tensor,
         t_k_minus_1: torch.Tensor,
         euler_steps: int = 1,
+        teacher_method: str = "euler",
     ):
         """
         Compute teacher distributions at window boundaries.
@@ -224,7 +366,11 @@ class DPerflowTrainer:
             x_t_k: Noisy state at window start [B, L]
             t_k: Window upper boundary time [B, 1]
             t_k_minus_1: Window lower boundary time [B, 1]
-            euler_steps: Number of Euler steps for ODE solving
+            euler_steps: Number of steps for Euler/Analytic methods
+            teacher_method: Which method to compute P_{t_{k-1}}:
+                - "euler": Euler ODE solver (I + dt*Q, Taylor approximation)
+                - "analytic": Analytic multi-step (exact exp(ΔσQ), 1st-order Exp Integrator)
+                - "exp_midpoint": Exponential Midpoint (2nd-order Exp Integrator, 2 evals)
 
         Returns:
             P_t_k: Distribution at window start [B, L, V]
@@ -236,10 +382,21 @@ class DPerflowTrainer:
             teacher_score_fn, x_t_k, t_k, delta_t_tensor
         )
 
-        # B. Compute target distribution P_{t_{k-1}} using Euler ODE solver
-        P_t_k_minus_1 = self.compute_euler_distribution(
-            teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=euler_steps
-        )
+        # B. Compute target distribution P_{t_{k-1}}
+        if teacher_method == "euler":
+            P_t_k_minus_1 = self.compute_euler_distribution(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=euler_steps
+            )
+        elif teacher_method == "analytic":
+            P_t_k_minus_1 = self.compute_analytic_multi_step(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=euler_steps
+            )
+        elif teacher_method == "exp_midpoint":
+            P_t_k_minus_1 = self.compute_exp_midpoint_distribution(
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1
+            )
+        else:
+            raise ValueError(f"Unknown teacher_method: {teacher_method}")
 
         return P_t_k, P_t_k_minus_1
 
@@ -433,6 +590,7 @@ def get_d_perflow_loss_fn(
     lambda_rev_kl: float = 0.0,
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
+    teacher_method: str = "euler",
 ):
     """
     Create the D-PeRFlow loss function.
@@ -519,7 +677,8 @@ def get_d_perflow_loss_fn(
         # 3. Teacher computes target distribution P_{t_{k-1}} via multi-step Euler
         with torch.no_grad():
             _, P_t_k_minus_1 = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
+                teacher_method=teacher_method,
             )
 
         # 4. Student: 1-step Euler using student's scores
@@ -620,6 +779,7 @@ def get_d_perflow_step_fn(
     lambda_rev_kl: float = 0.0,
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
+    teacher_method: str = "euler",
 ):
     """
     Create the D-PeRFlow training step function.
@@ -658,6 +818,7 @@ def get_d_perflow_step_fn(
         lambda_rev_kl=lambda_rev_kl,
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
+        teacher_method=teacher_method,
     )
 
     accum_iter = 0

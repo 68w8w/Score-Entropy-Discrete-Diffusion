@@ -229,6 +229,8 @@ def _run(rank, world_size, cfg):
         ).to(device)
         mprint(f"Perceptual loss: GPT-2 layers {list(perceptual_layers)}, type={perceptual_loss_type}")
 
+    teacher_method = cfg.d_perflow.get('teacher_method', 'euler')
+
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
         graph=graph,
@@ -245,6 +247,7 @@ def _run(rank, world_size, cfg):
         lambda_rev_kl=lambda_rev_kl,
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
+        teacher_method=teacher_method,
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -263,6 +266,7 @@ def _run(rank, world_size, cfg):
         lambda_rev_kl=lambda_rev_kl,
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
+        teacher_method=teacher_method,
     )
 
     # D-PeRFlow sampler for snapshot sampling
@@ -281,7 +285,7 @@ def _run(rank, world_size, cfg):
     num_train_steps = cfg.training.n_iters
     mprint(f"Starting D-PeRFlow (pure KL) training at step {initial_step}.")
     mprint(f"Number of time windows: {cfg.d_perflow.num_time_windows}")
-    mprint(f"Euler steps (teacher): {cfg.d_perflow.euler_steps}")
+    mprint(f"Teacher method: {teacher_method} (steps: {cfg.d_perflow.euler_steps})")
     mprint(f"Reverse KL weight (lambda_rev_kl): {lambda_rev_kl}")
     mprint(f"Perceptual loss weight (lambda_perceptual): {lambda_perceptual}")
     loss_str = "fwd_KL"
