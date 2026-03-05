@@ -230,6 +230,7 @@ def _run(rank, world_size, cfg):
         mprint(f"Perceptual loss: GPT-2 layers {list(perceptual_layers)}, type={perceptual_loss_type}")
 
     teacher_method = cfg.d_perflow.get('teacher_method', 'euler')
+    student_method = cfg.d_perflow.get('student_method', 'analytic')
 
     train_step_fn = d_perflow.get_d_perflow_step_fn(
         noise=noise,
@@ -247,6 +248,7 @@ def _run(rank, world_size, cfg):
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
         teacher_method=teacher_method,
+        student_method=student_method,
     )
 
     eval_step_fn = d_perflow.get_d_perflow_step_fn(
@@ -265,6 +267,7 @@ def _run(rank, world_size, cfg):
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
         teacher_method=teacher_method,
+        student_method=student_method,
     )
 
     # D-PeRFlow sampler for snapshot sampling

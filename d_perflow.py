@@ -765,6 +765,7 @@ def get_d_perflow_loss_fn(
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
     teacher_method: str = "euler",
+    student_method: str = "analytic",
 ):
     """
     Create the D-PeRFlow loss function.
@@ -784,6 +785,9 @@ def get_d_perflow_loss_fn(
         lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
         lambda_perceptual: Weight for perceptual loss (0 = disabled)
         perceptual_loss_fn: GPT2PerceptualLoss instance (required if lambda_perceptual > 0)
+        student_method: Method for student distribution computation:
+            - "euler": Taylor approximation I + dt*Q (fast)
+            - "analytic": Exact exp(ΔσQ) (more accurate, recommended)
 
     Returns:
         loss_fn: Loss function that takes (model, batch) and returns loss
@@ -861,11 +865,16 @@ def get_d_perflow_loss_fn(
             P_t = trainer.interpolate_distribution(P_t_k, P_t_k_minus_1, t, t_k, t_k_minus_1)
             x_t = trainer.resample_from_distribution(P_t)
 
-        # 6. Student: 1-step Euler from x_t at time t to t_{k-1}
+        # 6. Student: 1-step from x_t at time t to t_{k-1}
         student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
-        P_student = trainer.compute_euler_distribution(
-            student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
-        )
+        if student_method == "analytic":
+            P_student = trainer.compute_analytic_multi_step(
+                student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
+            )
+        else:
+            P_student = trainer.compute_euler_distribution(
+                student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
+            )
 
         # 7. Forward KL divergence loss: KL(P_target || P_student)
         loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
@@ -956,6 +965,7 @@ def get_d_perflow_step_fn(
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
     teacher_method: str = "euler",
+    student_method: str = "analytic",
 ):
     """
     Create the D-PeRFlow training step function.
@@ -975,6 +985,7 @@ def get_d_perflow_step_fn(
         lambda_rev_kl: Weight for reverse KL loss (0 = disabled)
         lambda_perceptual: Weight for perceptual loss (0 = disabled)
         perceptual_loss_fn: GPT2PerceptualLoss instance (required if lambda_perceptual > 0)
+        student_method: "euler" or "analytic" for student distribution computation
 
     Returns:
         step_fn: Training step function
@@ -993,6 +1004,7 @@ def get_d_perflow_step_fn(
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
         teacher_method=teacher_method,
+        student_method=student_method,
     )
 
     accum_iter = 0
@@ -1092,17 +1104,17 @@ class DPerflowSampler:
             t_start = t_k * torch.ones(batch_dims[0], device=device)
             t_end = t_k_minus_1 * torch.ones(batch_dims[0], device=device)
 
-            # Compute 1-step Euler from t_k to t_{k-1}
-            # This is the SAME mechanism used during training
-            dt = t_start - t_end  # [B]
-            sigma, dsigma = self.noise(t_start)  # Both [B]
-            score = score_fn(x, sigma)  # [B, L, V] - true scores
+            # Compute 1-step analytic predictor from t_k to t_{k-1}
+            # Uses exact matrix exponential exp(ΔσQ) instead of Taylor approx I + dt*Q
+            sigma_start = self.noise(t_start)[0]  # [B]
+            sigma_end = self.noise(t_end)[0]       # [B]
+            dsigma = sigma_start - sigma_end       # [B]
 
-            # SEDD native Euler step: probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
-            scale = (dt * dsigma)[:, None, None]  # [B, 1, 1]
-            rev_rate = scale * self.graph.reverse_rate(x, score)  # [B, L, V]
-            one_hot_current = F.one_hot(x, num_classes=self.graph.dim).float()
-            probs = one_hot_current + rev_rate
+            score = score_fn(x, sigma_start)  # [B, L, V] - true scores
+
+            dsigma_expanded = dsigma[:, None]  # [B, 1]
+            stag_score = self.graph.staggered_score(score, dsigma_expanded)
+            probs = stag_score * self.graph.transp_transition(x, dsigma_expanded)
 
             # Clamp and normalize
             probs = probs.clamp(min=0)
@@ -1276,7 +1288,7 @@ def get_adversarial_d_perflow_loss_fn(
 
         # Student distribution (with gradients) from x_t at time t
         student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
-        P_student = trainer.compute_euler_distribution(
+        P_student = trainer.compute_analytic_multi_step(
             student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
         )
 

@@ -35,6 +35,11 @@ d_perflow:
   #   "exp_midpoint" - 2nd-order Exponential Integrator (2 score evals, best accuracy)
   teacher_method: euler
 
+  # Student method for computing student distribution:
+  #   "euler"    - Taylor approximation I + dt*Q (fast)
+  #   "analytic" - Exact exp(ΔσQ) (more accurate, recommended)
+  student_method: analytic
+
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0
 
