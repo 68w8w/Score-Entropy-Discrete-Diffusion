@@ -43,14 +43,12 @@ d_perflow:
   # Training temperature for softening distributions (1.0 = no scaling)
   train_temperature: 1.0
 
-  # Reverse KL weight: KL(P_student || P_teacher) for mode-seeking behavior
-  # 0.0 = pure forward KL only (mode-covering)
-  # 0.5 = balanced fwd_KL + rev_KL (recommended for distillation)
-  lambda_rev_kl: 0.5
-
-  # Perceptual loss: frozen GPT-2 feature distance
-  # 0.0 = disabled (pure KL only)
-  # 0.1 = recommended weight for perceptual loss
+  # Loss weights (all independently adjustable):
+  # Forward KL: KL(P_teacher || P_student) — mode-covering
+  lambda_fwd_kl: 1.0
+  # Reverse KL: KL(P_student || P_teacher) — mode-seeking
+  lambda_rev_kl: 0.0
+  # Perceptual: GPT-2 feature distance
   lambda_perceptual: 0.0
   perceptual_layers: [2, 5, 8, 11]  # GPT-2 layers to extract features from
   perceptual_loss_type: l2  # l2, cosine, or l1

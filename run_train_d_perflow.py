@@ -213,6 +213,7 @@ def _run(rank, world_size, cfg):
     debug_log_file = os.path.join(work_dir, 'debug_log.txt')
     mprint(f"Debug log will be saved to: {debug_log_file}")
 
+    lambda_fwd_kl = cfg.d_perflow.get('lambda_fwd_kl', 1.0)
     lambda_rev_kl = cfg.d_perflow.get('lambda_rev_kl', 0.0)
     lambda_perceptual = cfg.d_perflow.get('lambda_perceptual', 0.0)
 
@@ -244,6 +245,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
+        lambda_fwd_kl=lambda_fwd_kl,
         lambda_rev_kl=lambda_rev_kl,
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
@@ -263,6 +265,7 @@ def _run(rank, world_size, cfg):
         accum=cfg.training.accum,
         train_temperature=cfg.d_perflow.get('train_temperature', 1.0),
         debug_log_file=debug_log_file,
+        lambda_fwd_kl=lambda_fwd_kl,
         lambda_rev_kl=lambda_rev_kl,
         lambda_perceptual=lambda_perceptual,
         perceptual_loss_fn=perceptual_loss_fn,
