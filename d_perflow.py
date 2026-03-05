@@ -815,14 +815,13 @@ def get_d_perflow_loss_fn(
 
     def loss_fn(model, batch):
         """
-        Compute D-PeRFlow loss using Forward KL with SEDD native Euler steps.
+        Compute D-PeRFlow loss with window interpolation.
 
-        Teacher computes target distribution P_{t_{k-1}} via multi-step Euler.
-        Student computes distribution via 1-step Euler using its own scores.
-        Loss = KL(P_target || P_student)
-
-        This ensures training and inference use the SAME mechanism (Euler step),
-        eliminating the distribution shift that caused mode collapse with softmax.
+        1. Compute P_{t_k} (exact forward) and P_{t_{k-1}} (teacher denoised)
+        2. Sample random time t within window, interpolate to get P_t
+        3. Sample discrete x_t ~ P_t
+        4. Student denoises x_t from t to t_{k-1}
+        5. Loss = KL(P_{t_{k-1}} || P_student)
 
         Args:
             model: Student model
@@ -846,27 +845,32 @@ def get_d_perflow_loss_fn(
         with torch.no_grad():
             x_t_k = trainer.construct_noisy_state(batch, t_k)
 
-        # 3. Teacher computes target distribution P_{t_{k-1}} via multi-step Euler
+        # 3. Teacher computes distributions at both window boundaries
         with torch.no_grad():
-            _, P_t_k_minus_1 = trainer.compute_teacher_distributions(
+            P_t_k, P_t_k_minus_1 = trainer.compute_teacher_distributions(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
                 teacher_method=teacher_method,
                 x_0=batch,
             )
 
-        # 4. Student: 1-step Euler using student's scores
-        # This uses the SAME Euler mechanism as SEDD sampling:
-        #   probs = one_hot(x) + dt * dsigma * reverse_rate(x, score)
-        # The student's scores flow through this differentiably
+            # 4. Sample random time t within window [t_{k-1}, t_k]
+            u = torch.rand(batch_size, 1, device=device)  # [B, 1]
+            t = t_k_minus_1 + u * (t_k - t_k_minus_1)     # [B, 1]
+
+            # 5. Interpolate to get P_t, then sample discrete x_t
+            P_t = trainer.interpolate_distribution(P_t_k, P_t_k_minus_1, t, t_k, t_k_minus_1)
+            x_t = trainer.resample_from_distribution(P_t)
+
+        # 6. Student: 1-step Euler from x_t at time t to t_{k-1}
         student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
         P_student = trainer.compute_euler_distribution(
-            student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+            student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
         )
 
-        # 5. Forward KL divergence loss: KL(P_target || P_student)
+        # 7. Forward KL divergence loss: KL(P_target || P_student)
         loss = trainer.compute_kl_loss_probs(P_t_k_minus_1, P_student)
 
-        # 6. Reverse KL divergence loss: KL(P_student || P_target) (mode-seeking)
+        # 8. Reverse KL divergence loss: KL(P_student || P_target) (mode-seeking)
         if lambda_rev_kl > 0:
             rev_kl = trainer.compute_reverse_kl_loss_probs(P_t_k_minus_1, P_student)
             loss = loss + lambda_rev_kl * rev_kl
@@ -1257,20 +1261,26 @@ def get_adversarial_d_perflow_loss_fn(
         with torch.no_grad():
             x_t_k = trainer.construct_noisy_state(batch, t_k)
 
-        # Teacher distribution
+        # Teacher distributions at both boundaries
         with torch.no_grad():
-            _, P_teacher = trainer.compute_teacher_distributions(
+            P_t_k, P_teacher = trainer.compute_teacher_distributions(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
                 x_0=batch,
             )
 
-        # Student distribution (with gradients)
+            # Sample random time t within window, interpolate, resample
+            u = torch.rand(batch_size, 1, device=device)
+            t = t_k_minus_1 + u * (t_k - t_k_minus_1)
+            P_t = trainer.interpolate_distribution(P_t_k, P_teacher, t, t_k, t_k_minus_1)
+            x_t = trainer.resample_from_distribution(P_t)
+
+        # Student distribution (with gradients) from x_t at time t
         student_score_fn_wrapped = student_score_wrapper(model, train_mode=train)
         P_student = trainer.compute_euler_distribution(
-            student_score_fn_wrapped, x_t_k, t_k, t_k_minus_1, num_steps=1
+            student_score_fn_wrapped, x_t, t, t_k_minus_1, num_steps=1
         )
 
-        return P_teacher, P_student, x_t_k, t_k.squeeze(-1), k
+        return P_teacher, P_student, x_t, t.squeeze(-1), k
 
     def _write_debug(msg):
         """Helper to print and optionally write debug message to file."""
