@@ -72,7 +72,7 @@ def main():
     parser.add_argument("--seq_len", type=int, default=128)
     parser.add_argument("--num_time_windows", type=int, default=16,
                         help="K: number of time windows (larger = smaller steps = easier)")
-    parser.add_argument("--euler_steps", type=int, default=4,
+    parser.add_argument("--teacher_steps", type=int, default=4,
                         help="Number of sub-steps for Euler and Analytic methods")
     parser.add_argument("--num_batches", type=int, default=4,
                         help="Number of batches to average over")
@@ -131,7 +131,7 @@ def main():
     windows_to_test = list(range(1, K + 1))
 
     print(f"\n{'='*80}")
-    print(f"Comparing teacher methods: K={K}, euler_steps={args.euler_steps}")
+    print(f"Comparing teacher methods: K={K}, teacher_steps={args.teacher_steps}")
     print(f"{'='*80}\n")
 
     for window_k in windows_to_test:
@@ -158,14 +158,14 @@ def main():
 
                 # === Method 1: Euler ===
                 P_euler = trainer.compute_euler_distribution(
-                    score_fn, x_t_k, t_k, t_k_minus_1, num_steps=args.euler_steps
+                    score_fn, x_t_k, t_k, t_k_minus_1, num_steps=args.teacher_steps
                 )
                 metrics_euler = compute_metrics(P_euler, x_0, "euler")
                 window_results["euler"].append(metrics_euler)
 
                 # === Method 2: Analytic multi-step ===
                 P_analytic = trainer.compute_analytic_multi_step(
-                    score_fn, x_t_k, t_k, t_k_minus_1, num_steps=args.euler_steps
+                    score_fn, x_t_k, t_k, t_k_minus_1, num_steps=args.teacher_steps
                 )
                 metrics_analytic = compute_metrics(P_analytic, x_0, "analytic")
                 window_results["analytic"].append(metrics_analytic)

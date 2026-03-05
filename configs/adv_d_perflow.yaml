@@ -25,7 +25,7 @@ d_perflow:
   init_from_teacher: True
   num_time_windows: 4
   sampling_eps: 1e-3
-  euler_steps: 1
+  teacher_steps: 1
   train_temperature: 1.0
 
 # Adversarial distillation settings (v3)

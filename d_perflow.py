@@ -6,7 +6,7 @@ The algorithm trains a student model to match teacher distributions at time wind
 enabling few-step generation.
 
 Key Components:
-- Teacher distribution computation using AnalyticPredictor and EulerPredictor logic
+- Teacher distribution computation using AnalyticPredictor logic (default) with EulerPredictor fallback
 - Distribution interpolation for intermediate timesteps
 - KL divergence loss between student predictions and teacher targets
 """
@@ -518,8 +518,8 @@ class DPerflowTrainer:
         x_t_k: torch.Tensor,
         t_k: torch.Tensor,
         t_k_minus_1: torch.Tensor,
-        euler_steps: int = 1,
-        teacher_method: str = "euler",
+        teacher_steps: int = 1,
+        teacher_method: str = "analytic",
         x_0: torch.Tensor = None,
     ):
         """
@@ -530,7 +530,7 @@ class DPerflowTrainer:
             x_t_k: Noisy state at window start [B, L]
             t_k: Window upper boundary time [B, 1]
             t_k_minus_1: Window lower boundary time [B, 1]
-            euler_steps: Number of steps for Euler/Analytic methods
+            teacher_steps: Number of teacher sub-steps per window
             teacher_method: Which method to compute P_{t_{k-1}}:
                 - "euler": Euler ODE solver (I + dt*Q, Taylor approximation)
                 - "analytic": Analytic multi-step (exact exp(ΔσQ), 1st-order Exp Integrator)
@@ -552,11 +552,11 @@ class DPerflowTrainer:
         # B. Compute target distribution P_{t_{k-1}}
         if teacher_method == "euler":
             P_t_k_minus_1 = self.compute_euler_distribution(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=euler_steps
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=teacher_steps
             )
         elif teacher_method == "analytic":
             P_t_k_minus_1 = self.compute_analytic_multi_step(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=euler_steps
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, num_steps=teacher_steps
             )
         elif teacher_method == "exp_midpoint":
             P_t_k_minus_1 = self.compute_exp_midpoint_distribution(
@@ -757,7 +757,7 @@ def get_d_perflow_loss_fn(
     teacher_model,
     num_time_windows: int = 4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 1,
     train: bool = True,
     train_temperature: float = 1.0,
     debug_log_file: str = None,
@@ -765,7 +765,7 @@ def get_d_perflow_loss_fn(
     lambda_rev_kl: float = 0.0,
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
-    teacher_method: str = "euler",
+    teacher_method: str = "analytic",
     student_method: str = "analytic",
 ):
     """
@@ -777,7 +777,7 @@ def get_d_perflow_loss_fn(
         teacher_model: Pre-trained teacher model
         num_time_windows: Number of time windows K
         sampling_eps: Small epsilon to avoid t=0
-        euler_steps: Number of Euler steps per window
+        teacher_steps: Number of teacher sub-steps per window
         train: Whether in training mode
         train_temperature: Temperature for softening distributions during training
                           Higher temperature = softer distributions = more diverse outputs
@@ -854,7 +854,7 @@ def get_d_perflow_loss_fn(
         # 3. Teacher computes distributions at both window boundaries
         with torch.no_grad():
             P_t_k, P_t_k_minus_1 = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, teacher_steps,
                 teacher_method=teacher_method,
                 x_0=batch,
             )
@@ -929,7 +929,7 @@ def get_d_perflow_loss_fn(
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     debug_msg = (
                         f"\n[DEBUG Step {loss_fn.debug_step}] {timestamp}\n"
-                        f"  Method: SEDD native Euler (1-step student, {euler_steps}-step teacher)\n"
+                        f"  Method: SEDD native (1-step student, {teacher_steps}-step teacher)\n"
                         f"  Avg window k: {k_mean:.1f}/{num_time_windows}\n"
                         f"  Teacher: entropy={teacher_entropy:.4f}, unique_argmax={teacher_unique:.1f}/{seq_len}\n"
                         f"  Student: entropy={student_entropy:.4f}, unique_argmax={student_unique:.1f}/{seq_len}\n"
@@ -959,7 +959,7 @@ def get_d_perflow_step_fn(
     teacher_model,
     num_time_windows: int = 4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 1,
     train: bool = True,
     optimize_fn=None,
     accum: int = 1,
@@ -969,7 +969,7 @@ def get_d_perflow_step_fn(
     lambda_rev_kl: float = 0.0,
     lambda_perceptual: float = 0.0,
     perceptual_loss_fn=None,
-    teacher_method: str = "euler",
+    teacher_method: str = "analytic",
     student_method: str = "analytic",
 ):
     """
@@ -981,7 +981,7 @@ def get_d_perflow_step_fn(
         teacher_model: Pre-trained teacher model
         num_time_windows: Number of time windows
         sampling_eps: Epsilon to avoid t=0
-        euler_steps: Euler steps per window
+        teacher_steps: Number of teacher sub-steps per window
         train: Training mode flag
         optimize_fn: Optimization function
         accum: Gradient accumulation steps
@@ -1002,7 +1002,7 @@ def get_d_perflow_step_fn(
         teacher_model=teacher_model,
         num_time_windows=num_time_windows,
         sampling_eps=sampling_eps,
-        euler_steps=euler_steps,
+        teacher_steps=teacher_steps,
         train=train,
         train_temperature=train_temperature,
         debug_log_file=debug_log_file,
@@ -1102,7 +1102,7 @@ class DPerflowSampler:
         # Start from pure noise (all masks for absorbing graph)
         x = self.graph.sample_limit(*batch_dims).to(device)
 
-        # Sample through each window in reverse order using Euler steps
+        # Sample through each window in reverse order
         for k in range(self.num_time_windows, 0, -1):
             t_k = self.time_boundaries[k].to(device)
             t_k_minus_1 = self.time_boundaries[k - 1].to(device)
@@ -1216,7 +1216,7 @@ def get_adversarial_d_perflow_loss_fn(
     adv_loss_module,
     num_time_windows: int = 4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 1,
     train: bool = True,
     debug_log_file: str = None,
     lambda_rev_kl: float = 0.0,
@@ -1235,7 +1235,7 @@ def get_adversarial_d_perflow_loss_fn(
         adv_loss_module: AdversarialDistillationLoss instance
         num_time_windows: Number of time windows K
         sampling_eps: Small epsilon to avoid t=0
-        euler_steps: Number of Euler steps per window
+        teacher_steps: Number of teacher sub-steps per window
         train: Whether in training mode
         debug_log_file: Path to save debug logs
         lambda_rev_kl: Weight for reverse KL loss (mode-seeking signal)
@@ -1283,7 +1283,7 @@ def get_adversarial_d_perflow_loss_fn(
         # Teacher distributions at both boundaries
         with torch.no_grad():
             P_t_k, P_teacher = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, teacher_steps,
                 x_0=batch,
             )
 
@@ -1431,7 +1431,7 @@ def get_adversarial_d_perflow_loss_fn(
                         f"\n{'='*80}\n"
                         f"[ADV-GEN Step {generator_loss_fn.debug_step}] {timestamp}\n"
                         f"{'='*80}\n"
-                        f"  Config: Adversarial D-PeRFlow | 1-step student | {euler_steps}-step teacher\n"
+                        f"  Config: Adversarial D-PeRFlow | 1-step student | {teacher_steps}-step teacher\n"
                         f"  Lambda_adv: {metrics['lambda_adv']} | Lambda_gpt2: {metrics.get('lambda_gpt2_adv', 0)} | Lambda_rev_kl: {metrics.get('lambda_rev_kl', 0)}\n"
                         f"\n  --- Loss Breakdown ---\n"
                         f"  Fwd KL:     {metrics['gen_fwd_kl_loss']:.6f}  (min={kl_min:.4f} max={kl_max:.4f} std={kl_std:.4f})\n"
@@ -1540,7 +1540,7 @@ def get_adversarial_d_perflow_step_fn(
     adv_loss_module,
     num_time_windows: int = 4,
     sampling_eps: float = 1e-3,
-    euler_steps: int = 1,
+    teacher_steps: int = 1,
     train: bool = True,
     optimize_fn=None,
     disc_optimizer=None,
@@ -1563,7 +1563,7 @@ def get_adversarial_d_perflow_step_fn(
         adv_loss_module: AdversarialDistillationLoss instance
         num_time_windows: Number of time windows
         sampling_eps: Epsilon to avoid t=0
-        euler_steps: Euler steps per window
+        teacher_steps: Number of teacher sub-steps per window
         train: Training mode flag
         optimize_fn: Optimization function for student
         disc_optimizer: Optimizer for discriminator
@@ -1582,7 +1582,7 @@ def get_adversarial_d_perflow_step_fn(
         adv_loss_module=adv_loss_module,
         num_time_windows=num_time_windows,
         sampling_eps=sampling_eps,
-        euler_steps=euler_steps,
+        teacher_steps=teacher_steps,
         train=train,
         debug_log_file=debug_log_file,
         lambda_rev_kl=lambda_rev_kl,

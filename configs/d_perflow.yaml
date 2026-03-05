@@ -25,15 +25,15 @@ d_perflow:
   # Small epsilon to avoid t=0 numerical issues
   sampling_eps: 1e-3
 
-  # Number of steps per window for ODE solver (used by euler and analytic methods)
+  # Number of teacher sub-steps per window for computing target distribution
   # More steps = more accurate teacher distribution but slower
-  euler_steps: 1
+  teacher_steps: 1
 
   # Teacher method for computing target distribution P_{t_{k-1}}:
-  #   "euler"        - Taylor approximation I + dt*Q (original, fast but less accurate)
-  #   "analytic"     - Exact exp(ΔσQ) multi-step (1st-order Exponential Integrator)
+  #   "analytic"     - Exact exp(ΔσQ) multi-step (1st-order Exponential Integrator, recommended)
+  #   "euler"        - Taylor approximation I + dt*Q (fast but less accurate)
   #   "exp_midpoint" - 2nd-order Exponential Integrator (2 score evals, best accuracy)
-  teacher_method: euler
+  teacher_method: analytic
 
   # Student method for computing student distribution:
   #   "euler"    - Taylor approximation I + dt*Q (fast)
