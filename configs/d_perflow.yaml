@@ -22,9 +22,6 @@ d_perflow:
   # K=4 means 4-step generation, K=8 means 8-step, etc.
   num_time_windows: 4
 
-  # Infinitesimal step for computing start distribution P_{t_k}
-  delta_t: 1e-4
-
   # Small epsilon to avoid t=0 numerical issues
   sampling_eps: 1e-3
 

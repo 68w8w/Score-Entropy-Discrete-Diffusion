@@ -32,7 +32,6 @@ class DPerflowTrainer:
         graph,
         noise,
         num_time_windows: int = 4,
-        delta_t: float = 1e-4,
         sampling_eps: float = 1e-3,
     ):
         """
@@ -40,13 +39,11 @@ class DPerflowTrainer:
             graph: The discrete graph structure (Absorbing or Uniform)
             noise: The noise schedule module
             num_time_windows: Number of time windows K (default: 4 for 4-step generation)
-            delta_t: Infinitesimal step for computing start distribution (default: 1e-4)
             sampling_eps: Small epsilon to avoid t=0 numerical issues (default: 1e-3)
         """
         self.graph = graph
         self.noise = noise
         self.num_time_windows = num_time_windows
-        self.delta_t = delta_t
         self.sampling_eps = sampling_eps
 
         # Precompute time window boundaries: [eps, t_1, t_2, ..., t_{K-1}, 1.0]
@@ -92,6 +89,52 @@ class DPerflowTrainer:
         sigma_t_k_expanded = sigma_t_k[:, None]  # [B, 1]
         x_t_k = self.graph.sample_transition(x_0, sigma_t_k_expanded)
         return x_t_k
+
+    def compute_forward_distribution(
+        self,
+        x_0: torch.Tensor,
+        t: torch.Tensor,
+    ):
+        """
+        Compute the exact forward process distribution q(x_t | x_0).
+
+        This is the TRUE marginal distribution at time t conditioned on x_0,
+        computed analytically from the forward process without any neural network.
+
+        For Absorbing graph:
+            q(x_t = v | x_0) = exp(-σ(t)) * δ(v, x_0) + (1-exp(-σ(t))) * δ(v, MASK)
+
+        For Uniform graph:
+            q(x_t = v | x_0) = exp(-σ(t)) * δ(v, x_0) + (1-exp(-σ(t))) / V
+
+        Args:
+            x_0: Original clean data [B, L]
+            t: Time [B] or [B, 1]
+
+        Returns:
+            probs: Forward process distribution [B, L, V]
+        """
+        t_1d = t.squeeze(-1) if t.dim() > 1 else t
+        sigma = self.noise(t_1d)[0]  # [B]
+        sigma_expanded = sigma[:, None]  # [B, 1]
+
+        V = self.graph.dim
+        stay_prob = (-sigma_expanded).exp()  # [B, 1] — probability of staying at x_0
+
+        # One-hot of x_0: [B, L, V]
+        one_hot_x0 = F.one_hot(x_0, num_classes=V).float()
+
+        if self.graph.absorb:
+            # Absorbing: move to MASK state (last dim) with prob 1-exp(-σ)
+            mask_one_hot = F.one_hot(
+                torch.full_like(x_0, V - 1), num_classes=V
+            ).float()
+            probs = stay_prob.unsqueeze(-1) * one_hot_x0 + (1 - stay_prob).unsqueeze(-1) * mask_one_hot
+        else:
+            # Uniform: move to any state uniformly with prob (1-exp(-σ))/V
+            probs = stay_prob.unsqueeze(-1) * one_hot_x0 + (1 - stay_prob).unsqueeze(-1) / V
+
+        return probs
 
     def compute_analytic_distribution(
         self,
@@ -477,6 +520,7 @@ class DPerflowTrainer:
         t_k_minus_1: torch.Tensor,
         euler_steps: int = 1,
         teacher_method: str = "euler",
+        x_0: torch.Tensor = None,
     ):
         """
         Compute teacher distributions at window boundaries.
@@ -493,16 +537,17 @@ class DPerflowTrainer:
                 - "exp_midpoint": Exponential Midpoint (2nd-order, t-space midpoint)
                 - "exp_midpoint_sigma": Exponential Midpoint with σ-space adaptive midpoint
                 - "exp_corrector": Predictor-Corrector / Heun's method (2nd-order, trapezoidal)
+            x_0: Original clean data [B, L]. If provided, computes P_t_k using
+                the exact forward distribution q(x_{t_k} | x_0) instead of the
+                delta_t approximation.
 
         Returns:
             P_t_k: Distribution at window start [B, L, V]
             P_t_k_minus_1: Target distribution at window end [B, L, V]
         """
-        # A. Compute start distribution P_{t_k} using analytic predictor with small step
-        delta_t_tensor = torch.full_like(t_k, self.delta_t)
-        P_t_k = self.compute_analytic_distribution(
-            teacher_score_fn, x_t_k, t_k, delta_t_tensor
-        )
+        # A. Compute start distribution P_{t_k}
+        # Use exact forward process distribution q(x_{t_k} | x_0) — no neural network needed
+        P_t_k = self.compute_forward_distribution(x_0, t_k)
 
         # B. Compute target distribution P_{t_{k-1}}
         if teacher_method == "euler":
@@ -711,7 +756,6 @@ def get_d_perflow_loss_fn(
     graph,
     teacher_model,
     num_time_windows: int = 4,
-    delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
     euler_steps: int = 1,
     train: bool = True,
@@ -730,7 +774,6 @@ def get_d_perflow_loss_fn(
         graph: Graph structure (Absorbing or Uniform)
         teacher_model: Pre-trained teacher model
         num_time_windows: Number of time windows K
-        delta_t: Small step for analytic distribution computation
         sampling_eps: Small epsilon to avoid t=0
         euler_steps: Number of Euler steps per window
         train: Whether in training mode
@@ -749,7 +792,6 @@ def get_d_perflow_loss_fn(
         graph=graph,
         noise=noise,
         num_time_windows=num_time_windows,
-        delta_t=delta_t,
         sampling_eps=sampling_eps,
     )
 
@@ -809,6 +851,7 @@ def get_d_perflow_loss_fn(
             _, P_t_k_minus_1 = trainer.compute_teacher_distributions(
                 teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
                 teacher_method=teacher_method,
+                x_0=batch,
             )
 
         # 4. Student: 1-step Euler using student's scores
@@ -898,7 +941,6 @@ def get_d_perflow_step_fn(
     graph,
     teacher_model,
     num_time_windows: int = 4,
-    delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
     euler_steps: int = 1,
     train: bool = True,
@@ -919,7 +961,6 @@ def get_d_perflow_step_fn(
         graph: Graph structure
         teacher_model: Pre-trained teacher model
         num_time_windows: Number of time windows
-        delta_t: Small step for analytic distribution
         sampling_eps: Epsilon to avoid t=0
         euler_steps: Euler steps per window
         train: Training mode flag
@@ -939,7 +980,6 @@ def get_d_perflow_step_fn(
         graph=graph,
         teacher_model=teacher_model,
         num_time_windows=num_time_windows,
-        delta_t=delta_t,
         sampling_eps=sampling_eps,
         euler_steps=euler_steps,
         train=train,
@@ -1152,7 +1192,6 @@ def get_adversarial_d_perflow_loss_fn(
     teacher_model,
     adv_loss_module,
     num_time_windows: int = 4,
-    delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
     euler_steps: int = 1,
     train: bool = True,
@@ -1172,7 +1211,6 @@ def get_adversarial_d_perflow_loss_fn(
         teacher_model: Pre-trained teacher model
         adv_loss_module: AdversarialDistillationLoss instance
         num_time_windows: Number of time windows K
-        delta_t: Small step for analytic distribution computation
         sampling_eps: Small epsilon to avoid t=0
         euler_steps: Number of Euler steps per window
         train: Whether in training mode
@@ -1187,7 +1225,6 @@ def get_adversarial_d_perflow_loss_fn(
         graph=graph,
         noise=noise,
         num_time_windows=num_time_windows,
-        delta_t=delta_t,
         sampling_eps=sampling_eps,
     )
 
@@ -1223,7 +1260,8 @@ def get_adversarial_d_perflow_loss_fn(
         # Teacher distribution
         with torch.no_grad():
             _, P_teacher = trainer.compute_teacher_distributions(
-                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps
+                teacher_score_fn, x_t_k, t_k, t_k_minus_1, euler_steps,
+                x_0=batch,
             )
 
         # Student distribution (with gradients)
@@ -1472,7 +1510,6 @@ def get_adversarial_d_perflow_step_fn(
     teacher_model,
     adv_loss_module,
     num_time_windows: int = 4,
-    delta_t: float = 1e-4,
     sampling_eps: float = 1e-3,
     euler_steps: int = 1,
     train: bool = True,
@@ -1496,7 +1533,6 @@ def get_adversarial_d_perflow_step_fn(
         teacher_model: Pre-trained teacher model
         adv_loss_module: AdversarialDistillationLoss instance
         num_time_windows: Number of time windows
-        delta_t: Small step for analytic distribution
         sampling_eps: Epsilon to avoid t=0
         euler_steps: Euler steps per window
         train: Training mode flag
@@ -1516,7 +1552,6 @@ def get_adversarial_d_perflow_step_fn(
         teacher_model=teacher_model,
         adv_loss_module=adv_loss_module,
         num_time_windows=num_time_windows,
-        delta_t=delta_t,
         sampling_eps=sampling_eps,
         euler_steps=euler_steps,
         train=train,

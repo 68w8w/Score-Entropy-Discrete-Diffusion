@@ -24,7 +24,6 @@ d_perflow:
   teacher_checkpoint: null
   init_from_teacher: True
   num_time_windows: 4
-  delta_t: 1e-4
   sampling_eps: 1e-3
   euler_steps: 1
   train_temperature: 1.0
