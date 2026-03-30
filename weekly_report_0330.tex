@@ -1,0 +1,187 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\title{Weekly Report}
+\author{Wu Lingdan}
+\date{March 30, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Past work (week of 03/23)}
+
+\subsection{Recap and problem statement}
+
+As reported last week, the adversarial training scheme described in Algorithm~\ref{alg:adv_training_prev} did not provide a measurable improvement over the base KL-only distillation objective. Both the adversarial and KL-only configurations achieved comparable perplexity trajectories (best PPL $\approx$ 215) under the 2-step Euler, 16-window setting. This section presents a detailed diagnosis of the discriminator failure mode and the corrective measures attempted during this week.
+
+To enable this diagnosis, we first instrumented the training loop with comprehensive real-time logging of discriminator metrics, including per-step token-level and sequence-level accuracy, discriminator logit statistics, gradient norms, and distributional quality measures such as JS divergence and L2 distance between teacher and student distributions.
+
+\subsection{Diagnosis: discriminator collapse}
+
+Analysis of the 2000-step training log revealed that the discriminator was effectively non-functional throughout the entire training run. Table~\ref{tab:disc_collapse} summarizes the discriminator behavior over the course of training.
+
+\begin{table}[t]
+\centering
+\caption{Discriminator accuracy and logit statistics during the initial adversarial training run (before fixes). tok\_acc\_real: fraction of teacher samples correctly classified as real; tok\_acc\_fake: fraction of student samples correctly classified as fake; d\_gap: mean logit difference $D_\psi(P_\text{teacher}) - D_\psi(\hat{P})$.}
+\label{tab:disc_collapse}
+\begin{tabular}{ccccl}
+\toprule
+\textbf{Step} & \textbf{tok\_acc\_real} & \textbf{tok\_acc\_fake} & \textbf{d\_gap} & \textbf{Status} \\
+\midrule
+0--350     & 0.50 & 0.50 & $\approx 0.000$ & Random guessing \\
+450--1200  & 0.50 & 0.50 & $\approx 0.000$ & Still random \\
+1250       & 0.19 & 0.82 & $\approx 0.000$ & Collapse begins \\
+1350--2000 & 0.00 & 1.00 & $\approx 0.000$ & Fully collapsed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two observations confirm the collapse:
+\begin{enumerate}
+    \item \textbf{Logit gap $\approx 0$ throughout training.} The discriminator output $D_\psi(P)$ was nearly identical for teacher and student inputs at all steps, meaning it never learned to separate the two distributions. The sequence-level loss remained at approximately $1.3863 \approx 2\ln 2$, which is the binary cross-entropy of a random classifier.
+    \item \textbf{Degenerate accuracy pattern.} From step 1250 onward, tok\_acc\_real dropped to 0 while tok\_acc\_fake rose to 1. Since the logit gap remained zero, this indicates that the discriminator output collapsed to a constant negative value for all inputs, trivially predicting ``fake'' regardless of the input. This is not a sign of discriminative ability but of output mode collapse.
+\end{enumerate}
+
+As a consequence, the adversarial loss $\mathcal{L}_G = -\mathbb{E}[\log D_\psi(\hat{P}, t)]$ converged to a constant value of $\approx 1.386$ after the first 50 steps, providing zero gradient signal to the student model. The perplexity improvement observed in last week's report was therefore driven entirely by the KL divergence loss.
+
+\subsection{Root cause analysis}
+
+We identified three compounding issues that caused the discriminator to fail:
+
+\subsubsection{Gradient clipping too aggressive}
+
+The discriminator optimizer was configured with gradient clipping at $\texttt{max\_norm} = 1.0$. However, logged discriminator gradient norms were in the range of $3000$--$4000$ during normal training. Clipping from $\sim 3190$ to $1.0$ effectively reduced the discriminator's learning rate by a factor of $\sim 3190\times$, rendering gradient descent nearly stagnant. The discriminator parameters barely moved from initialization, explaining the persistent random-guessing behavior.
+
+\subsubsection{Raw probability input is uninformative}
+
+The discriminator received raw probability distributions $P \in [0,1]^{L \times V}$ as input. Because the student model is initialized from the teacher weights and the two share similar score networks, their output distributions exhibit $> 97\%$ argmax agreement from the very first step. Table~\ref{tab:dist_quality} shows that the two distributions are nearly indistinguishable in probability space.
+
+\begin{table}[t]
+\centering
+\caption{Teacher--student distributional similarity over the course of training. The two distributions are very close throughout, making discrimination in probability space challenging.}
+\label{tab:dist_quality}
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Step} & \textbf{Argmax agr. (\%)} & \textbf{JS div.} & \textbf{$\ell_2$ dist.} & \textbf{Entropy ratio (S/T)} \\
+\midrule
+100  & 97.2 & 0.022 & 0.061 & 1.92 \\
+1000 & 97.0 & 0.020 & 0.062 & 1.87 \\
+2000 & 97.0 & 0.022 & 0.067 & 1.87 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+When these near-identical probability vectors are projected through a linear layer, the resulting features for teacher and student are virtually the same, leaving the discriminator with no learnable signal. The primary distributional difference lies in the tails: the student produces slightly more diffuse distributions (entropy ratio $\approx 1.87$), but this information is compressed away in probability space where the peak values dominate (teacher max prob $\approx 0.97$, student max prob $\approx 0.94$).
+
+\subsubsection{Label smoothing creates a degenerate optimum}
+
+The discriminator was trained with label smoothing of $0.1$, replacing the real label $1$ with $0.9$ and the fake label $0$ with $0.1$. When the real and fake inputs are nearly identical (as established above), the optimal discriminator strategy under label smoothing is to output a constant logit of $0$ for all inputs, yielding a loss of
+\begin{equation}
+\mathcal{L}_D = -0.9 \log(0.5) - 0.1 \log(0.5) - 0.1 \log(0.5) - 0.9 \log(0.5) = 2 \ln 2 \approx 1.3863,
+\end{equation}
+which matches the observed loss exactly. With this trivial solution being optimal, the discriminator has no incentive to learn meaningful features, and no useful gradient flows to the student.
+
+\subsection{Attempted fix: v1}
+
+Based on the diagnosis above, we applied the following three corrections simultaneously:
+
+\begin{enumerate}
+    \item \textbf{Relaxed gradient clipping.} Increased $\texttt{max\_norm}$ from $1.0$ to $10.0$, allowing the discriminator to take meaningful gradient steps while still preventing catastrophic gradient explosions.
+    \item \textbf{Log-probability input.} Replaced the raw probability input $P$ with log-probabilities $\log(P + 10^{-8})$ clamped to $[-20, 0]$. In log-space, the distributional tails are amplified relative to the peak, making subtle differences between teacher and student more salient. For example, a probability difference of $0.001$ vs.\ $0.002$ in the tail corresponds to a log-space gap of $\approx 0.69$, which is comparable in magnitude to the peak log-probability.
+    \item \textbf{Removed label smoothing.} Set $\texttt{label\_smoothing} = 0.0$ to eliminate the degenerate constant-output optimum, forcing the discriminator to actually separate real from fake to reduce its loss.
+\end{enumerate}
+
+Additionally, we applied two supplementary changes to improve discriminator training stability:
+\begin{itemize}
+    \item \textbf{Spectral normalization.} Applied spectral normalization to all linear layers of the discriminator. This constrains the Lipschitz constant of the discriminator function and has been shown to stabilize GAN training~\cite{miyato2018spectral}.
+    \item \textbf{Increased discriminator learning rate.} Raised $\texttt{disc\_lr}$ from $2 \times 10^{-4}$ to $1 \times 10^{-3}$ to compensate for the subtle nature of the input signal.
+\end{itemize}
+
+The full set of hyperparameter changes is summarized in Table~\ref{tab:v1_changes}.
+
+\begin{table}[t]
+\centering
+\caption{Summary of v1 changes compared to the initial adversarial configuration.}
+\label{tab:v1_changes}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Parameter} & \textbf{Before} & \textbf{After (v1)} \\
+\midrule
+Gradient clipping (max\_norm) & 1.0 & 10.0 \\
+Discriminator input & Raw probabilities $P$ & $\log(P + 10^{-8})$, clamped to $[-20, 0]$ \\
+Label smoothing & 0.1 & 0.0 \\
+Spectral normalization & No & Yes (all linear layers) \\
+Discriminator learning rate & $2 \times 10^{-4}$ & $1 \times 10^{-3}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{v1 experimental results}
+
+We trained the student model with the v1 adversarial configuration for 2000 steps under the same 2-step Euler, 16-window setting. The discriminator metrics are reported in Table~\ref{tab:v1_disc}.
+
+\begin{table}[t]
+\centering
+\caption{Discriminator metrics during v1 training. The discriminator initially improves but collapses again after step 1000, exhibiting the same degenerate pattern as the original configuration.}
+\label{tab:v1_disc}
+\begin{tabular}{cccccl}
+\toprule
+\textbf{Step} & \textbf{tok\_acc\_real} & \textbf{tok\_acc\_fake} & \textbf{d\_gap} & \textbf{adv\_loss} & \textbf{Status} \\
+\midrule
+0--200   & 0.50 & 0.50 & $\approx 0.00$ & $\approx 1.39$ & Random guessing \\
+400      & 0.55 & 0.54 & $+0.02$ & $1.35$ & Slight improvement \\
+600      & 0.52 & 0.51 & $+0.01$ & $1.37$ & Marginal \\
+800--1000  & 0.48 & 0.55 & $-0.01$ & $1.38$ & Deteriorating \\
+1200--2000 & 0.00 & 1.00 & $\approx 0.00$ & $1.39$ & Collapsed again \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The v1 changes produced a brief improvement in discriminator accuracy during steps 200--600, where tok\_acc\_real and tok\_acc\_fake both rose slightly above 0.5, and the logit gap became marginally positive. However, this improvement was transient. By step 1000 the discriminator reverted to near-random behavior, and by step 1200 it exhibited the same fully collapsed pattern as the original configuration --- predicting all inputs as fake with zero logit gap.
+
+The generation perplexity with the v1 adversarial configuration remained comparable to the KL-only baseline, confirming that the discriminator still failed to provide useful gradient signal to the student.
+
+\subsection{Analysis}
+
+The v1 fixes addressed the obvious failure modes (clipping, input space, label smoothing) but did not resolve the fundamental challenge: \textbf{the teacher and student distributions are too similar in the input space for a lightweight discriminator to separate}. Even in log-space, the projected features remain highly correlated because both distributions share $> 97\%$ argmax agreement and differ primarily in subtle entropy characteristics.
+
+The spectral normalization and increased learning rate provided some initial improvement, but the discriminator lacked the representational capacity and architectural inductive bias to detect the fine-grained distributional differences. The 4-block, 256-hidden transformer discriminator with a simple linear projection from $\log P \in \mathbb{R}^{L \times V}$ to $\mathbb{R}^{L \times 256}$ may compress away the tail-level information that the log-space transformation was designed to preserve.
+
+These findings motivate a more substantial architectural change in the discriminator design: rather than operating on raw or log-probability vectors, the discriminator should leverage a pretrained semantic feature space where the subtle distributional differences are more easily separable. This direction is explored in the next iteration.
+
+\section{Future work (week of 03/30)}
+
+Based on the v1 results, the discriminator architecture itself appears to be the bottleneck. For the coming week, we plan to replace the current discriminator with a \emph{Projected GAN}~\cite{sauer2021projected} style architecture. The key idea is to project both teacher and student probability distributions into the feature space of a frozen pretrained model (specifically, the teacher model's own embedding layer) before feeding them to the discriminator. This projection serves two purposes: (1) it reduces the input dimensionality from $V = 50258$ to the embedding dimension $d = 256$, making discrimination computationally more tractable; (2) it maps probability distributions into a semantically meaningful space where distributional differences may be more pronounced. We will also add spectral normalization to all discriminator layers following the Projected GAN recipe.
+
+\begin{thebibliography}{9}
+\bibitem{lin2024sdxl}
+Shanchuan Lin, Anran Wang, and Xiao Yang.
+SDXL-Lightning: progressive adversarial diffusion distillation.
+\textit{arXiv preprint arXiv:2402.13929}, 2024.
+
+\bibitem{miyato2018spectral}
+Takeru Miyato, Toshiki Kataoka, Masanori Koyama, and Yuichi Yoshida.
+Spectral normalization for generative adversarial networks.
+In \textit{ICLR}, 2018.
+
+\bibitem{sauer2021projected}
+Axel Sauer, Kashyap Chitta, Jens M{\"u}ller, and Andreas Geiger.
+Projected GANs converge faster.
+In \textit{NeurIPS}, 2021.
+
+\bibitem{sauer2025adversarial}
+Axel Sauer, Dominik Lorenz, Andreas Blattmann, and Robin Rombach.
+Adversarial diffusion distillation.
+In \textit{ECCV}, 2024.
+\end{thebibliography}
+
+\end{document}
